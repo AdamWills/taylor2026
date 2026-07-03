@@ -1,14 +1,16 @@
 ---
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/nunito-sans';
 import '../styles/global.css';
 
 interface Props {
-	title?: string;
+	title: string;
 	description?: string;
 }
 
 const {
-	title = 'Taylor the Turtle',
-	description = 'Taylor the Turtle and friends help children and the adults who love them talk about body safety, personal rights, and feeling safe.',
+	title,
+	description = 'Taylor the Turtle helps caring adults teach children about body rights, feelings, and safety — a community program of SAC Brant and Ganohkwasra.',
 } = Astro.props;
 ---
 
@@ -16,17 +18,18 @@ const {
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
-		<meta name="generator" content={Astro.generator} />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<title>{title}</title>
 	</head>
-	<body class="isolate m-0 min-h-dvh bg-warm-cream">
+	<body>
+		<a
+			href="#main"
+			class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-forest focus:px-5 focus:py-2.5 focus:font-bold focus:text-milk"
+		>
+			Skip to content
+		</a>
 		<slot />
 	</body>
 </html>
