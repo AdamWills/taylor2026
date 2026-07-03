@@ -14,9 +14,9 @@ const links = [
 			Taylor the Turtle<span class="text-ochre">.</span>
 		</a>
 
-		<nav class="hidden items-center gap-6 text-[14.5px] font-bold text-pine lg:flex" aria-label="Main">
+		<nav class="hidden items-center gap-6 text-[14.5px] font-bold text-forest lg:flex" aria-label="Main">
 			{links.map(({ href, label }) => (
-				<a class="hover:text-forest" href={href}>{label}</a>
+				<a class="hover:text-forest/70" href={href}>{label}</a>
 			))}
 			<a
 				href="/book-a-visit"
@@ -29,7 +29,7 @@ const links = [
 		<button
 			id="menu-toggle"
 			type="button"
-			class="rounded-full border-2 border-pine px-4 py-1.5 font-extrabold text-pine lg:hidden"
+			class="rounded-full border-2 border-forest px-4 py-1.5 font-extrabold text-forest lg:hidden"
 			aria-expanded="false"
 			aria-controls="mobile-nav"
 		>
@@ -40,13 +40,13 @@ const links = [
 	<nav
 		id="mobile-nav"
 		hidden
-		class="container-site flex flex-col gap-1 pb-5 text-[16px] font-bold text-pine lg:hidden"
+		class="container-site flex flex-col gap-1 pb-5 text-[16px] font-bold text-pine lg:hidden bg-white rounded-b-3xl shadow-sm"
 		aria-label="Main mobile"
 	>
 		{links.map(({ href, label }) => (
-			<a class="rounded-xl px-3 py-2.5 hover:bg-sage-tile" href={href}>{label}</a>
+			<a class="rounded-xl px-3 py-2.5 hover:bg-sage-tile hover:text-forest" href={href}>{label}</a>
 		))}
-		<a class="rounded-xl px-3 py-2.5 text-pine hover:bg-sage-tile" href="/book-a-visit">Book a Visit</a>
+		<a class="rounded-xl px-3 py-2.5 text-pine hover:bg-sage-tile hover:text-forest" href="/book-a-visit">Book a Visit</a>
 	</nav>
 </header>
 
