@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets';
+import { featuredTeachings } from '../../data/teachings';
+---
+
+<section class="bg-pine">
+	<div class="container-site py-14 lg:py-20">
+		<h2 class="display-tight text-center text-3xl text-milk lg:text-4xl">Taylor's Teachings</h2>
+		<p class="mx-auto mt-3 max-w-[60ch] text-center text-[15.5px] text-mist">
+			Ten simple rights, each one a conversation starter. Every teaching pairs an illustration
+			with language children can actually use.
+		</p>
+		<ul class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
+			{featuredTeachings.map(({ title, image }) => (
+				<li class="rounded-3xl bg-white p-6 text-center">
+					{image && (
+						<Image
+							src={image}
+							alt=""
+							class="mx-auto w-[70%]"
+							widths={[320, 640]}
+							sizes="(min-width: 640px) 300px, 60vw"
+						/>
+					)}
+					<h3 class="display-tight mt-3 text-lg text-balance">{title}</h3>
+				</li>
+			))}
+		</ul>
+		<p class="mt-8 text-center">
+			<a
+				href="/teachings"
+				class="border-b-2 border-mustard pb-0.5 font-extrabold text-milk hover:text-mustard"
+			>
+				See all 10 teachings →
+			</a>
+		</p>
+	</div>
+</section>

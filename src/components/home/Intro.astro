@@ -1,0 +1,30 @@
+---
+const facts = [
+	{ figure: '16 years', label: 'of collaboration' },
+	{ figure: '8 partners', label: 'in the community' },
+	{ figure: '10 teachings', label: 'for every child' },
+];
+---
+
+<section class="bg-white">
+	<div class="container-site grid gap-10 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-20">
+		<h2 class="display-tight text-3xl text-balance lg:text-4xl">A little turtle with a big message</h2>
+		<div>
+			<p class="text-forest/80">
+				Taylor the Turtle was created in 2010 as a community-built alternative to fear-based
+				prevention programs. Instead of "stranger danger," Taylor teaches through children's
+				rights, body awareness, and emotional literacy — developed by eight community partners
+				under the leadership of SAC Brant and Ganohkwasra Family Assault Support Services.
+			</p>
+			<dl class="mt-7 flex flex-wrap gap-4">
+				{facts.map(({ figure, label }) => (
+					<div class="rounded-2xl bg-sage-tile px-5 py-3.5">
+						<dt class="sr-only">{label}</dt>
+						<dd class="display-tight text-xl">{figure}</dd>
+						<dd class="text-[13px] text-forest/70">{label}</dd>
+					</div>
+				))}
+			</dl>
+		</div>
+	</div>
+</section>
