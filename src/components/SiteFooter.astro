@@ -1,0 +1,31 @@
+---
+const quickLinks = ['Meet Taylor & Friends', "Taylor's Teachings", 'Our Story', 'Events & Appearances', 'Resources & Downloads', 'Book a Visit'];
+const connectLinks = ['Instagram', 'Facebook', 'Email the team'];
+---
+
+<footer class="bg-deep-forest text-white">
+	<div class="container grid gap-12 py-16 md:grid-cols-[1.25fr_1fr_1fr]">
+		<div>
+			<h2 class="mb-4 font-display text-3xl font-semibold tracking-tight text-balance text-shell-gold">Taylor the Turtle</h2>
+			<p class="text-white/85">taylorsrights.ca</p>
+			<p class="mt-5 text-white/85">A program of the<br />Sexual Assault Centre of Brant<br />134 King George Road<br />Brantford, ON N3R 5K9</p>
+		</div>
+		<div>
+			<h3 class="mb-4 font-display text-xl font-semibold text-shell-gold">Quick Links</h3>
+			<ul role="list" class="grid gap-2.5">
+				{quickLinks.map((link) => <li><a class="text-white/85 hover:text-shell-gold" href="#">{link}</a></li>)}
+			</ul>
+		</div>
+		<div>
+			<h3 class="mb-4 font-display text-xl font-semibold text-shell-gold">Connect</h3>
+			<ul role="list" class="grid gap-2.5">
+				{connectLinks.map((link) => <li><a class="text-white/85 hover:text-shell-gold" href="#">{link}</a></li>)}
+			</ul>
+			<p class="mt-5 text-white/85"><strong class="font-display text-white">24-Hour Crisis &amp; Support Line (SAC Brant):</strong><br />519-751-3471</p>
+		</div>
+	</div>
+	<div class="flex flex-wrap justify-center gap-x-7 gap-y-3 bg-black/20 px-6 py-4 text-center text-[13px] text-white/75">
+		<p>Taylor the Turtle is on the territory of the Haudenosaunee, Anishinaabe, and Neutral Nations.</p>
+		<p>© 2026 Sexual Assault Centre of Brant. All rights reserved. Site by Adam Wills.</p>
+	</div>
+</footer>

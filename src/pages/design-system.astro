@@ -1,0 +1,1504 @@
+---
+const colors = [
+	{
+		role: 'Primary',
+		name: 'Taylor Green',
+		hex: '#7DC050',
+		className: 'swatch-green',
+		text: 'light',
+		copy: 'Primary buttons, key headings, brand moments. Pairs with white and Deep Forest.',
+		tags: ['body on cream · FAIL', '28px+ · OK', 'white on green · OK'],
+	},
+	{
+		role: 'Secondary',
+		name: 'Shell Gold',
+		hex: '#E8C547',
+		className: 'swatch-gold',
+		copy: 'Accent anchor. Secondary buttons, borders, focus rings, eyebrow labels.',
+		tags: ['forest on gold · OK', 'white on gold · avoid'],
+	},
+	{
+		role: 'Ink',
+		name: 'Deep Forest',
+		hex: '#243D14',
+		className: 'swatch-forest',
+		text: 'light',
+		copy: 'Body text and high-contrast headings. Never pure black, which feels too harsh against the illustrations.',
+		tags: ['on cream · AAA', 'on white · AAA'],
+	},
+	{
+		role: 'Surface',
+		name: 'Warm Cream',
+		hex: '#FAF6EF',
+		className: 'swatch-cream',
+		copy: 'Default background. Lets characters breathe and gives the site its printed-book feel.',
+		tags: ['forest text · AAA'],
+	},
+	{
+		role: 'Link',
+		name: 'Sky Blue',
+		hex: '#2E7FD4',
+		className: 'swatch-sky',
+		text: 'light',
+		copy: 'In-body links, informational highlights, gentle info state.',
+		tags: ['on cream · OK'],
+	},
+	{
+		role: 'Neutral',
+		name: 'Wolf Gray',
+		hex: '#8A8FA0',
+		className: 'swatch-wolf',
+		text: 'light',
+		copy: 'Secondary text, dividers, UI chrome. Used sparingly.',
+		tags: ['body · borderline', '18px+ · OK'],
+	},
+	{
+		role: 'Character',
+		name: 'Bear Brown',
+		hex: '#A0561C',
+		className: 'swatch-bear',
+		text: 'light',
+		copy: 'Illustration containers and decorative accents only. Not for body text.',
+		tags: [],
+	},
+	{
+		role: 'Character',
+		name: 'Beaver Brown',
+		hex: '#7B4B28',
+		className: 'swatch-beaver',
+		text: 'light',
+		copy: 'Cooler illustration brown. Card borders and earthy moments.',
+		tags: [],
+	},
+];
+
+const principles = [
+	['Picture book, not portal', "Each section is a spread with its own visual moment. There's always something to look at before something to read."],
+	['Illustration leads', 'Characters anchor the page. Text is the explanation of something the visitor has already felt.'],
+	['Warm, never clinical', "No red alerts, no navy palettes, no stock photography. If it'd fit on a public health notice, it doesn't belong here."],
+];
+
+const teachingCards = [
+	['[ Taylor illustration ]', 'My body belongs to me.', "Children learn that they are in charge of their own bodies and that it's always okay to say no to touch that doesn't feel right."],
+	['[ Taylor + laptop illustration ]', 'I have the right to be safe online.', 'The internet is part of everyday life. Taylor helps children understand what safety looks like in digital spaces too.'],
+	['[ Taylor as officer / firefighter ]', 'I have the right to be cared for during emergencies.', 'First responders are helpers. This teaching gives children the language and confidence to reach out when they need support.'],
+];
+
+const spacing = [
+	['--s-1', '4px', 4],
+	['--s-2', '8px', 8],
+	['--s-3', '12px', 12],
+	['--s-4', '16px', 16],
+	['--s-5', '24px', 24],
+	['--s-6', '32px', 32],
+	['--s-7', '48px', 48],
+	['--s-8', '64px', 64],
+	['--s-9', '96px', 96],
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Chewy&family=Grandstander:wght@500;600;700;800&family=Lilita+One&family=Comfortaa:wght@500;600;700&family=Patrick+Hand&family=Gaegu:wght@400;700&display=swap" rel="stylesheet" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<title>Taylor the Turtle — Design System</title>
+	</head>
+	<body>
+		<main class="page-shell">
+			<header class="site-header">
+				<div>
+					<p class="hand kicker">a program of the Sexual Assault Centre of Brant</p>
+					<h1>Taylor the Turtle<br /><span>Design System</span></h1>
+					<p class="lede">A warm, approachable visual language for child safety education. Built for parents, educators, and children, in that reading order, but the opposite emotional order.</p>
+				</div>
+				<div class="meta">
+					<strong>v0.2 · Astro draft</strong>
+					taylorsrights.ca<br />
+					Updated Apr 2026
+				</div>
+			</header>
+
+			<section class="system-section">
+				<p class="eyebrow">01 — Principles</p>
+				<h2>Approachability over authority</h2>
+				<p class="intro">Every decision answers one question: does this feel like an invitation, or an instruction? If it reads as the latter, we rework it.</p>
+				<div class="grid three">
+					{principles.map(([title, copy]) => (
+						<article class="card">
+							<h3>{title}</h3>
+							<p>{copy}</p>
+						</article>
+					))}
+				</div>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">02 — Color</p>
+				<h2>A palette drawn from the forest</h2>
+				<p class="intro">Every color comes from the character illustrations. Use Taylor Green to assert the brand, Shell Gold to reward, Deep Forest to speak, and Warm Cream to breathe.</p>
+				<div class="color-grid">
+					{colors.map((color) => (
+						<article class="color-card">
+							<div class:list={['swatch', color.className, color.text === 'light' && 'light']}>{color.role}</div>
+							<div class="color-copy">
+								<strong>{color.name}</strong>
+								<code>{color.hex}</code>
+								<p>{color.copy}</p>
+								{color.tags.length > 0 && (
+									<div class="tags">
+										{color.tags.map((tag) => <span class:list={['tag', tag.includes('FAIL') || tag.includes('avoid') || tag.includes('borderline') ? 'warn' : 'ok']}>{tag}</span>)}
+									</div>
+								)}
+							</div>
+						</article>
+					))}
+				</div>
+				<article class="card gradient-card">
+					<h3>Sanctioned gradient</h3>
+					<div class="brand-gradient"></div>
+					<p class="note">The only gradient permitted: Taylor Green → Shell Gold. It echoes Taylor's shell trim. All other gradients are off-limits.</p>
+				</article>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">03 — Typography</p>
+				<h2>One expressive voice, one readable one</h2>
+				<p class="intro">The display face sets the mood: warm, rounded, picture-book. Nunito Sans supports as body. Good Dog carries teaching statements and matches the printed colouring-sheet handwriting.</p>
+				<div class="grid two">
+					<article class="card type-card">
+						<h3>Display — <span id="display-name">Quicksand</span></h3>
+						<p class="note">Rounded, friendly terminals. Use for headings, labels, buttons, card titles.</p>
+						<div class="type-row"><code>Hero<br />58/1.05 · 600</code><strong class="hero-type">Every child has rights.</strong></div>
+						<div class="type-row"><code>H1<br />42/1.1 · 600</code><strong class="h1-type">A little turtle with a big message</strong></div>
+						<div class="type-row"><code>H2<br />32/1.15 · 600</code><strong class="h2-type">Taylor's Teachings</strong></div>
+						<div class="type-row"><code>H3<br />24/1.2 · 600</code><strong class="h3-type">For parents &amp; families</strong></div>
+						<div class="type-row"><code>Button<br />16 · 600</code><strong class="button-type">Meet Taylor &amp; Friends →</strong></div>
+						<div class="type-row"><code>Eyebrow<br />13 · 500</code><span class="eyebrow sample">A program of the Sexual Assault Centre of Brant</span></div>
+					</article>
+					<article class="card type-card">
+						<h3>Body — Nunito Sans</h3>
+						<p class="note">Humanist, warm, disappears into the content. 18px preferred, 16px minimum.</p>
+						<div class="type-row"><code>Lead<br />20/1.55 · 400</code><span class="lead-type">Taylor and friends help children and the adults who love them talk about body safety.</span></div>
+						<div class="type-row"><code>Body<br />17/1.55 · 400</code><span>Taylor's world is always safe to explore. Parents and educators can browse alongside children with confidence.</span></div>
+						<div class="type-row"><code>Small<br />14/1.5 · 500</code><span class="small-type">We'll be in touch within a few days to find a time that works.</span></div>
+						<div class="type-row"><code>Caption<br />13 · Wolf Gray</code><span class="caption">Taylor the Turtle is on the territory of the Haudenosaunee, Anishinaabe, and Neutral Nations.</span></div>
+					</article>
+				</div>
+				<article class="card teaching-statement">
+					<h3>Teaching statements — Good Dog</h3>
+					<p class="note">Ethan Dunham's Good Dog, the hand-drawn face already used on the printed colouring sheets. Locked in for all rights declarations.</p>
+					<div class="hand statement">I have the right to a safe body.</div>
+				</article>
+				<article class="cream-card reading-level">
+					<h3>Reading level</h3>
+					<p><strong>Children-facing copy:</strong> Grade 2-3. Short sentences, active verbs, no clinical language.</p>
+					<p><strong>Parent/educator copy:</strong> Grade 6-8. Warm but assured; "talk about" not "educate."</p>
+				</article>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">04 — Space &amp; shape</p>
+				<h2>Rounded everything, generous air</h2>
+				<p class="intro">An 8pt spacing scale, generous radii that echo the illustrations' rounded lines, and soft lifting shadows that never look drop-pasted.</p>
+				<div class="grid two">
+					<article class="card">
+						<h3>Spacing scale (8pt)</h3>
+						{spacing.map(([name, value, width]) => (
+							<div class="space-row">
+								<code>{name}</code>
+								<code>{value}</code>
+								<span style={`width:${width}px`}></span>
+							</div>
+						))}
+					</article>
+					<article class="card">
+						<h3>Radii</h3>
+						<div class="radius-grid">
+							<span style="border-radius:8px">8 · sm</span>
+							<span style="border-radius:16px">16 · md</span>
+							<span style="border-radius:24px">24 · lg</span>
+							<span style="border-radius:32px">32 · xl</span>
+							<span class="pill">pill</span>
+						</div>
+						<p class="note">Use 16-24px as the default. Pills only on buttons and small tags. Avoid sharp corners entirely.</p>
+						<h3>Shadows</h3>
+						<div class="shadow-row">
+							<span class="soft">sm · resting</span>
+							<span class="raised">md · raised</span>
+							<span class="lifted">lift · on hover</span>
+						</div>
+						<p class="note">Shadows use Deep Forest at 6-12% opacity, a warm, earthy lift.</p>
+					</article>
+				</div>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">05 — Components</p>
+				<h2>Buttons, cards, links, forms</h2>
+				<p class="intro">All interactive elements hit 44x44px minimum. No destructive styles: errors speak in Sky Blue, gently.</p>
+				<article class="card">
+					<h3>Buttons</h3>
+					<div class="button-row">
+						<a class="button primary" href="#">Meet Taylor &amp; Friends →</a>
+						<a class="button secondary" href="#">Book a Visit</a>
+						<a class="button outline" href="#">Learn more</a>
+						<a class="button primary large" href="#">Request a visit →</a>
+						<span class="button primary disabled">Disabled</span>
+					</div>
+					<p class="note">Primary = Taylor Green + white. Secondary = Shell Gold + Deep Forest. Hover: +1px lift + md shadow + slight lighten. Focus: 4px Shell Gold ring.</p>
+				</article>
+				<div class="grid two component-pair">
+					<article class="card">
+						<h3>Links</h3>
+						<p>In-body: <a href="#">this is a Sky Blue link</a>, no underline at rest, underlined on hover.</p>
+						<p>Navigation: <a class="nav-link" href="#">Deep Forest</a> at rest, <span class="green-text">Taylor Green</span> on hover and active.</p>
+					</article>
+					<article class="card">
+						<h3>Top nav</h3>
+						<nav class="nav-demo" aria-label="Demo navigation">
+							<strong>Taylor 🐢</strong>
+							<div>
+								<a href="#">Meet Taylor</a>
+								<a href="#">Teachings</a>
+								<a href="#">Our Story</a>
+								<a href="#">Events</a>
+								<a class="button secondary small" href="#">Book a Visit</a>
+							</div>
+						</nav>
+					</article>
+				</div>
+				<div class="teaching-cards">
+					<h3>Teaching card <span>— the signature component</span></h3>
+					<div class="grid three">
+						{teachingCards.map(([image, title, copy]) => (
+							<article class="teaching-card">
+								<div class="image-placeholder">{image}</div>
+								<h4>{title}</h4>
+								<p>{copy}</p>
+								<a href="#">Download the colouring sheet ↓</a>
+							</article>
+						))}
+					</div>
+					<p class="note">Warm Cream background, 2px Shell Gold border, 24px radius. Hover: translateY(-4px) + lift shadow. No scale transforms.</p>
+				</div>
+				<div class="form-block">
+					<h3>Form — Book a Visit</h3>
+					<form>
+						<label>Your name <input type="text" placeholder="Alex Morgan" /></label>
+						<label>School, centre, or group <input type="text" placeholder="Brantford Family Centre" /></label>
+						<label>Age range of the group
+							<select>
+								<option>Ages 3-5</option>
+								<option>Ages 5-8</option>
+								<option>Mixed 3-8</option>
+							</select>
+						</label>
+						<label>Anything we should know? <textarea rows="3" placeholder="Tell us about your group and what you're hoping Taylor can bring."></textarea></label>
+						<p>We'll be in touch within a few days. Taylor's tours are always free.</p>
+						<a class="button primary" href="#">Request a visit →</a>
+					</form>
+					<p class="note">Labels use the display face. Inputs get a Shell Gold focus ring. On mobile the submit is full-width.</p>
+				</div>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">06 — Illustration</p>
+				<h2>Characters lead, words follow</h2>
+				<p class="intro">The illustrations are the brand's most valuable asset. Stage them generously. Let them face into the content they sit beside.</p>
+				<div class="grid two">
+					<article class="illustration-card cream-card">
+						<div class="character-placeholder">[ Taylor · gestures right → ]</div>
+						<div>
+							<h3>Gestures point into the copy</h3>
+							<p>If Taylor is waving, place the text to the side Taylor is waving toward. Characters guide the eye and should never turn their backs on the content.</p>
+						</div>
+					</article>
+					<article class="illustration-card green-panel">
+						<div>
+							<h3>Generous cream space</h3>
+							<p>On a solid Taylor Green field, leave at least 32px of padding around every character edge. Never crop a character tight to another element.</p>
+						</div>
+						<div class="character-placeholder light">[ Taylor · full height ]</div>
+					</article>
+				</div>
+				<article class="card">
+					<h3>Background rules</h3>
+					<div class="tags rules">
+						<span class="tag ok">✓ Warm Cream surface</span>
+						<span class="tag ok">✓ Solid Taylor Green field</span>
+						<span class="tag ok">✓ Simple nature pattern</span>
+						<span class="tag warn">✗ Photographic backgrounds</span>
+						<span class="tag warn">✗ Complex textures</span>
+						<span class="tag warn">✗ Characters below 180px web</span>
+						<span class="tag warn">✗ Colouring-sheet B&amp;W on web</span>
+					</div>
+				</article>
+				<article class="card">
+					<h3>When to use the group illustration</h3>
+					<p>The ensemble is a celebration piece. Homepage hero, Meet the Friends page header, or a section break between major content areas. Don't overuse it; Taylor should remain the most frequently appearing character.</p>
+				</article>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">07 — Voice</p>
+				<h2>Friendly, curious, quietly confident</h2>
+				<p class="intro">Taylor doesn't lecture. Taylor explores. If a sentence would make an adult anxious on first read, rewrite it.</p>
+				<div class="grid two">
+					<article class="voice do">
+						<h3>✓ Do write like this</h3>
+						<ul>
+							<li>"Taylor helps kids talk about body safety."</li>
+							<li>"Your family is part of Taylor's world."</li>
+							<li>"It's always okay to say no."</li>
+							<li>"Taylor is coming to Brantford."</li>
+							<li>"We'll be in touch within a few days."</li>
+						</ul>
+					</article>
+					<article class="voice dont">
+						<h3>✗ Don't write like this</h3>
+						<ul>
+							<li>"Educate your child on identifying risk."</li>
+							<li>"Caregivers must intervene in unsafe situations."</li>
+							<li>"Prevention of child sexual abuse."</li>
+							<li>"Statistics show 1 in 3 children..."</li>
+							<li>"Submit your request for processing."</li>
+						</ul>
+					</article>
+				</div>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">08 — Motion</p>
+				<h2>Organic, unhurried, rewarding</h2>
+				<p class="intro">Characters drift in the way they'd walk into frame in a picture book, never the way a UI component snaps in.</p>
+				<div class="grid two">
+					<article class="card">
+						<h3>Page-load entrance</h3>
+						<button id="motion-demo" class="motion-demo" type="button">
+							<span id="motion-puck">Taylor</span>
+							<small>click to replay</small>
+						</button>
+						<code>translateY(20px → 0), opacity(0 → 1), 600ms ease-out, stagger 150ms</code>
+					</article>
+					<article class="card">
+						<h3>Rules of thumb</h3>
+						<ul>
+							<li>No looping character animations. The illustrations are expressive at rest.</li>
+							<li>No scale transforms on character images. They distort proportions.</li>
+							<li>Card hover: translateY(-4px) + deepened shadow only.</li>
+							<li>Respect prefers-reduced-motion: disable entrances, keep hovers.</li>
+						</ul>
+					</article>
+				</div>
+			</section>
+
+			<section class="system-section">
+				<p class="eyebrow">09 — Accessibility</p>
+				<h2>Core to the mission, not a checklist</h2>
+				<p class="intro">The audience includes children with varied reading abilities and parents in high-distraction environments. Accessibility is the whole point.</p>
+				<div class="grid three">
+					<article class="card">
+						<h3>Contrast</h3>
+						<p>Deep Forest on Warm Cream clears AAA at all sizes. Taylor Green only carries text at 28px+ or on dark fields. Wolf Gray only at 18px+.</p>
+					</article>
+					<article class="card">
+						<h3>Alt text</h3>
+						<p>Every illustration names the character and describes the action. "Taylor in a firefighter's uniform, waving to a friend."</p>
+					</article>
+					<article class="card">
+						<h3>Touch targets</h3>
+						<p>Minimum 44x44px, with 8px spacing between adjacent targets. Mobile-first validation at 375px width.</p>
+					</article>
+				</div>
+			</section>
+
+			<footer>Taylor the Turtle Design System · v0.2 · Astro · built for taylorsrights.ca</footer>
+		</main>
+
+		<div id="tweaks" class="tweaks" hidden>
+			<h2>Tweaks</h2>
+			<label>Display font
+				<select id="tk-display">
+					<option value="Quicksand">Quicksand (current)</option>
+					<option value="Fredoka">Fredoka</option>
+					<option value="Chewy">Chewy</option>
+					<option value="Grandstander">Grandstander</option>
+					<option value="Lilita One">Lilita One</option>
+					<option value="Comfortaa">Comfortaa</option>
+					<option value="Patrick Hand">Patrick Hand</option>
+					<option value="Gaegu">Gaegu</option>
+					<option value="Good Dog">Good Dog</option>
+				</select>
+			</label>
+			<label>Body font
+				<select id="tk-body">
+					<option value="Nunito Sans">Nunito Sans</option>
+					<option value="Jost">Jost</option>
+					<option value="Nunito">Nunito</option>
+				</select>
+			</label>
+			<label>Taylor Green <input type="color" id="tk-green" /></label>
+			<label>Shell Gold <input type="color" id="tk-gold" /></label>
+			<label>Warm Cream <input type="color" id="tk-cream" /></label>
+			<p>Good Dog is locked for teaching statements regardless.</p>
+		</div>
+
+		<script is:inline>
+			const defaults = {
+				displayFont: 'Quicksand',
+				bodyFont: 'Nunito Sans',
+				taylorGreen: '#7DC050',
+				shellGold: '#E8C547',
+				warmCream: '#FAF6EF',
+			};
+			const state = { ...defaults };
+			const loaded = new Set(['Fredoka', 'Nunito Sans', 'Quicksand', 'Chewy', 'Grandstander', 'Lilita One', 'Comfortaa', 'Patrick Hand', 'Gaegu', 'Good Dog']);
+
+			function loadFont(family) {
+				if (loaded.has(family)) return;
+				const link = document.createElement('link');
+				link.rel = 'stylesheet';
+				link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(family) + ':wght@400;500;600;700&display=swap';
+				document.head.appendChild(link);
+				loaded.add(family);
+			}
+
+			function hexToRgb(hex) {
+				const normalized = hex.replace('#', '');
+				return [parseInt(normalized.slice(0, 2), 16), parseInt(normalized.slice(2, 4), 16), parseInt(normalized.slice(4, 6), 16)];
+			}
+
+			function rgbToHex(r, g, b) {
+				return '#' + [r, g, b].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0')).join('');
+			}
+
+			function shade(hex, pct) {
+				const [r, g, b] = hexToRgb(hex);
+				const factor = 1 + pct / 100;
+				return rgbToHex(r * factor, g * factor, b * factor);
+			}
+
+			function tint(hex, amount) {
+				const [r, g, b] = hexToRgb(hex);
+				return rgbToHex(r + (255 - r) * amount, g + (255 - g) * amount, b + (255 - b) * amount);
+			}
+
+			function applyTweaks() {
+				loadFont(state.displayFont);
+				loadFont(state.bodyFont);
+				const root = document.documentElement;
+				root.style.setProperty('--font-display', `'${state.displayFont}', system-ui, sans-serif`);
+				root.style.setProperty('--font-body', `'${state.bodyFont}', system-ui, sans-serif`);
+				root.style.setProperty('--green', state.taylorGreen);
+				root.style.setProperty('--green-dark', shade(state.taylorGreen, -14));
+				root.style.setProperty('--green-tint', tint(state.taylorGreen, 0.82));
+				root.style.setProperty('--gold', state.shellGold);
+				root.style.setProperty('--cream', state.warmCream);
+
+				document.getElementById('display-name').textContent = state.displayFont;
+				document.getElementById('tk-display').value = state.displayFont;
+				document.getElementById('tk-body').value = state.bodyFont;
+				document.getElementById('tk-green').value = state.taylorGreen;
+				document.getElementById('tk-gold').value = state.shellGold;
+				document.getElementById('tk-cream').value = state.warmCream;
+			}
+
+			function send(edits) {
+				Object.assign(state, edits);
+				applyTweaks();
+				try {
+					window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+				} catch {}
+			}
+
+			document.getElementById('tk-display').addEventListener('change', (event) => send({ displayFont: event.target.value }));
+			document.getElementById('tk-body').addEventListener('change', (event) => send({ bodyFont: event.target.value }));
+			document.getElementById('tk-green').addEventListener('input', (event) => send({ taylorGreen: event.target.value }));
+			document.getElementById('tk-gold').addEventListener('input', (event) => send({ shellGold: event.target.value }));
+			document.getElementById('tk-cream').addEventListener('input', (event) => send({ warmCream: event.target.value }));
+
+			window.addEventListener('message', (event) => {
+				const data = event.data || {};
+				if (data.type === '__activate_edit_mode') document.getElementById('tweaks').hidden = false;
+				if (data.type === '__deactivate_edit_mode') document.getElementById('tweaks').hidden = true;
+			});
+
+			try {
+				window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+			} catch {}
+
+			const motionDemo = document.getElementById('motion-demo');
+			const puck = document.getElementById('motion-puck');
+			function play() {
+				puck.classList.remove('drift');
+				void puck.offsetWidth;
+				puck.classList.add('drift');
+			}
+			motionDemo.addEventListener('click', play);
+			requestAnimationFrame(play);
+			applyTweaks();
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	@font-face {
+		font-family: 'Good Dog';
+		src: url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.woff2') format('woff2'),
+			url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.woff') format('woff'),
+			url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.ttf') format('truetype');
+		font-display: swap;
+		font-style: normal;
+		font-weight: 400;
+	}
+
+	:root {
+		--green: #7dc050;
+		--green-dark: #6aab3f;
+		--green-tint: #eaf4de;
+		--gold: #e8c547;
+		--gold-soft: #f5e3a1;
+		--forest: #243d14;
+		--sky: #2e7fd4;
+		--cream: #faf6ef;
+		--cream-deep: #f2eada;
+		--bear: #a0561c;
+		--beaver: #7b4b28;
+		--wolf: #8a8fa0;
+		--wolf-soft: #d8dae1;
+		--font-display: 'Quicksand', system-ui, sans-serif;
+		--font-body: 'Nunito Sans', system-ui, sans-serif;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		background: var(--cream);
+		color: var(--forest);
+		font-family: var(--font-body);
+		font-size: 17px;
+		line-height: 1.55;
+	}
+
+	body {
+		background:
+			radial-gradient(circle at top left, rgba(232, 197, 71, 0.12), transparent 34rem),
+			linear-gradient(180deg, var(--cream), #fffaf1 52%, var(--cream));
+		margin: 0;
+		min-height: 100vh;
+	}
+
+	a {
+		color: var(--sky);
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
+	button,
+	input,
+	select,
+	textarea {
+		font: inherit;
+	}
+
+	.page-shell {
+		margin: 0 auto;
+		max-width: 1200px;
+		padding: 56px 40px 112px;
+	}
+
+	.site-header {
+		align-items: flex-end;
+		border-bottom: 1px solid var(--cream-deep);
+		display: flex;
+		gap: 32px;
+		justify-content: space-between;
+		margin-bottom: 56px;
+		padding-bottom: 28px;
+	}
+
+	.hand {
+		font-family: 'Good Dog', 'Patrick Hand', cursive;
+	}
+
+	.kicker {
+		color: var(--gold);
+		font-size: 22px;
+		margin: 0 0 4px;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	strong,
+	.button,
+	label,
+	.nav-demo {
+		font-family: var(--font-display);
+	}
+
+	h1 {
+		font-size: clamp(44px, 6vw, 56px);
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		line-height: 1;
+		margin: 0;
+	}
+
+	h1 span,
+	.green-text {
+		color: var(--green-dark);
+	}
+
+	h2 {
+		font-size: clamp(32px, 5vw, 40px);
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		line-height: 1.08;
+		margin: 0 0 8px;
+	}
+
+	h3 {
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 1.2;
+		margin: 0 0 10px;
+	}
+
+	h4 {
+		margin: 0;
+	}
+
+	p {
+		margin: 0;
+	}
+
+	code {
+		color: var(--wolf);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 12px;
+	}
+
+	.lede {
+		color: rgba(36, 61, 20, 0.8);
+		font-size: 18px;
+		margin-top: 16px;
+		max-width: 560px;
+	}
+
+	.meta {
+		color: var(--wolf);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 13px;
+		text-align: right;
+	}
+
+	.meta strong {
+		color: var(--forest);
+		display: block;
+		font-size: 13px;
+		margin-bottom: 4px;
+	}
+
+	.system-section {
+		margin-top: 80px;
+	}
+
+	.eyebrow {
+		color: var(--gold);
+		font-family: var(--font-display);
+		font-size: 13px;
+		font-weight: 500;
+		letter-spacing: 0.14em;
+		margin-bottom: 8px;
+		text-transform: uppercase;
+	}
+
+	.intro {
+		color: rgba(36, 61, 20, 0.7);
+		margin-bottom: 32px;
+		max-width: 680px;
+	}
+
+	.grid {
+		display: grid;
+		gap: 20px;
+	}
+
+	.three {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.two {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.card,
+	.color-card {
+		background: #fff;
+		border: 1px solid var(--cream-deep);
+		border-radius: 28px;
+		box-shadow: 0 1px 2px rgba(36, 61, 20, 0.06);
+	}
+
+	.card {
+		padding: 24px;
+	}
+
+	.card h3 {
+		color: var(--green-dark);
+	}
+
+	.card p {
+		color: rgba(36, 61, 20, 0.8);
+	}
+
+	.color-grid {
+		display: grid;
+		gap: 16px;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.color-card {
+		overflow: hidden;
+	}
+
+	.swatch {
+		align-items: flex-end;
+		display: flex;
+		font-family: var(--font-display);
+		font-weight: 600;
+		height: 130px;
+		padding: 16px;
+	}
+
+	.swatch.light {
+		color: #fff;
+	}
+
+	.swatch-green {
+		background: var(--green);
+	}
+
+	.swatch-gold {
+		background: var(--gold);
+	}
+
+	.swatch-forest {
+		background: var(--forest);
+	}
+
+	.swatch-cream {
+		background: var(--cream);
+		border-bottom: 1px solid var(--cream-deep);
+	}
+
+	.swatch-sky {
+		background: var(--sky);
+	}
+
+	.swatch-wolf {
+		background: var(--wolf);
+	}
+
+	.swatch-bear {
+		background: var(--bear);
+	}
+
+	.swatch-beaver {
+		background: var(--beaver);
+	}
+
+	.color-copy {
+		padding: 16px;
+	}
+
+	.color-copy strong,
+	.color-copy code {
+		display: block;
+	}
+
+	.color-copy p {
+		color: rgba(36, 61, 20, 0.72);
+		font-size: 13px;
+		line-height: 1.35;
+		margin-top: 6px;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 10px;
+	}
+
+	.tag {
+		border-radius: 999px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 11px;
+		padding: 2px 8px;
+	}
+
+	.tag.ok {
+		background: var(--green-tint);
+		border: 1px solid #c7e2a8;
+		color: var(--green-dark);
+	}
+
+	.tag.warn {
+		background: #f6e0dc;
+		border: 1px solid #ebc4bd;
+		color: #8a2d1f;
+	}
+
+	.gradient-card {
+		margin-top: 24px;
+	}
+
+	.brand-gradient {
+		background: linear-gradient(90deg, var(--green), var(--gold));
+		border-radius: 18px;
+		height: 72px;
+		margin-top: 12px;
+	}
+
+	.note {
+		color: var(--wolf) !important;
+		font-size: 13px;
+		font-style: italic;
+		margin-top: 12px;
+	}
+
+	.type-card {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.type-row {
+		align-items: baseline;
+		border-top: 1px dashed var(--cream-deep);
+		display: grid;
+		gap: 24px;
+		grid-template-columns: 120px 1fr;
+		margin-top: 16px;
+		padding-top: 16px;
+	}
+
+	.type-row:first-of-type {
+		border-top: 0;
+	}
+
+	.hero-type {
+		font-size: clamp(38px, 5.6vw, 54px);
+		letter-spacing: -0.04em;
+		line-height: 1.05;
+	}
+
+	.h1-type {
+		font-size: clamp(30px, 4vw, 40px);
+		line-height: 1.1;
+	}
+
+	.h2-type {
+		font-size: 32px;
+		line-height: 1.15;
+	}
+
+	.h3-type {
+		font-size: 24px;
+		line-height: 1.2;
+	}
+
+	.lead-type {
+		font-size: 20px;
+	}
+
+	.small-type {
+		font-size: 14px;
+		font-weight: 500;
+	}
+
+	.caption {
+		color: var(--wolf);
+		font-size: 13px;
+	}
+
+	.teaching-statement,
+	.reading-level {
+		margin-top: 20px;
+	}
+
+	.statement {
+		background: var(--green);
+		border-radius: 28px;
+		color: #fff;
+		font-size: clamp(38px, 6vw, 52px);
+		letter-spacing: 0.01em;
+		line-height: 1.15;
+		margin-top: 16px;
+		padding: 32px;
+	}
+
+	.cream-card {
+		background: var(--cream);
+		border: 1px solid var(--cream-deep);
+		border-radius: 28px;
+		padding: 24px;
+	}
+
+	.reading-level {
+		display: grid;
+		gap: 12px;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.reading-level h3 {
+		grid-column: 1 / -1;
+	}
+
+	.space-row {
+		align-items: center;
+		border-top: 1px dashed var(--cream-deep);
+		display: grid;
+		gap: 20px;
+		grid-template-columns: 120px 110px 1fr;
+		padding: 12px 0;
+	}
+
+	.space-row:first-of-type {
+		border-top: 0;
+	}
+
+	.space-row span {
+		background: var(--green);
+		border-radius: 4px;
+		display: block;
+		height: 14px;
+	}
+
+	.radius-grid,
+	.shadow-row,
+	.button-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 14px;
+	}
+
+	.radius-grid span {
+		align-items: flex-end;
+		background: var(--green-tint);
+		border: 1.5px solid var(--green);
+		color: var(--forest);
+		display: flex;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 12px;
+		height: 88px;
+		justify-content: center;
+		padding: 8px;
+		width: 88px;
+	}
+
+	.pill {
+		border-radius: 999px !important;
+	}
+
+	.shadow-row {
+		margin-top: 12px;
+	}
+
+	.shadow-row span {
+		align-items: flex-end;
+		background: #fff;
+		border-radius: 18px;
+		color: var(--wolf);
+		display: flex;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 12px;
+		height: 110px;
+		padding: 12px;
+		width: 160px;
+	}
+
+	.soft {
+		box-shadow: 0 1px 2px rgba(36, 61, 20, 0.06);
+	}
+
+	.raised {
+		box-shadow: 0 6px 18px rgba(36, 61, 20, 0.08);
+	}
+
+	.lifted {
+		box-shadow: 0 14px 32px rgba(36, 61, 20, 0.12);
+	}
+
+	.button {
+		align-items: center;
+		border-radius: 999px;
+		display: inline-flex;
+		font-size: 16px;
+		font-weight: 600;
+		gap: 8px;
+		justify-content: center;
+		min-height: 48px;
+		padding: 14px 28px;
+		transition: background-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 160ms ease;
+	}
+
+	.button:hover {
+		box-shadow: 0 6px 18px rgba(36, 61, 20, 0.08);
+		text-decoration: none;
+		transform: translateY(-1px);
+	}
+
+	.button:focus-visible,
+	input:focus,
+	select:focus,
+	textarea:focus {
+		outline: 0;
+		box-shadow: 0 0 0 4px rgba(232, 197, 71, 0.25);
+	}
+
+	.button.primary {
+		background: var(--green);
+		color: #fff;
+	}
+
+	.button.secondary {
+		background: var(--gold);
+		color: var(--forest);
+	}
+
+	.button.outline {
+		background: transparent;
+		border: 2px solid var(--forest);
+		color: var(--forest);
+	}
+
+	.button.outline:hover {
+		background: var(--forest);
+		color: var(--cream);
+	}
+
+	.button.large {
+		font-size: 18px;
+		min-height: 56px;
+		padding: 18px 34px;
+	}
+
+	.button.small {
+		font-size: 14px;
+		min-height: 40px;
+		padding: 8px 16px;
+	}
+
+	.button.disabled {
+		opacity: 0.45;
+		pointer-events: none;
+	}
+
+	.component-pair,
+	.teaching-cards,
+	.form-block {
+		margin-top: 20px;
+	}
+
+	.nav-link {
+		color: var(--forest);
+		font-family: var(--font-display);
+		font-weight: 500;
+	}
+
+	.nav-demo {
+		align-items: center;
+		background: var(--cream);
+		border: 1px solid var(--cream-deep);
+		border-radius: 28px;
+		display: flex;
+		gap: 16px;
+		justify-content: space-between;
+		padding: 16px;
+	}
+
+	.nav-demo strong {
+		color: var(--green-dark);
+		font-size: 22px;
+		white-space: nowrap;
+	}
+
+	.nav-demo div {
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		justify-content: flex-end;
+	}
+
+	.nav-demo a:not(.button) {
+		color: var(--forest);
+		font-size: 14px;
+		font-weight: 500;
+	}
+
+	.teaching-cards > h3 span {
+		color: var(--wolf);
+		font-family: var(--font-body);
+		font-size: 13px;
+		font-style: italic;
+		font-weight: 400;
+	}
+
+	.teaching-card {
+		background: var(--cream);
+		border: 2px solid var(--gold);
+		border-radius: 28px;
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		padding: 24px;
+		transition: box-shadow 180ms ease, transform 180ms ease;
+	}
+
+	.teaching-card:hover {
+		box-shadow: 0 14px 32px rgba(36, 61, 20, 0.12);
+		transform: translateY(-4px);
+	}
+
+	.image-placeholder {
+		align-items: center;
+		aspect-ratio: 4 / 3;
+		background: linear-gradient(135deg, var(--green-tint), #f7e8a8);
+		border: 1px dashed rgba(36, 61, 20, 0.2);
+		border-radius: 18px;
+		color: rgba(36, 61, 20, 0.75);
+		display: flex;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 12px;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.teaching-card h4 {
+		color: var(--green-dark);
+		font-family: var(--font-display);
+		font-size: 26px;
+		font-weight: 600;
+		line-height: 1.1;
+	}
+
+	.teaching-card p {
+		color: rgba(36, 61, 20, 0.8);
+		font-size: 15px;
+	}
+
+	.teaching-card a {
+		font-family: var(--font-display);
+		font-size: 14px;
+		font-weight: 500;
+	}
+
+	.form-block form {
+		background: var(--cream);
+		border: 1px solid var(--cream-deep);
+		border-radius: 28px;
+		display: flex;
+		flex-direction: column;
+		gap: 18px;
+		max-width: 520px;
+		padding: 28px;
+	}
+
+	label {
+		display: grid;
+		font-size: 16px;
+		font-weight: 500;
+		gap: 6px;
+	}
+
+	input,
+	select,
+	textarea {
+		background: #fff;
+		border: 1.5px solid var(--cream-deep);
+		border-radius: 18px;
+		color: var(--forest);
+		font-family: var(--font-body);
+		font-size: 16px;
+		padding: 14px 16px;
+		transition: border-color 160ms ease, box-shadow 160ms ease;
+		width: 100%;
+	}
+
+	input:focus,
+	select:focus,
+	textarea:focus {
+		border-color: var(--gold);
+	}
+
+	.form-block form p {
+		color: var(--wolf);
+		font-size: 14px;
+	}
+
+	.illustration-card {
+		align-items: center;
+		display: flex;
+		gap: 24px;
+		min-height: 260px;
+		padding: 32px;
+	}
+
+	.illustration-card h3 {
+		color: var(--green-dark);
+		font-size: 28px;
+	}
+
+	.character-placeholder {
+		align-items: center;
+		aspect-ratio: 3 / 4;
+		background: repeating-linear-gradient(135deg, #c7e2a8 0 8px, var(--green-tint) 8px 16px);
+		border: 1px dashed rgba(36, 61, 20, 0.3);
+		border-radius: 18px;
+		display: flex;
+		flex: 0 0 180px;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 11px;
+		justify-content: center;
+		padding: 10px;
+		text-align: center;
+	}
+
+	.green-panel {
+		background: var(--green);
+		border-radius: 28px;
+		color: #fff;
+	}
+
+	.green-panel h3,
+	.green-panel p {
+		color: #fff;
+	}
+
+	.character-placeholder.light {
+		background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0 8px, rgba(255, 255, 255, 0.08) 8px 16px);
+		border-color: rgba(255, 255, 255, 0.4);
+		color: #fff;
+	}
+
+	.rules {
+		margin-top: 0;
+	}
+
+	.voice {
+		border-radius: 28px;
+		padding: 24px;
+	}
+
+	.voice.do {
+		background: var(--green-tint);
+		border: 1px solid #c7e2a8;
+	}
+
+	.voice.do h3 {
+		color: #3f6821;
+	}
+
+	.voice.dont {
+		background: #f6e0dc;
+		border: 1px solid #ebc4bd;
+	}
+
+	.voice.dont h3 {
+		color: #8a2d1f;
+	}
+
+	.voice ul,
+	.card ul {
+		margin: 0;
+		padding-left: 20px;
+	}
+
+	.voice li,
+	.card li {
+		margin-top: 6px;
+	}
+
+	.motion-demo {
+		align-items: center;
+		background: var(--cream-deep);
+		border: 0;
+		border-radius: 28px;
+		cursor: pointer;
+		display: flex;
+		height: 160px;
+		justify-content: center;
+		margin-bottom: 12px;
+		overflow: hidden;
+		position: relative;
+		width: 100%;
+	}
+
+	.motion-demo span {
+		align-items: center;
+		background: var(--green);
+		border-radius: 999px;
+		color: #fff;
+		display: flex;
+		font-family: var(--font-display);
+		font-size: 14px;
+		font-weight: 600;
+		height: 92px;
+		justify-content: center;
+		width: 92px;
+	}
+
+	.motion-demo small {
+		bottom: 10px;
+		color: var(--wolf);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 11px;
+		position: absolute;
+		right: 14px;
+	}
+
+	.drift {
+		animation: drift 600ms ease-out both;
+	}
+
+	@keyframes drift {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	footer {
+		border-top: 1px solid var(--cream-deep);
+		color: var(--wolf);
+		font-size: 13px;
+		margin-top: 96px;
+		padding-top: 32px;
+		text-align: center;
+	}
+
+	.tweaks {
+		background: #fff;
+		border: 1px solid var(--cream-deep);
+		border-radius: 28px;
+		bottom: 24px;
+		box-shadow: 0 14px 32px rgba(36, 61, 20, 0.12);
+		position: fixed;
+		right: 24px;
+		width: 280px;
+		z-index: 20;
+		padding: 16px;
+	}
+
+	.tweaks h2 {
+		font-size: 15px;
+		margin-bottom: 12px;
+	}
+
+	.tweaks label {
+		align-items: center;
+		display: flex;
+		font-family: var(--font-body);
+		font-size: 13px;
+		gap: 10px;
+		justify-content: space-between;
+		margin-bottom: 10px;
+	}
+
+	.tweaks select {
+		font-size: 13px;
+		padding: 4px 8px;
+	}
+
+	.tweaks input[type='color'] {
+		border: 0;
+		height: 28px;
+		padding: 0;
+		width: 36px;
+	}
+
+	.tweaks p {
+		color: var(--wolf);
+		font-size: 13px;
+		font-style: italic;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 1ms !important;
+			scroll-behavior: auto !important;
+			transition-duration: 1ms !important;
+		}
+	}
+
+	@media (max-width: 900px) {
+		.three,
+		.two,
+		.color-grid,
+		.reading-level {
+			grid-template-columns: 1fr;
+		}
+
+		.site-header,
+		.illustration-card {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+
+		.meta {
+			text-align: left;
+		}
+
+		.nav-demo {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.page-shell {
+			padding: 32px 20px 80px;
+		}
+
+		.system-section {
+			margin-top: 64px;
+		}
+
+		.type-row,
+		.space-row {
+			grid-template-columns: 1fr;
+			gap: 8px;
+		}
+
+		.button-row .button,
+		.form-block .button {
+			width: 100%;
+		}
+
+		.character-placeholder {
+			flex-basis: auto;
+			width: 180px;
+		}
+	}
+</style>

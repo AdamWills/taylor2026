@@ -1,0 +1,23 @@
+---
+interface Props {
+	eyebrow?: string;
+	title: string;
+	subtitle?: string;
+	align?: 'left' | 'center';
+	reverse?: boolean;
+}
+
+const { eyebrow, title, subtitle, align = 'left', reverse = false } = Astro.props;
+---
+
+<div
+	class:list={[
+		'section-heading mb-8',
+		align === 'center' && 'mx-auto text-center',
+		reverse && 'text-white',
+	]}
+>
+	{eyebrow && <p class:list={['eyebrow', reverse && 'text-white/75']}>{eyebrow}</p>}
+	<h2 class:list={['mt-1.5 max-w-[35ch] font-display text-[clamp(34px,5vw,48px)] font-semibold leading-[1.2] tracking-[-0.04em] text-balance', align === 'center' && 'mx-auto', reverse ? 'text-white' : 'text-deep-forest']}>{title}</h2>
+	{subtitle && <p class:list={['mt-3.5 max-w-[48ch] text-[clamp(17px,2vw,20px)] text-pretty', align === 'center' && 'mx-auto', reverse ? 'text-white/90' : 'text-deep-forest/75']}>{subtitle}</p>}
+</div>

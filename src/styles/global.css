@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+
+@font-face {
+	font-family: 'Good Dog';
+	src: url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.woff2') format('woff2'),
+		url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.woff') format('woff'),
+		url('https://db.onlinewebfonts.com/t/ca32b369590c4b105ed8cbdf1f8da722.ttf') format('truetype');
+	font-display: swap;
+	font-style: normal;
+	font-weight: 400;
+}
+
+@theme {
+	--color-taylor-green: #7dc050;
+	--color-taylor-green-dark: #6aab3f;
+	--color-taylor-green-tint: #eaf4de;
+	--color-shell-gold: #e8c547;
+	--color-shell-gold-soft: #f5e3a1;
+	--color-deep-forest: #243d14;
+	--color-sky-blue: #2e7fd4;
+	--color-warm-cream: #faf6ef;
+	--color-warm-cream-deep: #f2eada;
+	--color-bear-brown: #a0561c;
+	--color-beaver-brown: #7b4b28;
+	--color-wolf-gray: #8a8fa0;
+	--color-wolf-gray-soft: #d8dae1;
+	--font-display: 'Merriweather', Georgia, serif;
+	--font-body: 'Nunito Sans', system-ui, sans-serif;
+	--font-hand: 'Good Dog', 'Patrick Hand', cursive;
+	--shadow-soft: 0 1px 2px rgba(36, 61, 20, 0.06);
+	--shadow-card: 0 6px 18px rgba(36, 61, 20, 0.08);
+	--shadow-lift: 0 14px 32px rgba(36, 61, 20, 0.12);
+}
+
+@layer base {
+	html {
+		@apply scroll-smooth bg-warm-cream text-[17px] leading-[1.55] text-deep-forest antialiased;
+		font-family: var(--font-body);
+	}
+
+	a {
+		@apply text-inherit no-underline hover:underline;
+	}
+
+	img,
+	svg {
+		@apply block max-w-full;
+	}
+}
+
+@layer components {
+	.container {
+		@apply mx-auto max-w-[1180px] px-5 md:px-8;
+	}
+
+	.section-pad {
+		@apply py-18 md:py-24 lg:py-32;
+	}
+
+	.eyebrow {
+		@apply font-display text-[13px] font-semibold tracking-[0.14em] text-shell-gold;
+	}
+
+	.button {
+		@apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-7 py-3.5 font-display text-base font-bold transition hover:-translate-y-px hover:shadow-card hover:no-underline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-shell-gold/40 max-sm:w-full;
+	}
+
+	.button.primary {
+		@apply bg-taylor-green text-deep-forest hover:bg-[#8AD05C];
+	}
+
+	.button.secondary {
+		@apply bg-shell-gold text-deep-forest hover:bg-[#F0D05B];
+	}
+
+	.button.large {
+		@apply min-h-14 px-8 py-4.5 text-lg;
+	}
+
+	.green-field {
+		@apply relative bg-[#3d7020] text-white;
+		background:
+			radial-gradient(circle at 18% 12%, rgba(245, 227, 161, 0.22), transparent 26rem),
+			radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.18), transparent 22rem),
+			linear-gradient(180deg, #3a6b1e 0%, #3d7020 100%);
+	}
+
+	.nature-base::after {
+		@apply pointer-events-none absolute inset-x-0 bottom-0 h-[74px] content-[''];
+		background:
+			radial-gradient(70px 34px at 8% 100%, rgba(36, 61, 20, 0.14), transparent 72%),
+			radial-gradient(110px 46px at 30% 100%, rgba(36, 61, 20, 0.12), transparent 74%),
+			radial-gradient(90px 40px at 58% 100%, rgba(36, 61, 20, 0.13), transparent 73%),
+			radial-gradient(130px 54px at 88% 100%, rgba(36, 61, 20, 0.12), transparent 74%);
+	}
+
+	.cream-surface {
+		background:
+			radial-gradient(circle at 10% 10%, rgba(232, 197, 71, 0.12), transparent 24rem),
+			linear-gradient(180deg, #faf6ef, #fffaf1);
+	}
+
+	.drift-in {
+		animation: drift-in 700ms ease-out both;
+	}
+}
+
+@keyframes drift-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 1ms !important;
+		scroll-behavior: auto !important;
+		transition-duration: 1ms !important;
+	}
+}

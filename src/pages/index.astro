@@ -1,17 +1,181 @@
 ---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import IllustrationPlaceholder from '../components/IllustrationPlaceholder.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import TeachingCard from '../components/TeachingCard.astro';
 
+import myBodyImg from '../assets/MyBodyBelongsToMe.png';
+import safeOnlineImg from '../assets/IHaveTheRighToBeSafeOnline.png';
+import safeSchoolImg from '../assets/IHaveTheRighToASafeSchool.png';
+import myselfImg from '../assets/IHaveTheRighToBeMyself.png';
+import safeBodyImg from '../assets/IHaveTheRighToASafeBody.png';
+import proudFamilyImg from '../assets/IHaveTheRighToBeProudOfMyFamily.png';
+
+import backpackPdf from '../assets/colour_pages/backpack.pdf?url';
+import hockeyPdf from '../assets/colour_pages/hockey.pdf?url';
+import wolfImg from '../assets/TaylorsFriends-Wolf.png';
+import eagleImg from '../assets/TaylorsFriends-Eagle.png';
+import bearImg from '../assets/TaylorsFriends-Bear.png';
+import beaverImg from '../assets/TaylorsFriends-Beaver.png';
+import jaybirdImg from '../assets/TaylorsFriends-JayBird.png';
+import deerImg from '../assets/TaylorsFriends-Deer.png';
+
+const teachings = [
+	{
+		image: safeOnlineImg,
+		illustration: 'Taylor at a laptop: I have the right to be safe online',
+		title: 'I have the right to be safe online.',
+		description: 'The internet is part of everyday life. Taylor helps children understand what safety looks like in digital spaces too.',
+	},
+	{
+		image: safeSchoolImg,
+		illustration: 'Taylor at school: I have the right to a safe school',
+		title: 'I have the right to a safe school.',
+		description: 'Every child deserves to feel safe, respected, and supported in their learning environment. Taylor helps children understand what that looks like and who they can talk to.',
+		href: backpackPdf,
+	},
+	{
+		image: myselfImg,
+		illustration: 'Taylor being themselves: I have the right to be myself',
+		title: 'I have the right to be myself.',
+		description: 'Being different is something to celebrate. Taylor encourages children to embrace who they are and feel proud of what makes them unique.',
+		href: hockeyPdf,
+	},
+];
+
+const friends = [
+	['Wolf', wolfImg],
+	['Eagle', eagleImg],
+	['Bear', bearImg],
+	['Beaver', beaverImg],
+	['Blue Jay', jaybirdImg],
+	['Deer', deerImg],
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Taylor the Turtle — Children Have Rights">
+	<SiteHeader />
+
+	<main>
+		<section class="green-field nature-base min-h-[820px] overflow-hidden pt-[138px] pb-[118px] max-lg:pt-[156px] max-lg:text-center max-sm:min-h-0 max-sm:pt-[178px] max-sm:pb-24">
+			<div class="container relative z-[1] grid items-center gap-9 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,1.08fr)] lg:gap-[clamp(36px,6vw,72px)]">
+				<div class="text-white">
+					<p class="eyebrow text-white/75">A program of the Sexual Assault Centre of Brant</p>
+					<h1 class="mt-3.5 max-w-[22ch] font-display text-[clamp(48px,7vw,78px)] font-semibold leading-[1.1] tracking-[-0.055em] text-white text-balance max-sm:text-[44px]">Every child has rights.<br />Taylor's here to help them know it.</h1>
+					<p class="mt-5 max-w-[650px] text-[clamp(18px,2vw,21px)] text-white/90 text-pretty">Taylor the Turtle and friends help children and the adults who love them talk about body safety, personal rights, and what it means to feel at home in your own skin. Always warm. Always free.</p>
+					<div class="mt-8 flex flex-wrap gap-3.5 max-lg:justify-center max-sm:flex-col">
+						<Button href="#meet-friends" variant="primary">Meet Taylor &amp; Friends →</Button>
+						<Button href="#book-visit" variant="secondary">Book a Visit</Button>
+					</div>
+				</div>
+				<div class="drift-in max-lg:order-first max-lg:mx-auto max-lg:max-w-[420px]">
+					<Image src={myBodyImg} alt="Taylor holding a sign: My body belongs to me" class="w-full drop-shadow-[0_16px_48px_rgba(36,61,20,0.35)]" widths={[480, 960]} sizes="(min-width: 1024px) 480px, 100vw" />
+				</div>
+			</div>
+		</section>
+
+		<section id="about" class="section-pad cream-surface">
+			<div class="container grid items-center gap-8 lg:grid-cols-[0.72fr_1fr] lg:gap-[clamp(32px,6vw,72px)]">
+				<Image src={safeBodyImg} alt="Taylor: I have the right to a safe body" class="drift-in w-full rotate-[-3deg] max-lg:mx-auto max-lg:max-w-[420px]" widths={[480, 960]} sizes="(min-width: 1024px) 480px, 100vw" />
+				<div class="[&_.section-heading]:mb-5">
+					<SectionHeading title="A little turtle with a big message" />
+					<p class="text-[19px] text-deep-forest/80">Taylor the Turtle was created right here in Brantford to give children a friendly, familiar face when it comes to learning about their rights. Through illustrated teachings, colouring activities, and real visits to schools and community spaces, Taylor helps kids understand that their bodies belong to them and that they have people around them who care.</p>
+					<p class="mt-4.5 text-[19px] text-deep-forest/80">Taylor's world is always safe to explore. Parents and educators can browse alongside children with confidence: there's nothing here that shouldn't be seen over a small person's shoulder.</p>
+				</div>
+			</div>
+		</section>
+
+		<section id="teachings" class="green-field section-pad overflow-hidden">
+			<div class="container">
+				<SectionHeading
+					align="center"
+					reverse
+					title="Taylor's Teachings"
+					subtitle="Each teaching is a conversation starter, a moment to open up something important in a way that feels natural, not scary."
+				/>
+				<div class="grid gap-5 lg:grid-cols-3">
+					{teachings.map((teaching) => <TeachingCard {...teaching} />)}
+				</div>
+				<a class="mx-auto mt-8 table font-display text-lg font-bold text-white" href="#">See all of Taylor's Teachings →</a>
+			</div>
+		</section>
+
+		<section class="section-pad cream-surface">
+			<div class="container">
+				<SectionHeading align="center" title="Taylor is here for your whole community." />
+				<div class="grid gap-6 lg:grid-cols-2">
+					<article class="flex flex-col gap-4.5 rounded-[32px] border border-warm-cream-deep bg-white p-7 shadow-soft">
+						<Image src={proudFamilyImg} alt="Taylor: I have the right to be proud of my family" class="w-full object-contain" widths={[480, 960]} sizes="(min-width: 1024px) 480px, 100vw" />
+						<h3 class="font-display text-3xl font-semibold tracking-[-0.03em] text-taylor-green-dark text-balance">For parents &amp; families</h3>
+						<p class="text-deep-forest/80">Not sure how to start a conversation about body safety with your child? Taylor makes it easier. Browse the teachings, download a colouring sheet to do together, or find out when Taylor is coming to an event near you.</p>
+						<Button class="mt-auto self-start max-lg:self-stretch" href="#teachings" variant="primary">Explore the teachings →</Button>
+					</article>
+					<article class="flex flex-col gap-4.5 rounded-[32px] border border-warm-cream-deep bg-white p-7 shadow-soft">
+						<Image src={safeSchoolImg} alt="Taylor: I have the right to a safe school" class="w-full object-contain" widths={[480, 960]} sizes="(min-width: 1024px) 480px, 100vw" />
+						<h3 class="font-display text-3xl font-semibold tracking-[-0.03em] text-taylor-green-dark text-balance">For educators &amp; community groups</h3>
+						<p class="text-deep-forest/80">Bring Taylor to your classroom, community centre, or event. Taylor's presentations are always free, always age-appropriate, and always a hit. We'll work with you on timing, format, and what works best for your group.</p>
+						<Button class="mt-auto self-start max-lg:self-stretch" href="#book-visit" variant="secondary">Book a visit →</Button>
+					</article>
+				</div>
+			</div>
+		</section>
+
+		<section id="meet-friends" class="green-field nature-base section-pad overflow-hidden">
+			<div class="container">
+				<SectionHeading align="center" reverse title="Taylor's friends" subtitle="Every friend in Taylor's world has something to offer. Get to know the whole crew." />
+				<div class="relative z-[1] grid gap-4.5 lg:grid-cols-6 max-lg:grid-cols-3 max-sm:-mx-5 max-sm:flex max-sm:overflow-x-auto max-sm:px-5 max-sm:pb-2" aria-label="Taylor's friends">
+					{friends.map(([name, img], index) => (
+						<article class="drift-in text-center max-sm:w-[150px] max-sm:flex-none" style={`animation-delay:${index * 90}ms`}>
+							<Image src={img} alt={`${name} character illustration`} class="mx-auto w-full object-contain drop-shadow-[0_8px_20px_rgba(36,61,20,0.28)]" widths={[200, 400]} sizes="200px" />
+							<h3 class="mt-3 font-display text-lg font-semibold text-white">{name}</h3>
+						</article>
+					))}
+				</div>
+				<a class="mx-auto mt-8 table font-display text-lg font-bold text-white" href="#">Meet everyone →</a>
+			</div>
+		</section>
+
+		<section id="book-visit" class="section-pad cream-surface">
+			<div class="container grid items-center gap-9 lg:grid-cols-[0.9fr_1fr] lg:gap-[clamp(36px,7vw,84px)]">
+				<Image src={myselfImg} alt="Taylor: I have the right to be myself" class="w-full object-contain" widths={[480, 960]} sizes="(min-width: 1024px) 480px, 100vw" />
+				<div class="[&_.section-heading]:mb-5">
+					<SectionHeading title="Bring Taylor to your community" />
+					<p class="max-w-[660px] text-[19px] text-deep-forest/80">Taylor the Turtle visits schools, daycares, community events, and family programs across Brantford and the surrounding area. Every visit is tailored to the group, whether that's a quick story-time drop-in or a longer workshop for educators.</p>
+					<dl class="my-7 grid gap-3">
+						<div class="grid items-baseline gap-2 rounded-[20px] border border-warm-cream-deep bg-white px-4.5 py-4 sm:grid-cols-[150px_1fr]"><dt class="font-display font-bold text-taylor-green-dark">Free</dt><dd class="m-0 text-deep-forest/80">Always has been, always will be.</dd></div>
+						<div class="grid items-baseline gap-2 rounded-[20px] border border-warm-cream-deep bg-white px-4.5 py-4 sm:grid-cols-[150px_1fr]"><dt class="font-display font-bold text-taylor-green-dark">Flexible</dt><dd class="m-0 text-deep-forest/80">We work with your schedule and setting.</dd></div>
+						<div class="grid items-baseline gap-2 rounded-[20px] border border-warm-cream-deep bg-white px-4.5 py-4 sm:grid-cols-[150px_1fr]"><dt class="font-display font-bold text-taylor-green-dark">Age-appropriate</dt><dd class="m-0 text-deep-forest/80">Best suited for children ages 3-8 and their adults.</dd></div>
+					</dl>
+					<Button href="#" variant="primary" size="large">Request a visit →</Button>
+					<p class="mt-3.5 text-sm text-wolf-gray">We'll be in touch within a few days to find a time that works.</p>
+				</div>
+			</div>
+		</section>
+
+		<section id="stay-connected" class="section-pad bg-linear-to-b from-warm-cream to-taylor-green-tint">
+			<div class="container max-w-[860px] rounded-[36px] border border-[#C7E2A8]/80 bg-white/70 py-14 text-center shadow-soft [&_.section-heading]:mb-6">
+				<SectionHeading align="center" title="Follow along with Taylor" subtitle="New teachings, upcoming events, and behind-the-scenes moments from Taylor's world, all on Instagram and Facebook." />
+				<div class="flex flex-wrap justify-center gap-3.5 max-sm:flex-col">
+					<Button href="#" variant="primary">📷 Follow on Instagram →</Button>
+					<Button href="#" variant="secondary">👍 Follow on Facebook →</Button>
+				</div>
+				<div class="mt-8 border-t border-dashed border-[#C7E2A8] pt-6">
+					<h3 class="mb-2 font-display text-xl font-semibold text-taylor-green-dark">Upcoming</h3>
+					<p class="text-deep-forest/80">[Event name] — [Date] — [Location/format]</p>
+					<p class="text-deep-forest/80">[Event name] — [Date] — [Location/format]</p>
+					<a class="mt-3 inline-block font-display font-bold text-sky-blue" href="#">See all events →</a>
+				</div>
+			</div>
+		</section>
+
+		<section class="bg-shell-gold px-6 py-5 text-center font-display text-lg font-bold text-deep-forest" aria-label="Grant acknowledgment">
+			<p class="mx-auto max-w-[960px]">Taylor the Turtle's 2025-2026 update was made possible with generous grant support. We are grateful for the investment in children's safety education in our community.</p>
+		</section>
+	</main>
+
+	<SiteFooter />
+</BaseLayout>

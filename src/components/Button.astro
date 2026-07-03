@@ -1,0 +1,14 @@
+---
+interface Props {
+	href: string;
+	variant?: 'primary' | 'secondary';
+	size?: 'default' | 'large';
+	class?: string;
+}
+
+const { href, variant = 'primary', size = 'default', class: className = '' } = Astro.props;
+---
+
+<a class:list={['button', variant, size === 'large' && 'large', className]} href={href}>
+	<slot />
+</a>
