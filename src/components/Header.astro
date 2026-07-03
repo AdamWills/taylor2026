@@ -1,0 +1,61 @@
+---
+const links = [
+	{ href: '/teachings', label: "Taylor's Teachings" },
+	{ href: '/colouring', label: 'Colouring Pages' },
+	{ href: '/our-story', label: 'Our Story' },
+	{ href: '/events', label: 'Events' },
+	{ href: '/team', label: 'Team' },
+];
+---
+
+<header class="relative z-20">
+	<div class="container-site flex items-center justify-between py-4">
+		<a href="/" class="display-tight text-xl text-forest">
+			Taylor the Turtle<span class="text-ochre">.</span>
+		</a>
+
+		<nav class="hidden items-center gap-6 text-[14.5px] font-bold text-pine lg:flex" aria-label="Main">
+			{links.map(({ href, label }) => (
+				<a class="hover:text-forest" href={href}>{label}</a>
+			))}
+			<a
+				href="/book-a-visit"
+				class="rounded-full bg-mustard px-4.5 py-2 font-extrabold text-[#3d3113] transition-colors hover:bg-ochre hover:text-milk"
+			>
+				Book a Visit
+			</a>
+		</nav>
+
+		<button
+			id="menu-toggle"
+			type="button"
+			class="rounded-full border-2 border-pine px-4 py-1.5 font-extrabold text-pine lg:hidden"
+			aria-expanded="false"
+			aria-controls="mobile-nav"
+		>
+			Menu
+		</button>
+	</div>
+
+	<nav
+		id="mobile-nav"
+		hidden
+		class="container-site flex flex-col gap-1 pb-5 text-[16px] font-bold text-pine lg:hidden"
+		aria-label="Main mobile"
+	>
+		{links.map(({ href, label }) => (
+			<a class="rounded-xl px-3 py-2.5 hover:bg-sage-tile" href={href}>{label}</a>
+		))}
+		<a class="rounded-xl px-3 py-2.5 text-ochre hover:bg-sage-tile" href="/book-a-visit">Book a Visit</a>
+	</nav>
+</header>
+
+<script>
+	const toggle = document.getElementById('menu-toggle');
+	const nav = document.getElementById('mobile-nav');
+	toggle?.addEventListener('click', () => {
+		const open = toggle.getAttribute('aria-expanded') === 'true';
+		toggle.setAttribute('aria-expanded', String(!open));
+		if (nav) nav.hidden = open;
+	});
+</script>

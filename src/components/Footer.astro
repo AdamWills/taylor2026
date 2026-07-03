@@ -1,0 +1,59 @@
+---
+const columns = [
+	{
+		heading: 'Learn',
+		links: [
+			{ href: '/teachings', label: "Taylor's Teachings" },
+			{ href: '/colouring', label: 'Colouring Pages' },
+			{ href: 'https://soundcloud.com/taylor-the-turtle', label: "Taylor's Music" },
+		],
+	},
+	{
+		heading: 'About',
+		links: [
+			{ href: '/our-story', label: 'Our Story' },
+			{ href: '/team', label: 'Team' },
+			{ href: '/photos', label: 'Photo Album' },
+			{ href: '/articles', label: 'Articles' },
+		],
+	},
+	{
+		heading: 'Connect',
+		links: [
+			{ href: '/events', label: 'Events' },
+			{ href: '/book-a-visit', label: 'Book a Visit' },
+			{ href: '/facilitators', label: 'Facilitator Sign-in' },
+		],
+	},
+];
+---
+
+<footer class="bg-forest text-mist">
+	<div class="container-site grid gap-10 py-12 text-[14px] md:grid-cols-[1.3fr_1fr_1fr_1fr]">
+		<div>
+			<p class="display-tight text-lg text-milk">Taylor the Turtle.</p>
+			<p class="mt-3 max-w-[36ch]">
+				A collaboration led by the Sexual Assault Centre of Brant and Ganohkwasra Family Assault
+				Support Services.
+			</p>
+			<p class="mt-4 flex gap-4 font-bold text-milk">
+				<a class="hover:text-mustard" href="https://www.facebook.com/taylorsrights">Facebook</a>
+				<a class="hover:text-mustard" href="https://www.instagram.com/taylorsrights">Instagram</a>
+				<a class="hover:text-mustard" href="https://soundcloud.com/taylor-the-turtle">SoundCloud</a>
+			</p>
+		</div>
+		{columns.map(({ heading, links }) => (
+			<nav aria-label={heading}>
+				<h2 class="text-[12px] font-extrabold tracking-[0.1em] text-milk uppercase">{heading}</h2>
+				<ul class="mt-3 space-y-2">
+					{links.map(({ href, label }) => (
+						<li><a class="hover:text-milk" href={href}>{label}</a></li>
+					))}
+				</ul>
+			</nav>
+		))}
+	</div>
+	<div class="container-site border-t border-milk/15 py-5 text-[13px]">
+		<p>519.751.1164 x 206 · Brantford, Brant County &amp; Six Nations</p>
+	</div>
+</footer>
