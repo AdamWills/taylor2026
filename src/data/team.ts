@@ -33,5 +33,5 @@ export const team: Person[] = [
 	{ name: 'Dr. Jennifer Root', role: 'Associate Professor & Associate Dean (BSW)', org: 'Wilfrid Laurier University', headshot: jenn },
 ];
 
-const teaser = ['Carrie Sinkowski', 'Katie Sinkowski', 'Jezeth Esmas', 'Misty Greene'];
+const teaser = ['Jezeth Esmas', 'Misty Greene', 'Kasey Politano', 'Dr. Jennifer Root'];
 export const teaserFaces = teaser.map((name) => team.find((p) => p.name === name)!);
