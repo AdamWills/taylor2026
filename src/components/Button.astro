@@ -1,14 +1,27 @@
 ---
 interface Props {
 	href: string;
-	variant?: 'primary' | 'secondary';
-	size?: 'default' | 'large';
+	variant?: 'primary' | 'secondary' | 'mustard' | 'plum';
 	class?: string;
 }
 
-const { href, variant = 'primary', size = 'default', class: className = '' } = Astro.props;
+const { href, variant = 'primary', class: className = '' } = Astro.props;
+
+const variants = {
+	primary: 'bg-pine text-milk hover:bg-forest',
+	secondary: 'border-2 border-pine text-pine hover:bg-pine hover:text-milk',
+	mustard: 'bg-mustard text-[#3d3113] hover:bg-ochre hover:text-milk',
+	plum: 'bg-plum text-milk hover:bg-[#523386]',
+};
 ---
 
-<a class:list={['button', variant, size === 'large' && 'large', className]} href={href}>
+<a
+	href={href}
+	class:list={[
+		'inline-block rounded-full px-6 py-3 text-[15px] font-extrabold transition-colors',
+		variants[variant],
+		className,
+	]}
+>
 	<slot />
 </a>
