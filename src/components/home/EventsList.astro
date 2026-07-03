@@ -1,0 +1,28 @@
+---
+import Button from '../Button.astro';
+import { events } from '../../data/events';
+
+const fmtDay = new Intl.DateTimeFormat('en-CA', { day: '2-digit', timeZone: 'UTC' });
+const fmtMonth = new Intl.DateTimeFormat('en-CA', { month: 'short', timeZone: 'UTC' });
+---
+
+<section class="bg-white">
+	<div class="container-site py-14 lg:py-20">
+		<h2 class="display-tight text-3xl lg:text-4xl">Come say hi to Taylor</h2>
+		<ul class="mt-7" role="list">
+			{events.map(({ date, title, details }) => (
+				<li class="flex items-center gap-5 border-t-[1.5px] border-sage-tile py-4">
+					<p class="min-w-16 rounded-xl bg-sage-tile px-3.5 py-2.5 text-center">
+						<span class="display-tight block text-xl">{fmtDay.format(date)}</span>
+						<span class="text-[11px] font-extrabold text-pine uppercase">{fmtMonth.format(date)}</span>
+					</p>
+					<div>
+						<h3 class="text-[16.5px] font-extrabold">{title}</h3>
+						<p class="mt-0.5 text-[13.5px] text-forest/70">{details}</p>
+					</div>
+				</li>
+			))}
+		</ul>
+		<Button class="mt-6" href="/events" variant="secondary">See all events</Button>
+	</div>
+</section>

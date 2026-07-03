@@ -1,0 +1,37 @@
+---
+import { Image } from 'astro:assets';
+import Button from '../Button.astro';
+import colour1 from '../../assets/colouring-previews/colour-1.jpg';
+import colour2 from '../../assets/colouring-previews/colour-2.jpg';
+import colour3 from '../../assets/colouring-previews/colour-3.jpg';
+
+const sheets = [
+	{ src: colour1, class: 'left-[6%] top-4 -rotate-[5deg]' },
+	{ src: colour2, class: 'left-[32%] top-0 rotate-[2deg] z-10' },
+	{ src: colour3, class: 'left-[58%] top-5 rotate-[6deg]' },
+];
+---
+
+<section class="paper">
+	<div class="container-site grid items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
+		<div>
+			<h2 class="display-tight text-3xl text-balance lg:text-4xl">Print, colour, and talk it through</h2>
+			<p class="mt-4 max-w-[48ch] text-forest/80">
+				Every teaching has a free colouring sheet — a gentle way to sit alongside a child and
+				let the conversation happen naturally. Download single pages or the whole book.
+			</p>
+			<Button class="mt-6" href="/colouring">Browse colouring pages</Button>
+		</div>
+		<div class="relative h-64 sm:h-72" aria-hidden="true">
+			{sheets.map(({ src, class: cls }) => (
+				<Image
+					src={src}
+					alt=""
+					class:list={['absolute w-44 rounded-lg border border-forest/10 bg-white shadow-lg sm:w-48', cls]}
+					widths={[240, 480]}
+					sizes="200px"
+				/>
+			))}
+		</div>
+	</div>
+</section>
