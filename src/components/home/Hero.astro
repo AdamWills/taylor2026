@@ -6,34 +6,32 @@ import group from '../../assets/MyBodyBelongsToMe.png';
 ---
 
 <section class="paper">
-	<div class="container-site grid items-end gap-8 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-		<div class="pb-12 lg:pb-16">
-			<p class="text-[12.5px] font-extrabold tracking-[0.12em] text-forest/80 uppercase">
-				Est. 2010 · Brantford, Brant County &amp; Six Nations
-			</p>
-			<h1 class="display-tight mt-4 text-[clamp(2.5rem,5.5vw,3.6rem)] leading-[1.05] text-balance">
-				Big feelings, little turtle, and the
-				<span class="relative sm:whitespace-nowrap text-ochre">
-					rights every child has
-					<Squiggle class="absolute -bottom-2.5 left-0 h-3 w-full max-sm:hidden" />
-				</span>
-			</h1>
-			<p class="mt-6 max-w-[44ch] text-[17px] text-forest/80 text-pretty">
-				Taylor the Turtle helps caring adults teach children aged 18 months to six about body
-				rights, feelings, and safety — without fear-based lessons. Recognized as a provincial
-				best practice.
-			</p>
-			<div class="mt-7 flex flex-wrap gap-3">
-				<Button href="/teachings">Explore Taylor's Teachings</Button>
-				<Button href="/book-a-visit" variant="secondary">Book a Visit</Button>
-			</div>
+	<div class="container-site flex flex-col items-center pt-8 text-center lg:pt-12">
+		<p class="text-[12.5px] font-extrabold tracking-[0.12em] text-forest/80 uppercase">
+			Est. 2010 · Brantford, Brant County &amp; Six Nations
+		</p>
+		<h1 class="display-tight mt-4 max-w-[18ch] text-[clamp(2.5rem,5.5vw,3.8rem)] leading-[1.05] text-balance">
+			Big feelings, little turtle, and the
+			<span class="relative sm:whitespace-nowrap text-ochre">
+				rights every child has
+				<Squiggle class="absolute -bottom-2.5 left-0 h-3 w-full max-sm:hidden" />
+			</span>
+		</h1>
+		<p class="mt-6 max-w-[54ch] text-[17px] text-forest/80 text-pretty">
+			Taylor the Turtle helps caring adults teach children aged 18 months to six about body
+			rights, feelings, and safety — without fear-based lessons. Recognized as a provincial
+			best practice.
+		</p>
+		<div class="mt-7 flex flex-wrap justify-center gap-3">
+			<Button href="/teachings">Explore Taylor's Teachings</Button>
+			<Button href="/book-a-visit" variant="secondary">Book a Visit</Button>
 		</div>
 		<Image
 			src={group}
 			alt="Taylor the Turtle waving, surrounded by friends: Bear, Wolf, Deer, Eagle, Beaver, and Blue Jay"
-			class="mx-auto w-full max-w-[560px]"
-			widths={[480, 760, 1120]}
-			sizes="(min-width: 1024px) 560px, 92vw"
+			class="mt-9 w-full max-w-[880px]"
+			widths={[480, 760, 1120, 1760]}
+			sizes="(min-width: 1024px) 880px, 92vw"
 			loading="eager"
 		/>
 	</div>
