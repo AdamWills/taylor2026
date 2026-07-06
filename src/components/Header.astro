@@ -10,17 +10,17 @@ const links = [
 
 <header class="relative z-20">
 	<div class="container-site flex items-center justify-between py-4">
-		<a href="/" class="display-tight text-xl text-forest">
+		<a href="/" aria-label="Homepage" class="display-tight text-xl text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
 			Taylor the Turtle<span class="text-ochre">.</span>
 		</a>
 
 		<nav class="hidden items-center gap-6 text-[14.5px] font-bold text-forest lg:flex" aria-label="Main">
 			{links.map(({ href, label }) => (
-				<a class="hover:text-forest/85" href={href}>{label}</a>
+				<a class="hover:text-forest/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" href={href}>{label}</a>
 			))}
 			<a
 				href="/book-a-visit"
-				class="rounded-full bg-mustard px-4.5 py-2 font-extrabold text-[#3d3113] transition-colors hover:bg-[#e0a72e]"
+				class="rounded-full bg-mustard px-4.5 py-2 font-extrabold text-[#3d3113] transition-colors hover:bg-[#e0a72e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
 			>
 				Book a Visit
 			</a>
@@ -29,7 +29,7 @@ const links = [
 		<button
 			id="menu-toggle"
 			type="button"
-			class="rounded-full border-2 border-forest px-4 py-1.5 font-extrabold text-forest lg:hidden"
+			class="rounded-full border-2 border-forest px-4 py-1.5 font-extrabold text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest lg:hidden"
 			aria-expanded="false"
 			aria-controls="mobile-nav"
 		>
@@ -40,22 +40,33 @@ const links = [
 	<nav
 		id="mobile-nav"
 		hidden
-		class="container-site flex flex-col gap-1 pb-5 text-[16px] font-bold text-pine lg:hidden bg-white rounded-b-3xl shadow-sm"
+		class="container-site flex flex-col gap-1 rounded-b-3xl bg-white pb-5 text-[16px] font-bold text-pine shadow-sm lg:hidden"
 		aria-label="Main mobile"
 	>
 		{links.map(({ href, label }) => (
-			<a class="rounded-xl px-3 py-2.5 hover:bg-sage-tile hover:text-forest" href={href}>{label}</a>
+			<a class="rounded-xl px-3 py-2.5 hover:bg-sage-tile hover:text-forest focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-forest" href={href}>{label}</a>
 		))}
-		<a class="rounded-xl px-3 py-2.5 text-pine hover:bg-sage-tile hover:text-forest" href="/book-a-visit">Book a Visit</a>
+		<a class="rounded-xl px-3 py-2.5 text-pine hover:bg-sage-tile hover:text-forest focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-forest" href="/book-a-visit">Book a Visit</a>
 	</nav>
 </header>
 
 <script>
 	const toggle = document.getElementById('menu-toggle');
 	const nav = document.getElementById('mobile-nav');
+
+	function setOpen(open: boolean) {
+		toggle?.setAttribute('aria-expanded', String(open));
+		if (nav) nav.hidden = !open;
+	}
+
 	toggle?.addEventListener('click', () => {
-		const open = toggle.getAttribute('aria-expanded') === 'true';
-		toggle.setAttribute('aria-expanded', String(!open));
-		if (nav) nav.hidden = open;
+		setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+			setOpen(false);
+			toggle.focus();
+		}
 	});
 </script>

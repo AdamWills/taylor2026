@@ -29,7 +29,7 @@ const columns = [
 ---
 
 <footer class="bg-forest text-mist">
-	<div class="container-site grid gap-10 py-12 text-[14px] md:grid-cols-[1.3fr_1fr_1fr_1fr]">
+	<div class="container-site grid gap-10 py-12 text-[14px] md:grid-cols-[13fr_10fr_10fr_10fr]">
 		<div>
 			<p class="display-tight text-lg text-milk">Taylor the Turtle.</p>
 			<p class="mt-3 max-w-[36ch]">
@@ -45,7 +45,7 @@ const columns = [
 		{columns.map(({ heading, links }) => (
 			<nav aria-label={heading}>
 				<h2 class="text-[12px] font-extrabold tracking-[0.1em] text-milk uppercase">{heading}</h2>
-				<ul class="mt-3 space-y-2">
+				<ul class="mt-3 space-y-2" role="list">
 					{links.map(({ href, label }) => (
 						<li><a class="hover:text-milk" href={href}>{label}</a></li>
 					))}
