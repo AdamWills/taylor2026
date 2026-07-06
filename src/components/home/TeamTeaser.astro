@@ -1,9 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
-import { team, teaserFaces } from '../../data/team';
+import { team } from '../../data/team';
 
-const remaining = team.length - teaserFaces.length;
+const initials = (name: string) =>
+	name
+		.replace(/^Dr\.\s+/, '')
+		.split(' ')
+		.map((part) => part[0])
+		.slice(0, 2)
+		.join('');
 ---
 
 <section class="bg-pine">
@@ -13,27 +19,41 @@ const remaining = team.length - teaserFaces.length;
 			A family of creators, counsellors, researchers, and community builders across SAC Brant,
 			Ganohkwasra, and Wilfrid Laurier University.
 		</p>
-		<ul class="mt-8 flex flex-wrap items-center justify-center gap-4" role="list">
-			{teaserFaces.map(({ name, role, headshot }) => (
-				<li>
-					{headshot && (
+		<ul class="mx-auto mt-9 flex max-w-[680px] flex-wrap justify-center gap-x-4 gap-y-6" role="list">
+			{team.map(({ name, role, headshot }, index) => (
+				<li class="group relative hover:z-10">
+					{headshot ? (
 						<Image
 							src={headshot}
 							alt={`${name}, ${role}`}
-							class="size-21 rounded-full border-[3px] border-milk object-cover"
-							width={168}
-							height={168}
+							class:list={[
+								'size-24 rounded-full border-[3px] border-milk object-cover transition duration-200 ease-out group-hover:-translate-y-1 group-hover:rotate-0 group-hover:scale-110',
+								index % 2 === 0 ? '-rotate-3' : 'rotate-3',
+							]}
+							width={192}
+							height={192}
 						/>
+					) : (
+						<span
+							class:list={[
+								'display-tight flex size-24 items-center justify-center rounded-full border-[3px] border-milk bg-sage-tile text-xl text-forest transition duration-200 ease-out group-hover:-translate-y-1 group-hover:rotate-0 group-hover:scale-110',
+								index % 2 === 0 ? '-rotate-3' : 'rotate-3',
+							]}
+							aria-hidden="true"
+						>
+							{initials(name)}
+						</span>
 					)}
+					{!headshot && <span class="sr-only">{name}, {role}</span>}
+					<span
+						class="pointer-events-none absolute top-full left-1/2 z-10 mt-1.5 -translate-x-1/2 rounded-full bg-milk px-3 py-1 text-[12px] font-bold whitespace-nowrap text-forest opacity-0 transition group-hover:opacity-100"
+						aria-hidden="true"
+					>
+						{name}
+					</span>
 				</li>
 			))}
-			<li
-				class="flex size-21 items-center justify-center rounded-full border-[3px] border-dashed border-mist/70 text-[13px] font-extrabold text-milk"
-				aria-label={`and ${remaining} more team members`}
-			>
-				+{remaining} more
-			</li>
 		</ul>
-		<Button class="mt-7" href="/team" variant="mustard">Meet the team</Button>
+		<Button class="mt-9" href="/team" variant="mustard">Meet the team</Button>
 	</div>
 </section>

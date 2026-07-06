@@ -12,17 +12,17 @@ import { featuredTeachings } from '../../data/teachings';
 		</p>
 		<ul class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
 			{featuredTeachings.map(({ title, image }) => (
-				<li class="rounded-3xl bg-white p-6 text-center">
+				<li class="rounded-3xl bg-white p-4 pb-6 text-center">
 					{image && (
 						<Image
 							src={image}
 							alt=""
-							class="mx-auto w-[70%]"
-							widths={[320, 640]}
-							sizes="(min-width: 640px) 300px, 60vw"
+							class="mx-auto w-full"
+							widths={[360, 720]}
+							sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 88vw"
 						/>
 					)}
-					<h3 class="display-tight mt-3 text-lg text-balance">{title}</h3>
+					<h3 class="display-tight mt-2 text-lg text-balance">{title}</h3>
 				</li>
 			))}
 		</ul>

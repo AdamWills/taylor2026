@@ -1,30 +1,30 @@
 ---
 const facts = [
-	{ figure: '16 years', label: 'of collaboration' },
-	{ figure: '8 partners', label: 'in the community' },
-	{ figure: '10 teachings', label: 'for every child' },
+	{ figure: '16 years', label: 'of community collaboration' },
+	{ figure: '8 partners', label: 'across Brantford, Brant County & Six Nations' },
+	{ figure: '10 teachings', label: 'every child can learn and carry with them' },
 ];
 ---
 
 <section class="bg-white">
-	<div class="container-site grid gap-10 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-20">
-		<h2 class="display-tight text-3xl text-balance lg:text-4xl">A little turtle with a big message</h2>
-		<div>
-			<p class="text-forest/80">
-				Taylor the Turtle was created in 2010 as a community-built alternative to fear-based
-				prevention programs. Instead of "stranger danger," Taylor teaches through children's
-				rights, body awareness, and emotional literacy — developed by eight community partners
-				under the leadership of SAC Brant and Ganohkwasra Family Assault Support Services.
-			</p>
-			<dl class="mt-7 flex flex-wrap gap-4">
-				{facts.map(({ figure, label }) => (
-					<div class="rounded-2xl bg-sage-tile px-5 py-3.5">
-						<dt class="sr-only">{label}</dt>
-						<dd class="display-tight text-xl">{figure}</dd>
-						<dd class="text-[13px] text-forest/80">{label}</dd>
-					</div>
-				))}
-			</dl>
-		</div>
+	<div class="container-site py-14 lg:py-20">
+		<h2 class="display-tight max-w-[35ch] text-3xl text-balance lg:text-4xl">
+			A little turtle with a big message
+		</h2>
+		<p class="mt-5 max-w-[65ch] text-forest/80 text-pretty">
+			Taylor the Turtle was created in 2010 as a community-built alternative to fear-based
+			prevention programs. Instead of “stranger danger,” Taylor teaches through children's
+			rights, body awareness, and emotional literacy — developed by eight community partners
+			under the leadership of SAC Brant and Ganohkwasra Family Assault Support Services.
+		</p>
+		<dl class="mt-10 grid gap-5 sm:grid-cols-3">
+			{facts.map(({ figure, label }) => (
+				<div class="rounded-2xl bg-sage-tile px-6 py-5">
+					<dt class="sr-only">{label}</dt>
+					<dd class="display-tight text-2xl">{figure}</dd>
+					<dd class="mt-1 text-[14px] text-forest/80">{label}</dd>
+				</div>
+			))}
+		</dl>
 	</div>
 </section>
