@@ -1,13 +1,46 @@
+---
+const pillars = [
+	{
+		title: "Children's rights",
+		text: 'Every child learns simple, powerful statements about their own body and safety — starting with “my body belongs to me.”',
+	},
+	{
+		title: 'Body awareness',
+		text: 'Correct language and body knowledge, taught early, help children speak up clearly and be understood.',
+	},
+	{
+		title: 'Emotional literacy',
+		text: "Naming feelings — and connecting them to our bodies — gives children the words to say when something isn't right.",
+	},
+];
+---
+
 <section class="bg-white">
 	<div class="container-site py-14 text-center lg:py-20">
 		<h2 class="display-tight mx-auto max-w-[35ch] text-3xl text-balance lg:text-4xl">
 			A little turtle with a big message
 		</h2>
-		<p class="mx-auto mt-5 max-w-[65ch] text-forest/80 text-pretty">
+		<p class="mx-auto mt-5 max-w-[60ch] text-forest/80 text-pretty">
 			Taylor the Turtle was created in 2010 as a community-built alternative to fear-based
-			prevention programs. Instead of “stranger danger,” Taylor teaches through children's
-			rights, body awareness, and emotional literacy — developed by eight community partners
-			under the leadership of SAC Brant and Ganohkwasra Family Assault Support Services.
+			prevention programs. No “stranger danger” — Taylor teaches through three simple ideas:
+		</p>
+		<ul class="mx-auto mt-12 grid max-w-[64rem] gap-10 sm:grid-cols-3 sm:gap-8" role="list">
+			{pillars.map(({ title, text }, index) => (
+				<li>
+					<span
+						class="display-tight mx-auto flex size-14 items-center justify-center rounded-full bg-mustard text-2xl text-[#3d3113]"
+						aria-hidden="true"
+					>
+						{index + 1}
+					</span>
+					<h3 class="display-tight mt-4 text-xl">{title}</h3>
+					<p class="mx-auto mt-2 max-w-[36ch] text-[15px] text-forest/80 text-pretty">{text}</p>
+				</li>
+			))}
+		</ul>
+		<p class="mx-auto mt-12 max-w-[60ch] text-[14px] text-forest/80">
+			Developed by eight community partners under the leadership of SAC Brant and Ganohkwasra
+			Family Assault Support Services.
 		</p>
 	</div>
 </section>
