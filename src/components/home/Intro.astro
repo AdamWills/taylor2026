@@ -1,11 +1,3 @@
----
-const facts = [
-	{ figure: '16 years', label: 'of community collaboration' },
-	{ figure: '8 partners', label: 'across Brantford, Brant County & Six Nations' },
-	{ figure: '10 teachings', label: 'every child can learn and carry with them' },
-];
----
-
 <section class="bg-white">
 	<div class="container-site py-14 lg:py-20">
 		<h2 class="display-tight max-w-[35ch] text-3xl text-balance lg:text-4xl">
@@ -17,14 +9,5 @@ const facts = [
 			rights, body awareness, and emotional literacy — developed by eight community partners
 			under the leadership of SAC Brant and Ganohkwasra Family Assault Support Services.
 		</p>
-		<dl class="mt-10 grid gap-5 sm:grid-cols-3">
-			{facts.map(({ figure, label }) => (
-				<div class="rounded-2xl bg-sage-tile px-6 py-5">
-					<dt class="sr-only">{label}</dt>
-					<dd class="display-tight text-2xl">{figure}</dd>
-					<dd class="mt-1 text-[14px] text-forest/80">{label}</dd>
-				</div>
-			))}
-		</dl>
 	</div>
 </section>
