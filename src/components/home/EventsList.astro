@@ -14,11 +14,11 @@ const fmtMonth = new Intl.DateTimeFormat('en-CA', { month: 'short', timeZone: 'U
 				<li class="flex items-center gap-5 border-t-[1.5px] border-sage-tile py-4">
 					<p class="min-w-16 rounded-xl bg-sage-tile px-3.5 py-2.5 text-center">
 						<span class="display-tight block text-xl tabular-nums">{fmtDay.format(date)}</span>
-						<span class="text-[11px] font-extrabold text-pine uppercase">{fmtMonth.format(date)}</span>
+						<span class="text-[12px] font-extrabold text-pine uppercase">{fmtMonth.format(date)}</span>
 					</p>
 					<div>
-						<h3 class="text-[16.5px] font-extrabold">{title}</h3>
-						<p class="mt-0.5 text-[13.5px] text-forest/80">{details}</p>
+						<h3 class="font-extrabold">{title}</h3>
+						<p class="mt-0.5 text-[15px] text-forest/80">{details}</p>
 					</div>
 				</li>
 			))}

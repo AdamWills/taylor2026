@@ -21,7 +21,7 @@
 	html {
 		@apply scroll-smooth bg-sage text-forest antialiased;
 		font-family: var(--font-body);
-		font-size: 17px;
+		font-size: 18px;
 		line-height: 1.55;
 	}
 	::selection {
