@@ -22,14 +22,14 @@ const sheets = [
 			</p>
 			<Button class="mt-6" href="/colouring">Browse colouring pages</Button>
 		</div>
-		<div class="relative h-64 sm:h-72" aria-hidden="true">
+		<div class="relative h-72 sm:h-96" aria-hidden="true">
 			{sheets.map(({ src, class: cls }) => (
 				<Image
 					src={src}
 					alt=""
-					class:list={['absolute w-[36%] max-w-48 border border-forest/10 bg-white shadow-lg', cls]}
-					widths={[240, 480]}
-					sizes="200px"
+					class:list={['absolute w-[40%] max-w-64 border border-forest/10 bg-white shadow-lg', cls]}
+					widths={[320, 640]}
+					sizes="260px"
 				/>
 			))}
 		</div>
