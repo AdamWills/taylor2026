@@ -7,21 +7,55 @@ interface Props {
 
 const { href, variant = 'primary', class: className = '' } = Astro.props;
 
-const variants = {
-	primary: 'bg-pine text-milk hover:bg-forest',
-	secondary: 'border-2 border-pine text-pine hover:bg-pine hover:text-milk',
-	mustard: 'bg-mustard text-[#3d3113] hover:bg-[#e0a72e]',
-	plum: 'bg-plum text-milk hover:bg-[#523386]',
+const fronts = {
+	primary: 'bg-pine text-milk',
+	secondary: 'border-2 border-pine bg-milk text-pine',
+	mustard: 'bg-mustard text-[#3d3113]',
+	plum: 'bg-plum text-milk',
+};
+
+const edges = {
+	primary: 'bg-forest',
+	secondary: 'bg-pine',
+	mustard: 'bg-ochre',
+	plum: 'bg-[#523386]',
+};
+
+/* Pushable 3D button: a blurred shadow, a darker edge, and a raised front face.
+   The front rests 4px up, rises to 6px on hover (springy overshoot), and snaps
+   down to 2px in 34ms when pressed; release eases back over 600ms. */
+const motion = {
+	rest: 'transition-[translate] duration-600 ease-[cubic-bezier(0.3,0.7,0.4,1)]',
+	hover: 'group-hover:duration-250 group-hover:ease-[cubic-bezier(0.3,0.7,0.4,1.5)]',
+	press: 'group-active:duration-[34ms]',
 };
 ---
 
 <a
 	href={href}
 	class:list={[
-		'inline-block rounded-full px-6 py-3 text-[16px] font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest',
-		variants[variant],
+		'group relative inline-block rounded-full text-[16px] font-extrabold focus-visible:outline-none',
 		className,
 	]}
 >
-	<slot />
+	<span
+		class:list={[
+			'absolute inset-0 translate-y-0.5 rounded-full bg-forest/25 blur-[2px] group-hover:translate-y-1 group-active:translate-y-px',
+			motion.rest,
+			motion.hover,
+			motion.press,
+		]}
+		aria-hidden="true"></span>
+	<span class:list={['absolute inset-0 rounded-full', edges[variant]]} aria-hidden="true"></span>
+	<span
+		class:list={[
+			'relative block -translate-y-1 rounded-full px-6 py-3 group-hover:-translate-y-1.5 group-active:-translate-y-0.5 group-focus-visible:shadow-[0_0_0_3px_var(--color-milk)] group-focus-visible:outline-2 group-focus-visible:outline-offset-[3px] group-focus-visible:outline-forest',
+			motion.rest,
+			motion.hover,
+			motion.press,
+			fronts[variant],
+		]}
+	>
+		<slot />
+	</span>
 </a>

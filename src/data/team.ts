@@ -19,10 +19,10 @@ export interface Person {
 /** Roles/orgs from docs/Website Contents - Taylor the Turtle_v1.pdf.
  * Full bios land on the Team page in Phase 2. */
 export const team: Person[] = [
-	{ name: 'Carrie Sinkowski', role: "Program Founder — aka Taylor's Mom", org: 'Program Creators', headshot: carrie },
+	{ name: 'Carrie Sinkowski', role: "Program Founder (aka Taylor's Mom)", org: 'Program Creators', headshot: carrie },
 	{ name: 'Katie Sinkowski', role: 'Graphic Designer', org: 'Program Creators', headshot: katie },
 	{ name: 'John Sinkowski', role: 'Artist and Co-Creator', org: 'Program Creators', headshot: john },
-	{ name: 'Jean Sinkowski', role: "Curriculum Consultant — aka Taylor's Nan", org: 'Program Creators', headshot: jean },
+	{ name: 'Jean Sinkowski', role: "Curriculum Consultant (aka Taylor's Nan)", org: 'Program Creators', headshot: jean },
 	{ name: 'Jezeth Esmas', role: 'Community Development Coordinator', org: 'SAC Brant', headshot: jezeth },
 	{ name: 'Alex Klapwyk', role: 'Placement Student, Child and Youth Worker', org: 'SAC Brant', headshot: alex },
 	{ name: 'Misty Greene', role: 'Child and Youth Counsellor', org: 'Ganohkwasra', headshot: misty },

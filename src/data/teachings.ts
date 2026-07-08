@@ -22,7 +22,7 @@ export interface Teaching {
 	pdf: string;
 }
 
-/** Spec order — content PDF "Taylor's Teachings" list. Images exist for 5 of 10;
+/** Spec order, per the content PDF "Taylor's Teachings" list. Images exist for 5 of 10;
  * the rest arrive with the new illustration batch (see docs/REQUIREMENTS.md). */
 export const teachings: Teaching[] = [
 	{ slug: 'my-body-belongs-to-me', title: 'My body belongs to me!!', image: null, pdf: myBodyPdf },

@@ -2,7 +2,7 @@
 const pillars = [
 	{
 		title: "Children's rights",
-		text: 'Every child learns simple, powerful statements about their own body and safety — starting with “my body belongs to me.”',
+		text: 'Every child learns simple, powerful statements about their own body and safety, starting with “my body belongs to me.”',
 	},
 	{
 		title: 'Body awareness',
@@ -10,23 +10,23 @@ const pillars = [
 	},
 	{
 		title: 'Emotional literacy',
-		text: "Naming feelings — and connecting them to our bodies — gives children the words to say when something isn't right.",
+		text: "Naming feelings, and connecting them to our bodies, gives children the words to say when something isn't right.",
 	},
 ];
 ---
 
 <section class="bg-white">
 	<div class="container-site py-14 text-center lg:py-20">
-		<h2 class="display-tight mx-auto max-w-[35ch] text-3xl text-balance lg:text-4xl">
+		<h2 class="reveal display-tight mx-auto max-w-[35ch] text-3xl text-balance lg:text-4xl">
 			A little turtle with a big message
 		</h2>
-		<p class="mx-auto mt-5 max-w-[60ch] text-forest/80 text-pretty">
+		<p class="reveal mx-auto mt-5 max-w-[60ch] text-forest/80 text-pretty" style="--reveal-delay: 80ms">
 			Taylor the Turtle was created in 2010 as a community-built alternative to fear-based
-			prevention programs. No “stranger danger” — Taylor teaches through three simple ideas:
+			prevention programs. No “stranger danger.” Taylor teaches through three simple ideas:
 		</p>
 		<ul class="mx-auto mt-12 grid max-w-[64rem] gap-10 sm:grid-cols-3 sm:gap-8" role="list">
 			{pillars.map(({ title, text }, index) => (
-				<li>
+				<li class="reveal" style={`--reveal-delay: ${160 + index * 80}ms`}>
 					<span
 						class="display-tight mx-auto flex size-14 items-center justify-center rounded-full bg-mustard text-2xl text-[#3d3113]"
 						aria-hidden="true"
@@ -38,7 +38,7 @@ const pillars = [
 				</li>
 			))}
 		</ul>
-		<p class="mx-auto mt-12 max-w-[60ch] text-[15px] text-forest/80">
+		<p class="reveal mx-auto mt-12 max-w-[60ch] text-[15px] text-forest/80" style="--reveal-delay: 160ms">
 			Developed by eight community partners under the leadership of SAC Brant and Ganohkwasra
 			Family Assault Support Services.
 		</p>

@@ -4,7 +4,7 @@ export interface CommunityEvent {
 	details: string;
 }
 
-/** PLACEHOLDER — sample entries only, so the homepage section has realistic
+/** PLACEHOLDER: sample entries only, so the homepage section has realistic
  * shape. Replace with real events before launch. */
 export const PLACEHOLDER = true;
 

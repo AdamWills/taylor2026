@@ -8,10 +8,13 @@ const fmtMonth = new Intl.DateTimeFormat('en-CA', { month: 'short', timeZone: 'U
 
 <section class="bg-white">
 	<div class="container-site py-14 lg:py-20">
-		<h2 class="display-tight text-3xl lg:text-4xl">Come say hi to Taylor</h2>
+		<h2 class="reveal display-tight text-3xl lg:text-4xl">Come say hi to Taylor</h2>
 		<ul class="mt-7" role="list">
-			{events.map(({ date, title, details }) => (
-				<li class="flex items-center gap-5 border-t-[1.5px] border-sage-tile py-4">
+			{events.map(({ date, title, details }, index) => (
+				<li
+					class="reveal flex items-center gap-5 border-t-[1.5px] border-sage-tile py-4"
+					style={`--reveal-delay: ${80 + index * 80}ms`}
+				>
 					<p class="min-w-16 rounded-xl bg-sage-tile px-3.5 py-2.5 text-center">
 						<span class="display-tight block text-xl tabular-nums">{fmtDay.format(date)}</span>
 						<span class="text-[12px] font-extrabold text-pine uppercase">{fmtMonth.format(date)}</span>

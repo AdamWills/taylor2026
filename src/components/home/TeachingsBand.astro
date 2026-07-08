@@ -5,14 +5,17 @@ import { featuredTeachings } from '../../data/teachings';
 
 <section class="bg-pine">
 	<div class="container-site py-14 lg:py-20">
-		<h2 class="display-tight text-center text-3xl text-milk lg:text-4xl">Taylor's Teachings</h2>
-		<p class="mx-auto mt-3 max-w-[60ch] text-center text-[16.5px] text-milk">
+		<h2 class="reveal display-tight text-center text-3xl text-milk lg:text-4xl">Taylor's Teachings</h2>
+		<p class="reveal mx-auto mt-3 max-w-[60ch] text-center text-[16.5px] text-milk" style="--reveal-delay: 80ms">
 			Ten simple rights, each one a conversation starter. Every teaching pairs an illustration
 			with language children can actually use.
 		</p>
 		<ul class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
-			{featuredTeachings.map(({ title, image }) => (
-				<li class="rounded-3xl bg-white p-4 pb-6 text-center">
+			{featuredTeachings.map(({ title, image }, index) => (
+				<li
+					class="reveal rounded-3xl bg-white p-4 pb-6 text-center transition-[translate] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1"
+					style={`--reveal-delay: ${160 + index * 80}ms`}
+				>
 					{image && (
 						<Image
 							src={image}

@@ -1,0 +1,28 @@
+---
+import { Image } from 'astro:assets';
+import taylor from '../../assets/IHaveTheRighToASafeBody.png';
+---
+
+<div id="taylor-peek-sentinel"></div>
+<div id="taylor-peek" class="taylor-peek" aria-hidden="true">
+	<Image src={taylor} alt="" width={600} class="w-full" loading="eager" />
+</div>
+
+<script>
+	const peek = document.getElementById('taylor-peek');
+	const sentinel = document.getElementById('taylor-peek-sentinel');
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	if (peek && sentinel && !reduceMotion && 'IntersectionObserver' in window) {
+		const io = new IntersectionObserver((entries) => {
+			if (entries.some((entry) => entry.isIntersecting)) {
+				io.disconnect();
+				peek.classList.add('is-peeking');
+				peek.addEventListener('animationend', () => peek.remove());
+			}
+		});
+		io.observe(sentinel);
+	} else {
+		peek?.remove();
+	}
+</script>

@@ -82,6 +82,29 @@ peeks up from the bottom-right edge of the viewport, waves hello, and ducks back
   disabled under `prefers-reduced-motion: reduce`.
 - Homepage only.
 
+## Amendment (2026-07-08) — 3D pushable buttons
+
+Buttons upgrade from the Layer-2 lift-and-tilt hover to a three-layer "pushable"
+construction (technique after Josh Comeau's 3D button article, re-implemented in
+our own Tailwind idiom): a blurred shadow span, a darker edge span, and a raised
+front face. The front rests 4px up, rises to 6px on hover with a springy
+overshoot, presses down to 2px in ~34ms on `:active`, and releases back over
+600ms. All four variants get the treatment, including secondary (milk front,
+pine border and edge). Edge colours: primary→forest, secondary→pine,
+mustard→ochre, plum→darker plum. Movement replaces the previous hover colour
+change; the hover tilt is removed (a tilting pushable object breaks the
+physical metaphor). Focus states remain `focus-visible`-only.
+
+## Amendment (2026-07-08) — peek frequency and size
+
+The peek now plays once per page load instead of once per session: the
+sessionStorage guard confused even the site owner ("why did he stop?"), and the
+audience (parents with small children) rewards repetition — a kid who wants to
+see the turtle again can reload the page. The observer still disconnects after
+one fire per load, so scrolling up and down cannot replay him. Taylor is also
+doubled in size (150px → 300px wide); the percent-based keyframes scale with
+the element, so proportions are unchanged.
+
 ## Error handling / graceful degradation
 
 - No JS → no hidden content, no peek; site fully usable.

@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
-	/* Palette — spec §Visual System */
+	/* Palette (spec §Visual System) */
 	--color-sage: #f0f4e8;
 	--color-sage-tile: #e7eeda;
 	--color-forest: #2e4a26;
@@ -49,4 +49,102 @@
 	font-weight: 900;
 	letter-spacing: -0.015em;
 	font-variation-settings: 'opsz' 72;
+}
+
+/* Motion system: spec docs/superpowers/specs/2026-07-07-whimsy-animations-design.md */
+
+/* Layer 1: ambient */
+@keyframes float-gentle {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-3px);
+	}
+}
+.float-gentle {
+	animation: float-gentle 5s ease-in-out infinite;
+}
+
+/* Layer 3: scroll reveals. Hidden state only when JS is running.
+   Reveals use an animation (not a transition) so they never touch the
+   `transition` property, so Tailwind hover transitions on the same element
+   (e.g. teaching cards) keep working. `backwards` fill holds the hidden
+   state through the stagger delay; after the animation ends the static
+   opacity/transform rules below take over. */
+.js .reveal {
+	opacity: 0;
+	transform: translateY(14px);
+}
+.js .reveal.is-revealed {
+	opacity: 1;
+	transform: none;
+	animation: reveal-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+	animation-delay: var(--reveal-delay, 0ms);
+}
+@keyframes reveal-in {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Layer 4: Taylor peeks in */
+.taylor-peek {
+	position: fixed;
+	right: clamp(1rem, 5vw, 3.5rem);
+	bottom: 0;
+	z-index: 40;
+	width: 300px;
+	pointer-events: none;
+	transform: translateY(102%);
+}
+.taylor-peek.is-peeking {
+	animation: taylor-peek 3.4s ease-in-out forwards;
+}
+@keyframes taylor-peek {
+	0% {
+		transform: translateY(102%) rotate(0deg);
+	}
+	12% {
+		transform: translateY(38%) rotate(-2deg);
+	}
+	18% {
+		transform: translateY(42%) rotate(0deg);
+	}
+	32% {
+		transform: translateY(42%) rotate(-5deg);
+	}
+	46% {
+		transform: translateY(42%) rotate(3deg);
+	}
+	58% {
+		transform: translateY(42%) rotate(0deg);
+	}
+	86% {
+		transform: translateY(42%) rotate(0deg);
+	}
+	100% {
+		transform: translateY(102%) rotate(0deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.float-gentle {
+		animation: none;
+	}
+	.js .reveal,
+	.js .reveal.is-revealed {
+		opacity: 1;
+		transform: none;
+		animation: none;
+	}
+	.taylor-peek {
+		display: none;
+	}
 }
