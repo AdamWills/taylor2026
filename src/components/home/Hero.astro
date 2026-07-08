@@ -1,8 +1,7 @@
 ---
-import { Image } from 'astro:assets';
 import Button from '../Button.astro';
 import Squiggle from '../Squiggle.astro';
-import group from '../../assets/MyBodyBelongsToMe.png';
+import HeroCast from './HeroCast.astro';
 ---
 
 <section class="paper">
@@ -23,13 +22,6 @@ import group from '../../assets/MyBodyBelongsToMe.png';
 			<Button href="/teachings">Explore Taylor's Teachings</Button>
 			<Button href="/book-a-visit" variant="secondary">Book a Visit</Button>
 		</div>
-		<Image
-			src={group}
-			alt="Taylor the Turtle waving, surrounded by friends: Bear, Wolf, Deer, Eagle, Beaver, and Blue Jay"
-			class="float-gentle mx-auto mt-9 w-full max-w-[880px]"
-			widths={[480, 760, 1120, 1760]}
-			sizes="(min-width: 1024px) 880px, 92vw"
-			loading="eager"
-		/>
+		<HeroCast />
 	</div>
 </section>

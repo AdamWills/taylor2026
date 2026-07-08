@@ -105,6 +105,25 @@ one fire per load, so scrolling up and down cannot replay him. Taylor is also
 doubled in size (150px → 300px wide); the percent-based keyframes scale with
 the element, so proportions are unchanged.
 
+## Amendment (2026-07-08) — hero cast rebuild
+
+The hero's flat group PNG is replaced by `HeroCast.astro`: seven individually
+positioned character layers (trimmed assets in `src/assets/cast/`) on a
+2.03:1 stage. Three behaviours, all CSS-only:
+
+- **Curtain call:** each friend pops into place on load (scale 0.6 → overshoot
+  → settle), staggered 100ms apart.
+- **Skate-in:** Taylor enters last from off-screen left on his skateboard
+  (1.3s decelerating ease, small brake-tilt before settling front-centre).
+- **Life:** each character idles on its own duration and phase (4.4–6.1s) so
+  the group never bobs in sync, and hops with a slight tilt when hovered.
+
+Entrance animates the outer slot, idle/hop animate the inner img, so the two
+transforms never conflict. Reduced motion disables all cast animation (static
+group, fully visible). The container carries `role="img"` with a scene
+description; individual images are decorative (`alt=""`). The old
+`float-gentle` hero treatment is retired.
+
 ## Error handling / graceful degradation
 
 - No JS → no hidden content, no peek; site fully usable.
