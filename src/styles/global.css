@@ -134,10 +134,8 @@
 	}
 }
 
-/* Hero cast: each character is its own layer. The outer slot runs the one-time
-   entrance (curtain call, or Taylor's skate-in); the inner img runs the infinite
-   idle bob, desynced per character, and a hop when hovered. Splitting entrance
-   and idle across two elements keeps their transforms from fighting. */
+/* Hero cast: each character is its own layer. The slot runs a one-time
+   entrance (curtain call, or Taylor's skate-in), then the cast holds still. */
 .cast-slot {
 	position: absolute;
 	bottom: 0;
@@ -146,10 +144,6 @@
 .cast-slot img {
 	width: 100%;
 	height: auto;
-	animation: cast-idle var(--idle-dur, 5s) ease-in-out var(--idle-delay, 0s) infinite;
-}
-.cast-slot:hover img {
-	animation: cast-hop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .cast-taylor {
 	animation: cast-skate 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.85s both;
@@ -165,29 +159,6 @@
 	}
 	to {
 		opacity: 1;
-		transform: none;
-	}
-}
-@keyframes cast-idle {
-	0%,
-	100% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-4px);
-	}
-}
-@keyframes cast-hop {
-	0% {
-		transform: none;
-	}
-	40% {
-		transform: translateY(-12px) rotate(-3deg);
-	}
-	75% {
-		transform: translateY(0) rotate(2deg);
-	}
-	to {
 		transform: none;
 	}
 }
@@ -219,8 +190,7 @@
 	.taylor-peek {
 		display: none;
 	}
-	.cast-slot,
-	.cast-slot img {
+	.cast-slot {
 		animation: none;
 	}
 }

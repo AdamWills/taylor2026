@@ -9,16 +9,15 @@ import wolf from '../../assets/cast/wolf.png';
 import taylor from '../../assets/cast/taylor-skate.png';
 
 /* Positions/sizes tuned against the original group illustration (see the
-   composition mocks in the whimsy spec history). left/width are % of the stage.
-   enter staggers the curtain call; idle durations and phases are all different
-   so no two characters ever bob in sync. */
+   composition mocks in the whimsy spec history). left/width are % of the stage;
+   enter staggers the curtain call. */
 const friends = [
-	{ src: wolf, left: 4, width: 33.0, z: 1, enter: 0, idle: 5.6, phase: 0 },
-	{ src: deer, left: 49, width: 23.9, z: 1, enter: 100, idle: 4.9, phase: 0.7 },
-	{ src: bear, left: 22, width: 29.2, z: 2, enter: 200, idle: 5.2, phase: 1.3 },
-	{ src: eagle, left: 66, width: 33.9, z: 2, enter: 300, idle: 6.1, phase: 0.4 },
-	{ src: beaver, left: 0, width: 26.1, z: 3, enter: 400, idle: 4.6, phase: 1.9 },
-	{ src: jay, left: 65, width: 15.8, z: 3, enter: 500, idle: 4.4, phase: 0.2 },
+	{ src: wolf, left: 4, width: 33.0, z: 1, enter: 0 },
+	{ src: deer, left: 49, width: 23.9, z: 1, enter: 100 },
+	{ src: bear, left: 22, width: 29.2, z: 2, enter: 200 },
+	{ src: eagle, left: 66, width: 33.9, z: 2, enter: 300 },
+	{ src: beaver, left: 0, width: 26.1, z: 3, enter: 400 },
+	{ src: jay, left: 65, width: 15.8, z: 3, enter: 500 },
 ];
 ---
 
@@ -28,16 +27,13 @@ const friends = [
 	aria-label="Taylor the Turtle rolls in on a skateboard, waving, joined by friends Bear, Wolf, Deer, Eagle, Beaver, and Blue Jay"
 >
 	{
-		friends.map(({ src, left, width, z, enter, idle, phase }) => (
-			<div
-				class="cast-slot"
-				style={`left:${left}%;width:${width}%;z-index:${z};--enter:${enter}ms;--idle-dur:${idle}s;--idle-delay:-${phase}s`}
-			>
+		friends.map(({ src, left, width, z, enter }) => (
+			<div class="cast-slot" style={`left:${left}%;width:${width}%;z-index:${z};--enter:${enter}ms`}>
 				<Image src={src} alt="" widths={[240, 480]} sizes={`${Math.round((880 * width) / 100)}px`} loading="eager" />
 			</div>
 		))
 	}
-	<div class="cast-slot cast-taylor" style="left:40%;width:23%;z-index:4;--idle-dur:5s;--idle-delay:-2.4s">
+	<div class="cast-slot cast-taylor" style="left:40%;width:23%;z-index:4">
 		<Image src={taylor} alt="" widths={[240, 480]} sizes="202px" loading="eager" />
 	</div>
 </div>

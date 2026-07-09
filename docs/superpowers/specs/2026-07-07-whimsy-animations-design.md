@@ -113,16 +113,15 @@ positioned character layers (trimmed assets in `src/assets/cast/`) on a
 
 - **Curtain call:** each friend pops into place on load (scale 0.6 → overshoot
   → settle), staggered 100ms apart.
-- **Skate-in:** Taylor enters last from off-screen left on his skateboard
+- **Skate-in:** Taylor enters last from off-screen right on his skateboard
   (1.3s decelerating ease, small brake-tilt before settling front-centre).
-- **Life:** each character idles on its own duration and phase (4.4–6.1s) so
-  the group never bobs in sync, and hops with a slight tilt when hovered.
 
-Entrance animates the outer slot, idle/hop animate the inner img, so the two
-transforms never conflict. Reduced motion disables all cast animation (static
-group, fully visible). The container carries `role="img"` with a scene
-description; individual images are decorative (`alt=""`). The old
-`float-gentle` hero treatment is retired.
+After the entrance the cast holds still. (Idle bobbing and hover hops were
+tried and cut: the entrance is the moment, and a calm resting state suits the
+page better.) Reduced motion disables all cast animation (static group, fully
+visible). The container carries `role="img"` with a scene description;
+individual images are decorative (`alt=""`). The old `float-gentle` hero
+treatment is retired.
 
 ## Error handling / graceful degradation
 
