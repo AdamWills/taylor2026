@@ -193,13 +193,13 @@
 }
 @keyframes cast-skate {
 	from {
-		transform: translateX(calc(-50vw - 110%));
+		transform: translateX(calc(50vw + 110%));
 	}
 	80% {
-		transform: translateX(4%);
+		transform: translateX(-4%);
 	}
 	90% {
-		transform: translateX(-2%) rotate(-3deg);
+		transform: translateX(2%) rotate(3deg);
 	}
 	to {
 		transform: none;
