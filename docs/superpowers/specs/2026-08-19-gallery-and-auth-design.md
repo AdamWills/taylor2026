@@ -345,11 +345,62 @@ Honestly, so it is a choice rather than a discovery later:
   plain `astro dev`. Minor, but it is a change to how the project is run and
   belongs in the README.
 
+### Under trial: Sveltia CMS with R2 media storage
+
+Sveltia supports S3-compatible media storage natively — shipped in v0.145.0,
+current release 0.193.1 — including a documented Cloudflare R2 integration with
+direct browser-to-R2 uploads signed with SigV4. No backend proxy is involved.
+
+This removes the objection that sent us to a custom build. Photos stay out of
+the repo, there is no build-time image processing, and Sveltia's polished,
+mobile-friendly media library comes for free — which is the single largest
+chunk of work in the custom design. If it holds up, it is the better answer.
+
+Three things to confirm during the trial, in rough order of how much they
+matter:
+
+1. **Does the R2 bucket end up publicly readable, and do the originals keep
+   their EXIF?** The setup calls for a `public_url` so the media library can
+   show previews. If that is the bucket's own `pub-{hash}.r2.dev` address, then
+   full-resolution originals — with GPS coordinates — are publicly fetchable,
+   which is precisely the failure described in the safeguarding notes above.
+
+   The fix, if it bites, is not to give up on Sveltia: point `public_url` at a
+   custom domain served by a Worker that only ever emits Image Transformations
+   with `metadata=none`, and never the raw object. That is a better guarantee
+   than upload-time stripping anyway, because it is enforced at the moment of
+   publication regardless of how a file got into the bucket. It also means the
+   safeguarding control does not depend on a CMS setting that a future upgrade
+   could change.
+
+2. **The R2 secret access key.** Per the docs, `access_key_id` lives in config
+   but the secret is entered by each user in the CMS UI on first use rather than
+   being stored in config. Worth confirming what that means in practice: whether
+   it persists per browser, what happens on a new device or after clearing site
+   data, and whether staff are effectively being handed a bucket read/write
+   credential. For a non-technical client, "paste your secret access key" is a
+   worse first-run experience than creating a GitHub account.
+
+3. **GitHub accounts are still required.** This was the original blocker and
+   the R2 news does not change it — every person who updates the site still
+   needs a GitHub account with write access to the repo. If that has become
+   acceptable, Sveltia is straightforwardly the better option. If it has not,
+   the custom `/admin` page remains the answer, and the R2 and D1 design below
+   stands as written.
+
+If the trial goes well, the parts of this document that survive unchanged are
+the safeguarding notes, the R2 bucket, the Access policy (now protecting
+`/admin` where Sveltia is served from), and all of Part 4. What falls away is
+the custom upload page, the D1 schema, and the on-demand `/photos` routes —
+Sveltia writes album markdown to git, so the gallery goes back to being
+statically built with remote image URLs.
+
 ### Options considered and rejected
 
-- **Sveltia CMS with GitHub sign-in** — the original proposal. Rejected on the
-  account requirement. Least-code path by a wide margin if that constraint ever
-  softens.
+- **Sveltia CMS with media in git** — the original proposal. Rejected on the
+  GitHub account requirement and on repo weight. The second half of that no
+  longer applies now that Sveltia supports R2 directly; see "Under trial"
+  above.
 - **Photos committed to git via a Worker** — the intermediate design. Removed
   the GitHub account requirement but kept the repo bloat, the build-time image
   processing on every deploy, and a GitHub App credential to maintain. Superseded
