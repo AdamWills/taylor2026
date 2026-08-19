@@ -345,62 +345,53 @@ Honestly, so it is a choice rather than a discovery later:
   plain `astro dev`. Minor, but it is a change to how the project is run and
   belongs in the README.
 
-### Under trial: Sveltia CMS with R2 media storage
+### Why not an off-the-shelf CMS: the survey
 
-Sveltia supports S3-compatible media storage natively — shipped in v0.145.0,
-current release 0.193.1 — including a documented Cloudflare R2 integration with
-direct browser-to-R2 uploads signed with SigV4. No backend proxy is involved.
+The constraint is firm: **no editor should need a GitHub account.** That was
+confirmed after a closer look at Sveltia, and it rules out more than it first
+appears. The options were checked rather than assumed:
 
-This removes the objection that sent us to a custom build. Photos stay out of
-the repo, there is no build-time image processing, and Sveltia's polished,
-mobile-friendly media library comes for free — which is the single largest
-chunk of work in the custom design. If it holds up, it is the better answer.
+| Option | Cost | Why it does not fit |
+| --- | --- | --- |
+| Sveltia CMS | Free | GitHub account per editor |
+| Decap CMS | Free | GitHub account per editor |
+| Pages CMS | Free | GitHub account per editor |
+| Decap + Netlify Git Gateway | Free | **Git Gateway is deprecated**; new configurations are not recommended. Identity itself is still supported, but the piece that let email/password users commit is the deprecated half |
+| DecapBridge | Third-party | Solves it, but a single-vendor dependency the client would be unable to replace |
+| TinaCMS | 2 users free, then $29/mo | Free tier is too small for this team, and a recurring bill that can lapse is a bad failure mode for an org with staff turnover — when it lapses, editing stops |
 
-Three things to confirm during the trial, in rough order of how much they
-matter:
+Worth being clear about what happened to the obvious answer. Decap with Netlify
+Identity and Git Gateway *was* the standard solution to exactly this problem —
+editors sign in with an email and password, and Git Gateway commits on their
+behalf using a stored token. It is the reason "use Decap" was the default advice
+for years. That path is closing, and it is not a foundation to build a
+community organisation's site on in 2026.
 
-1. **Does the R2 bucket end up publicly readable, and do the originals keep
-   their EXIF?** The setup calls for a `public_url` so the media library can
-   show previews. If that is the bucket's own `pub-{hash}.r2.dev` address, then
-   full-resolution originals — with GPS coordinates — are publicly fetchable,
-   which is precisely the failure described in the safeguarding notes above.
+Sveltia was worth the closer look, and its R2 support genuinely removed the
+repo-weight objection. The GitHub requirement is what it could not remove, and
+none of the workarounds are acceptable: a shared "SAC Brant Web" account means
+a shared 2FA seed, and injecting a repo token into the page puts a write
+credential in the browser — two credentials, with the R2 key alongside it.
 
-   The fix, if it bites, is not to give up on Sveltia: point `public_url` at a
-   custom domain served by a Worker that only ever emits Image Transformations
-   with `metadata=none`, and never the raw object. That is a better guarantee
-   than upload-time stripping anyway, because it is enforced at the moment of
-   publication regardless of how a file got into the bucket. It also means the
-   safeguarding control does not depend on a CMS setting that a future upgrade
-   could change.
+### So: the custom page, and it is cheaper than it looks
 
-2. **The R2 secret access key.** Per the docs, `access_key_id` lives in config
-   but the secret is entered by each user in the CMS UI on first use rather than
-   being stored in config. Worth confirming what that means in practice: whether
-   it persists per browser, what happens on a new device or after clearing site
-   data, and whether staff are effectively being handed a bucket read/write
-   credential. For a non-technical client, "paste your secret access key" is a
-   worse first-run experience than creating a GitHub account.
+With no off-the-shelf option clearing the bar, `/admin` gets built. The R2 and
+D1 decision is what makes that affordable, and the two decisions reinforce each
+other: because the content path involves no git at all, the hard parts of a
+custom CMS never arise. No commit assembly, no GitHub App, no rebuild
+orchestration, no server-side image processing. What is left is a form, a file
+picker, a canvas resize, and two Worker endpoints — with Cloudflare Access
+handling every part of authentication.
 
-3. **GitHub accounts are still required.** This was the original blocker and
-   the R2 news does not change it — every person who updates the site still
-   needs a GitHub account with write access to the repo. If that has become
-   acceptable, Sveltia is straightforwardly the better option. If it has not,
-   the custom `/admin` page remains the answer, and the R2 and D1 design below
-   stands as written.
-
-If the trial goes well, the parts of this document that survive unchanged are
-the safeguarding notes, the R2 bucket, the Access policy (now protecting
-`/admin` where Sveltia is served from), and all of Part 4. What falls away is
-the custom upload page, the D1 schema, and the on-demand `/photos` routes —
-Sveltia writes album markdown to git, so the gallery goes back to being
-statically built with remote image URLs.
+That is a smaller surface than it would have been at any earlier point in this
+document, and it has no recurring cost, no third-party dependency, and no
+credential for the client to hold.
 
 ### Options considered and rejected
 
-- **Sveltia CMS with media in git** — the original proposal. Rejected on the
-  GitHub account requirement and on repo weight. The second half of that no
-  longer applies now that Sveltia supports R2 directly; see "Under trial"
-  above.
+- **Off-the-shelf git-based CMSes** — surveyed above. All either require a
+  GitHub account per editor, depend on a deprecated service, or carry a
+  recurring bill.
 - **Photos committed to git via a Worker** — the intermediate design. Removed
   the GitHub account requirement but kept the repo bloat, the build-time image
   processing on every deploy, and a GitHub App credential to maintain. Superseded
