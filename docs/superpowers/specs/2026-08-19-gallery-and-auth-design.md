@@ -120,69 +120,140 @@ phones at schools and community events. If uploading requires sitting down at a
 desktop later, it will not happen. **Mobile upload is a real requirement, not a
 nicety.**
 
-### The constraint that decides this: no GitHub accounts
+### Two constraints, and a correction
 
-A git-based CMS like Sveltia or Decap requires every person who updates the
-site to hold a GitHub account with write access to the repo. That was rejected,
-and reasonably so — "create a GitHub account" is a hard stop for a lot of
-community-org staff, and an account nobody remembers signing up for is an
-account nobody can log into eighteen months later when the person who set it up
-has moved on.
+**No GitHub accounts.** A git-based CMS like Sveltia or Decap requires every
+person who updates the site to hold a GitHub account with write access to the
+repo. That was rejected, and reasonably so — "create a GitHub account" is a hard
+stop for a lot of community-org staff, and an account nobody remembers signing
+up for is an account nobody can log into eighteen months later.
 
-It is worth separating two things that got bundled together, though:
+**Photos do not belong in the repo.** An earlier draft of this document kept the
+images in git and defended it on three grounds. Two of them do not survive
+scrutiny:
 
-- **Whether the client ever sees GitHub.** They should not. This is the real
-  requirement, and it is non-negotiable.
-- **Whether git remains the place the content is stored.** This is a separate
-  question, and the answer is less obvious.
+- *"Git gives us automatic EXIF stripping via Astro's image pipeline."* It does
+  — but the design already resizes photos in the browser before upload, and a
+  canvas re-encode strips EXIF on its own. The metadata is gone before the bytes
+  leave the device, whatever they land in. Git was adding a second layer, not
+  the only one.
+- *"Git keeps albums recoverable."* Only by a developer. If the client deletes
+  an album by accident, git history is not something they can reach — they have
+  to phone someone either way. D1's Time Travel (below) gives the same
+  protection with the same amount of client involvement, which is none.
+- *"Git keeps the content portable off Cloudflare."* This one holds, but it is
+  weaker than it sounds: R2 is S3-compatible, so `rclone sync` moves the whole
+  bucket anywhere.
 
-Keeping git as the store buys three things that matter for this particular
-site: every photo runs through Astro's image pipeline (which is what strips
-EXIF — see the safeguarding notes below, where that is a safeguarding control
-rather than an optimisation); the content is versioned and recoverable when
-somebody deletes an album by accident; and it survives the Cloudflare account,
-which for an organisation with staff turnover is worth more than it sounds.
+Meanwhile the argument against git was under-weighted. Astro reprocesses images
+at build time, so a few hundred photos add minutes to **every** deploy —
+including deploys that have nothing to do with the gallery — and CI caches are
+usually cold. A repo carrying 100MB+ of binaries is slow to clone forever, and
+the weight cannot be removed later without rewriting history.
 
-So the design below keeps git as the store and removes GitHub from the client's
-experience entirely — the Worker holds the credential, not the client.
+So: photos to R2, metadata to D1, and the gallery renders on demand.
 
-### Decided: Cloudflare Access on `/admin`, with a purpose-built upload page
-
-The shape:
+### Decided: R2 for the photos, D1 for the album metadata
 
 1. `/admin` is protected by a Cloudflare Access policy. Staff enter their email,
    receive a one-time PIN, and are let in. Free up to 50 users; the admin group
    here is two or three people.
-2. `/admin` is an upload page built for exactly one job: turn a set of photos
-   from a school visit into an album.
-3. On publish, the page posts to a Worker endpoint. **The Worker** commits the
-   album to GitHub using a token held as a Worker secret. The client never has a
-   GitHub account, never sees a commit, never knows git is involved.
-4. The push triggers a rebuild. The album is live in a minute or two.
+2. The upload page resizes each photo in the browser, then `PUT`s it to a Worker
+   endpoint, which writes it to R2 through a bucket binding.
+3. Album metadata — title, date, location, description, consent flag, captions,
+   ordering — goes to D1.
+4. `/photos` and `/photos/[slug]` render on demand from D1 and serve images from
+   R2 through Cloudflare Image Transformations. **Publishing is instant. There
+   is no rebuild.**
 
-Access is enforced at Cloudflare's edge *before* the Worker runs, so an
-unauthenticated request never reaches the upload endpoint. (Cloudflare also
-shipped one-click Access-on-a-Worker on 2026-08-14, which protects an entire
-Worker including its custom domains; a path-scoped Access application on
-`/admin` is the right granularity here, since the rest of the site is public.)
+Access is enforced at Cloudflare's edge before the Worker runs, so an
+unauthenticated request never reaches the upload endpoint.
 
-### Why a custom page is affordable here
+### What this removes
 
-Building an upload UI is normally the reason to reach for an existing CMS, and
-it should not be waved through as trivial — this is the part Sveltia was giving
-us for free, and custom admin UIs are reliably 80% done in a day and then take
-three more.
+Worth stating plainly, because it is most of the argument: the previous design
+needed a GitHub App, a Git Data API commit flow that assembled blobs into a tree
+into a commit, and a rebuild triggered on every publish. **All of it is gone.**
+No GitHub integration, no token to rotate, no expiring credential, no
+build-and-deploy latency between the client clicking publish and the album
+appearing.
 
-Two things make it a fair trade in this case:
+The upload endpoint also gets simpler than the presigned-URL pattern usually
+reached for here. Because the photos are resized client-side to a few hundred
+kilobytes, they fit comfortably inside a Worker request, so the Worker can take
+the body and `env.PHOTOS.put()` it straight to R2 through the binding. No SigV4
+signing, no presigned URL dance, and the Access JWT check the endpoint already
+does is the only authorisation needed.
 
-- **The job is narrow.** Sveltia is a general-purpose CMS for arbitrary content
-  models. This page creates albums of photos. One entity, four fields, a file
-  picker. Most of a CMS's weight is generality this site will never use.
-- **Resizing in the browser removes the whole server-side image problem.**
-  Downscale to 1600px on a `<canvas>` and re-encode before upload — about thirty
-  lines. That single step means uploads are fast on school wifi, the repo stays
-  small, EXIF is gone before the bytes ever leave the device, and no
-  image-processing service is needed anywhere in the stack.
+### The site stays static apart from two routes
+
+Astro's `output: 'static'` prerenders everything by default and lets individual
+routes opt out. Only the gallery goes on-demand:
+
+```ts
+// src/pages/photos/index.astro and src/pages/photos/[slug].astro
+export const prerender = false;
+```
+
+Everything else — homepage, teachings, colouring, team — still builds to static
+files and is served from the edge exactly as it is today. This needs
+`@astrojs/cloudflare` as the adapter, on the Worker that is already serving the
+site.
+
+### EXIF is now the client-side resize's job alone
+
+This matters more than it did, because the second layer is gone. Two things have
+to be right:
+
+- **The canvas re-encode is what strips the metadata.** Decode, draw to a
+  canvas at 1600px, `toBlob()`. The output is encoded from raw pixels, so there
+  is no path for GPS coordinates to survive.
+- **Orientation must be handled deliberately, or portrait photos come out
+  sideways.** EXIF carries the rotation, and stripping EXIF without applying it
+  first is a classic bug. Use
+  `createImageBitmap(file, { imageOrientation: 'from-image' })` so the pixels
+  are already rotated correctly before the re-encode.
+
+Also set `metadata=none` explicitly on Image Transformations rather than
+assuming the default strips it.
+
+**This deserves a test.** Take a real phone photo with location services on,
+run it through the upload path, and assert the stored object has no EXIF block —
+`exiftool` on the R2 object is enough. It is the one property of this system
+that must not quietly regress, and it is exactly the kind of thing that breaks
+during an unrelated refactor of the upload page.
+
+### Backup and recovery
+
+The concern that kept the images in git was losing content. It is answered
+better without git:
+
+- **D1 Time Travel** restores the database to any minute in the last 30 days.
+  It is always on, needs no configuration, and costs nothing. Album metadata is
+  the part with real editorial effort in it, and this covers it.
+- **R2 photos should be soft-deleted, not hard-deleted.** "Delete album" marks
+  it deleted in D1 and leaves the objects in place; a separate cleanup can purge
+  things older than, say, 90 days. Objects are cheap and the free tier is large,
+  so there is no reason to delete eagerly.
+- **A confirm dialog on delete** prevents more accidents than any backup does.
+- Optionally, a scheduled Worker exporting album metadata to JSON in R2 nightly
+  gives an off-database copy. Worth about fifteen lines if it helps anyone sleep.
+
+### Free-tier headroom
+
+Comfortable, with room to be wrong by an order of magnitude:
+
+| | Free allowance | Expected use |
+| --- | --- | --- |
+| R2 storage | 10 GB | ~400KB/photo → roughly 25,000 photos |
+| R2 writes | 1M/month | a few hundred |
+| R2 reads | 10M/month | nowhere near |
+| Image Transformations | 5,000 unique/month | one per photo per size variant, cached thereafter |
+| D1 | free tier | a few hundred rows |
+
+A "unique transformation" is one combination of options on one image per month;
+repeat requests for the same size are served from cache, so this scales with
+photos published rather than with traffic.
 
 ### Scope for v1
 
@@ -190,80 +261,49 @@ Worth being deliberate, because this is where custom admin tools balloon:
 
 - Create an album (title, date, location, description, consent checkbox)
 - Add photos to a new or existing album, with captions
-- Delete a photo; delete an album
+- Edit an album's text; soft-delete a photo or an album
 - Reordering: **defer.** Sort by filename, which is capture order on every phone
   camera. Add drag-to-reorder only if the client actually asks.
 
-Editing an album's text after publishing is worth having; anything beyond the
-list above should wait until the client has used it for a few months and can say
-what is actually missing.
+### Why a custom page is affordable
 
-### The commit endpoint
+Building an upload UI is normally the reason to reach for an existing CMS, and
+it should not be waved through — custom admin tools are reliably 80% done in a
+day and then take three more. Two things make it a fair trade here:
 
-The Worker takes the uploaded files and metadata and writes one commit via
-GitHub's Git Data API:
+- **The job is narrow.** Sveltia is a general-purpose CMS for arbitrary content
+  models. This page creates albums of photos: one entity, a handful of fields, a
+  file picker. Most of a CMS's weight is generality this site will never use.
+- **The R2 decision removed the hard parts.** No GitHub commit assembly, no
+  rebuild orchestration, no presigned-URL signing, no server-side image
+  processing. What remains is a form, a file picker, a canvas resize, and two
+  Worker endpoints.
 
-1. `POST /repos/{owner}/{repo}/git/blobs` per image (base64) → blob SHAs
-2. `GET /git/ref/heads/main` → base commit SHA, then its tree SHA
-3. `POST /git/trees` with `base_tree` plus the new blobs and the album markdown
-4. `POST /git/commits`, then `PATCH /git/refs/heads/main`
-
-One commit, one rebuild, and a half-failed upload cannot leave the repo in a
-partial state — which the naive per-file Contents API approach does not give
-you.
-
-Two things to get right:
-
-- **Verify the Access JWT inside the Worker** before accepting an upload. Access
-  already gates the path at the edge, but the endpoint should not be reachable
-  if that policy is ever misconfigured or removed. Read
-  `Cf-Access-Jwt-Assertion` and verify it against the team's public keys. This
-  is the same class of mistake as `run_worker_first` in Part 4: it fails open
-  and silently.
-- **Use a GitHub App installation token, not a fine-grained PAT.** Fine-grained
-  PATs expire after at most a year, and the failure mode is uploads breaking
-  silently, long after anyone remembers why. A GitHub App with `contents:write`
-  on the one repo mints short-lived tokens on demand and does not expire.
-
-The content collection and the page structure are unchanged from the git-based
-approach — only the authoring surface differs:
-
-```ts
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
-
-const albums = defineCollection({
-  loader: glob({ base: './src/content/albums', pattern: '**/*.md' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      date: z.date(),
-      location: z.string().optional(),
-      description: z.string().optional(),
-      consentOnFile: z.boolean().default(false),
-      cover: image(),
-      photos: z
-        .array(z.object({ src: image(), caption: z.string().optional() }))
-        .default([]),
-    }),
-});
-
-export const collections = { albums };
-```
-
-`/photos` renders the album grid, `/photos/[slug]` renders one album with a
-lightbox — a native `<dialog>` and a few lines of JS, no library, consistent
-with the rest of this codebase.
+The page must work well on a phone — staff take these photos at schools and
+community events, and if uploading requires sitting down at a desktop later, it
+will not happen.
 
 ### The client's actual workflow
 
 1. Go to `taylorstherights.ca/admin`. Enter their work email, get a PIN, paste
    it in.
 2. "New album" → title, date, drag photos in, tick the consent box.
-3. Publish. The page confirms it will appear on the site shortly.
+3. Publish. It is live immediately.
 
-No accounts to create, no passwords to remember, no GitHub. Adding or removing
-someone from the admin group is one line in a Cloudflare Access policy.
+No accounts to create, no passwords to remember, no GitHub, no waiting for a
+build. Adding or removing someone from the admin group is one line in a
+Cloudflare Access policy.
+
+### Verify the Access JWT inside the Worker
+
+Access gates `/admin` at the edge, but the upload and metadata endpoints must
+not be reachable if that policy is ever misconfigured or removed. Read
+`Cf-Access-Jwt-Assertion` and verify it against the team's public keys before
+accepting a write.
+
+This is the same class of mistake as `run_worker_first` in Part 4: it fails
+open, silently, with nothing in the logs to suggest the gate stopped working.
+Both deserve a test that asserts an unauthenticated request is actually refused.
 
 ### Safeguarding notes — please read this part
 
@@ -273,72 +313,62 @@ does not have:
 
 - **EXIF data must not ship.** Phone photos carry GPS coordinates. Publishing
   the exact location of a school alongside photographs of the children who
-  attend it is a genuine safeguarding failure, not a theoretical one. This
-  design strips it twice: the browser-side canvas re-encode drops it before
-  upload, and Astro's image pipeline drops it again at build. The belt-and-
-  braces is deliberate — it is the one property of this system that must not
-  quietly regress. **Note that the second layer only applies to images under
-  `src/assets/`;** anything written to `public/` is served byte-for-byte, EXIF
-  intact, so the upload endpoint must keep writing to `src/assets/gallery`.
+  attend it is a genuine safeguarding failure, not a theoretical one. See the
+  EXIF section above — with the images out of git this rests entirely on the
+  client-side resize, which is why it needs a test.
 - **The `consentOnFile` checkbox is deliberate.** It is not a legal control —
   it is a prompt that puts the question in front of the person publishing, at
-  the moment they publish. Consider having the build refuse to render an album
-  where it is unticked, so it fails loudly rather than silently.
+  the moment they publish. Consider refusing to display an album where it is
+  unticked, so it fails loudly rather than silently.
 - **Consider whether some albums should be public at all.** Some may belong
-  behind the facilitator gate (Part 4).
+  behind the facilitator gate (Part 4). This is easier now than it was: the
+  gallery routes already render on demand, so gating an album is a check in the
+  route rather than a build-time decision.
 - **Decide about faces deliberately, not by default.** Many child-serving
   organisations publish only photos where children are not identifiable — from
   behind, at a distance, or focused on the activity. That is a policy call for
   SAC Brant, not a technical one, but the site should not quietly presume the
   permissive answer.
 
-### A note on repo weight
+### What this gives up
 
-Photos live in the repo. At 1600px they land around 300–400KB each, so a
-thirty-photo album is roughly 10MB and ten albums roughly 100MB, plus build time
-for image processing. Manageable, but it only goes one direction.
+Honestly, so it is a choice rather than a discovery later:
 
-The browser-side resize is the main mitigation and it is built in. If the album
-ever grows past a few hundred photos, the escape hatch is to write the images to
-Cloudflare R2 instead of the repo and serve them through Cloudflare Image
-Transformations (5,000 unique transformations a month are free, which is ample
-here). The content collection and pages keep working; only the storage target
-changes. Set `metadata=none` explicitly on transformations if that day comes —
-do not assume the default strips it.
-
-Worth also deciding, separately, whether the existing 27MB of `docs/` source
-imagery should stay in the repo.
+- **Album content is no longer in the repo.** A developer can no longer see the
+  gallery's history in `git log`, and restoring something means D1 Time Travel
+  or an R2 object rather than `git revert`. The nightly metadata export is the
+  hedge if this turns out to matter.
+- **Two routes now depend on D1 and R2 being up.** The rest of the site is
+  static and unaffected, but `/photos` can fail in ways a static page cannot.
+  Worth a simple empty/error state rather than an exception page.
+- **Local development needs `wrangler dev`** with local D1 and R2, rather than
+  plain `astro dev`. Minor, but it is a change to how the project is run and
+  belongs in the README.
 
 ### Options considered and rejected
 
 - **Sveltia CMS with GitHub sign-in** — the original proposal. Rejected on the
-  account requirement above. It remains the least-code path by a wide margin, and
-  is worth reconsidering only if the custom upload page turns out to be a bigger
-  build than expected.
-- **Sveltia behind Access, with the Worker injecting a repo token into the
-  page** — gets Sveltia's polished, mobile-friendly media library for perhaps
-  twenty lines of Worker code instead of a custom build, with no GitHub account
-  for the client. Rejected because it puts a repo-write token in the browser:
-  the blast radius is limited (one public repo, recoverable via git) and Access
-  gates who can get it, but "a write credential is sitting in the page" is a
-  property that ages badly and that the next maintainer will not expect. Noted
-  because it is a genuinely cheap fallback if the build estimate slips.
-- **Uploading to R2 with a dynamically-rendered gallery** — no rebuild, instant
-  publish, scales indefinitely. Rejected for v1 because it removes the two
-  properties that make git worth keeping: automatic EXIF stripping via the
-  image pipeline, and content that is versioned, recoverable, and portable off
-  Cloudflare. It also needs an Astro SSR adapter and its own thumbnailing. This
-  is the right answer at a few thousand photos, not at a few hundred.
+  account requirement. Least-code path by a wide margin if that constraint ever
+  softens.
+- **Photos committed to git via a Worker** — the intermediate design. Removed
+  the GitHub account requirement but kept the repo bloat, the build-time image
+  processing on every deploy, and a GitHub App credential to maintain. Superseded
+  by this one.
+- **Keeping metadata in git while photos go to R2** — a reasonable hybrid: the
+  human-authored text stays diffable and portable, only the heavy bytes move
+  out, and the site stays fully static. Rejected because it keeps the entire
+  GitHub App and commit-assembly machinery alive to save a D1 table that Time
+  Travel already protects, and it reintroduces publish latency. Worth revisiting
+  only if being able to read album text in `git log` turns out to matter.
 - **A headless CMS (Sanity, Contentful, Storyblok)** — adds a second account, a
-  second thing to learn, and a free tier that can change. Disproportionate for a
-  photo album, and does not avoid a login.
+  second thing to learn, and a free tier that can change. Disproportionate, and
+  does not avoid a login.
 - **Pulling from Instagram** — tempting, since the program already posts to
-  `@taylorsrights` and it would mean zero new workflow. Rejected: the Instagram
-  Basic Display API was retired, and the replacement needs a business account
-  and a token refreshed every 60 days. A non-technical client cannot maintain
-  that, and the gallery would silently go blank when it lapsed.
+  `@taylorsrights`. Rejected: the Instagram Basic Display API was retired, and
+  the replacement needs a business account and a token refreshed every 60 days.
+  The gallery would silently go blank when it lapsed.
 - **A shared Google Drive folder synced at build time** — lowest friction for
-  the client, since they already know Drive. Rejected: it needs service-account
+  the client, since they already know Drive. Rejected: needs service-account
   credentials, gives no control over captions or ordering, and fails in ways
   nobody would notice.
 
@@ -594,7 +624,9 @@ work differently.
    trade-off understood and accepted.
 3. **Gallery authoring — a purpose-built `/admin` page behind Cloudflare
    Access** (Part 3), rather than a git-based CMS. No GitHub accounts for the
-   client; the Worker holds the credential and git stays the store.
+   client.
+4. **Gallery storage — R2 for photos, D1 for album metadata**, with `/photos`
+   rendering on demand. Photos stay out of the repo; publishing is instant.
 
 ## Suggested order of work
 
@@ -602,7 +634,8 @@ work differently.
 2. Open Graph metadata, `site` config, 404 page, `robots.txt` — small, and the
    sharing fix has outsized value given the Facebook and Instagram traffic.
 3. Replace or gate the placeholder events data.
-4. Gallery: content collection, `/photos` pages, the `/admin` upload page and
-   its commit endpoint, and the Access policy in front of it.
+4. Gallery: R2 bucket and D1 schema, the on-demand `/photos` routes, the
+   `/admin` upload page and its Worker endpoints, and the Access policy in
+   front of it. Include the EXIF test and the unauthenticated-access test.
 5. Facilitator gate, including the rate-limiting rule and a test that asserts an
    unauthenticated request really is refused.
