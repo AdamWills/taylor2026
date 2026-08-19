@@ -1,7 +1,7 @@
 # Site review, plus designs for the photo gallery and the facilitator sign-in
 
 Date: 2026-08-19
-Status: proposal — needs two decisions from the client (see "Decisions needed")
+Status: accepted — hosting and auth model decided, see "Decisions made". Not yet built.
 
 ---
 
@@ -72,7 +72,7 @@ Both requests are, underneath, the same question: *what can run on the server?*
 The site is currently a pure static Astro build with no adapter, which means
 today the answer to both is "nothing can run."
 
-### Recommendation: Cloudflare Workers with static assets
+### Decided: Cloudflare Workers with static assets
 
 Deploy the Astro build to Cloudflare Workers static assets. This is what
 Cloudflare now points new projects toward — Pages remains supported but is no
@@ -309,6 +309,9 @@ imagery should stay in the repo or move to shared storage.
 
 ## Part 4 — Password-protected facilitator resources
 
+**Decided: one shared password, checked at the edge.** The trade-off in
+"Revocation, stated plainly" below was raised and accepted.
+
 ### The thing that makes this harder than it looks
 
 The value of `/facilitators` is not the page. It is the PDFs — session guides,
@@ -317,7 +320,7 @@ public URLs is security theatre.** Anyone with a link, or a search engine that
 indexed one, gets the file regardless of what the page in front of it does. Any
 solution that only gates the page is not a solution.
 
-This immediately rules out the whole family of static-site password tricks:
+This rules out the whole family of static-site password tricks:
 
 - **A JavaScript password check is not protection.** The password is in the
   source; the content is in the source. It stops nobody who views source.
@@ -325,89 +328,224 @@ This immediately rules out the whole family of static-site password tricks:
   attacker gets ciphertext — but it still leaves linked PDFs public, and the
   ciphertext can be brute-forced offline at leisure.
 
-So the gate has to run somewhere that can decline to serve the bytes. Both
-options below do that.
+So the gate has to run somewhere that can decline to serve the bytes. The design
+below does that, and covers the PDFs as well as the page.
 
-### Option A — Cloudflare Access (recommended)
+### How it works
 
-Put an Access policy on `taylorstherights.ca/facilitators*`. Facilitators enter
-their email, receive a one-time PIN, and are let through. Free for up to 50
-users.
+The Worker that already serves the site intercepts anything under
+`/facilitators`:
 
-- **Zero application code.** No password form, no cookie signing, no rate
-  limiting to get right — Cloudflare handles all of it at the edge, and the
-  origin is never reached by an unauthenticated request.
-- **Access can be revoked per person.** When a facilitator leaves, remove one
-  email. Everyone else is unaffected.
-- **There is an audit trail** of who accessed what, which for an organisation
-  handling child protection materials is worth having.
-- **It covers the PDFs automatically**, because the policy is on the path, not
-  the page.
+1. Request arrives. Valid signed cookie present → serve the asset.
+2. No cookie → serve a branded password form, styled like the rest of the site
+   rather than a browser dialog.
+3. Correct password submitted → set an HMAC-signed, `HttpOnly`, `Secure`,
+   `SameSite=Lax` cookie with a 14-day expiry, then redirect.
 
-The client manages the facilitator list in the Cloudflare dashboard. That is the
-main cost of this option — it is a developer-shaped UI. It is genuinely
-manageable for adding and removing emails, and if facilitators mostly share a
-domain, a single "anyone `@sacbrant.ca`" rule means the list rarely needs
-touching at all.
+### The one configuration detail that must not be got wrong
 
-### Option B — one shared password, checked at the edge
+By default, Workers static assets are served **straight from the edge without
+invoking the Worker at all**. If `/facilitators/index.html` exists as a static
+asset and the Worker is not told to run first, the gate is simply bypassed and
+the page is served to everyone — with no error, no warning, and nothing in the
+logs to suggest anything is wrong.
 
-If the client's real requirement is "we hand out one password at the training
-session," Option A is the wrong shape and this is the answer. About 80 lines in
-the Worker that already serves the site:
+`run_worker_first` is what prevents that. It accepts an array of route patterns,
+and this is the documented use case for it:
 
-1. Request to `/facilitators*` arrives. Check for a signed cookie. Valid →
-   serve.
-2. No cookie → serve a branded password form (styled like the rest of the site,
-   not a browser dialog).
-3. Correct password → set an HMAC-signed, `HttpOnly`, `Secure`, `SameSite=Lax`
-   cookie with a 14-day expiry, and redirect.
+```jsonc
+// wrangler.jsonc
+{
+  "name": "taylor-the-turtle",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/facilitators", "/facilitators/*"]
+  }
+}
+```
 
-The details that make this "secure. ish" rather than merely "a password box":
+**This needs a test that actually asserts it.** A fresh browser hitting
+`/facilitators` and each PDF underneath it must get the password form, not the
+content. It is the kind of thing that works when built, and then silently stops
+working after an unrelated config change months later.
 
-- The password lives in a Worker **secret**, never in the repo.
-- Compare it with `crypto.subtle.timingSafeEqual`, not `===`, so response
-  timing does not leak the password.
-- The cookie carries an expiry and an HMAC over it, so it cannot be forged or
-  extended by the client.
-- Add a Cloudflare rate-limiting rule on `POST /facilitators` — roughly 5
-  attempts per minute per IP — so the password cannot be brute-forced. Skipping
-  this is what turns a decent design into a bad one.
-- Serve the PDFs from under `/facilitators/` so the same gate covers them, and
-  add `X-Robots-Tag: noindex` on everything behind it.
+### The Worker
 
-An optional extra worth about twenty more lines: keep the password hash in
-Cloudflare KV and put a "change the password" form inside the protected area.
-Then the client can rotate it themselves after a training cohort turns over,
-without opening the Cloudflare dashboard or calling anyone.
+```ts
+interface Env {
+  ASSETS: Fetcher;
+  FACILITATOR_PASSWORD: string; // wrangler secret put FACILITATOR_PASSWORD
+  COOKIE_SECRET: string;        // wrangler secret put COOKIE_SECRET
+}
 
-### Which one
+const COOKIE_NAME = 'tt_fac';
+const MAX_AGE = 60 * 60 * 24 * 14; // 14 days
+const encoder = new TextEncoder();
 
-**Option A, unless the client specifically wants a shared password.**
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
 
-A shared password has one property worth being explicit about with the client
-before they choose it: it cannot be revoked from one person. When a facilitator
-leaves — or the password reaches a group chat, which over a few years it will —
-the only remedy is changing it for everyone and re-notifying every facilitator.
-For an organisation whose protected materials are child sexual abuse prevention
-curricula, per-person revocation is worth some setup friction.
+    if (!url.pathname.startsWith('/facilitators')) {
+      return env.ASSETS.fetch(request);
+    }
 
-Option A is also, unusually, both the more secure choice *and* the smaller build.
-Option B exists because "simple" sometimes genuinely wins, and if the client
-picks it after hearing the trade-off, it is a perfectly defensible answer —
-implemented as above, it is stronger than most password-protected pages on the
-web.
+    if (request.method === 'POST') {
+      const submitted = String((await request.formData()).get('password') ?? '');
+      if (!(await passwordMatches(submitted, env.FACILITATOR_PASSWORD))) {
+        return passwordForm(url.pathname, 'That password was not right.', 401);
+      }
+      const expiry = Math.floor(Date.now() / 1000) + MAX_AGE;
+      const token = `${expiry}.${await sign(String(expiry), env.COOKIE_SECRET)}`;
+      return new Response(null, {
+        status: 303,
+        headers: {
+          Location: url.pathname,
+          'Set-Cookie':
+            `${COOKIE_NAME}=${token}; Path=/facilitators; Max-Age=${MAX_AGE};` +
+            ` HttpOnly; Secure; SameSite=Lax`,
+        },
+      });
+    }
+
+    if (!(await hasValidCookie(request, env.COOKIE_SECRET))) {
+      return passwordForm(url.pathname);
+    }
+
+    const response = await env.ASSETS.fetch(request);
+    const headers = new Headers(response.headers);
+    headers.set('X-Robots-Tag', 'noindex, nofollow');
+    headers.set('Cache-Control', 'private, no-store');
+    return new Response(response.body, { status: response.status, headers });
+  },
+};
+
+async function hmacKey(secret: string) {
+  return crypto.subtle.importKey(
+    'raw', encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  );
+}
+
+async function sign(value: string, secret: string) {
+  const sig = await crypto.subtle.sign('HMAC', await hmacKey(secret), encoder.encode(value));
+  return btoa(String.fromCharCode(...new Uint8Array(sig)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** Hash both sides first, so the comparison runs over fixed-length buffers and
+ *  cannot leak the length of the real password. */
+async function passwordMatches(submitted: string, expected: string) {
+  const [a, b] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(submitted)),
+    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
+  ]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
+async function hasValidCookie(request: Request, secret: string) {
+  const match = (request.headers.get('Cookie') ?? '')
+    .match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`));
+  if (!match) return false;
+
+  const [expiry, signature] = match[1].split('.');
+  if (!expiry || !signature) return false;
+  if (Number(expiry) < Math.floor(Date.now() / 1000)) return false;
+
+  const expected = await sign(expiry, secret);
+  // timingSafeEqual throws on a length mismatch, and a client controls this
+  // value, so the length has to be checked first. The expected length is a
+  // public constant, so checking it leaks nothing.
+  if (signature.length !== expected.length) return false;
+  return crypto.subtle.timingSafeEqual(
+    encoder.encode(signature),
+    encoder.encode(expected),
+  );
+}
+```
+
+`passwordForm(action, message?, status?)` is a small function returning an HTML
+`Response` — one input, one button, the site's own colours and fonts. It should
+say who to contact for the password (SAC Brant, 519.751.1164 x 206), because
+the people hitting it will be facilitators who have mislaid it.
+
+### What makes this "secure. ish" rather than just a password box
+
+- The password lives in a Worker **secret**, never in the repo, and never
+  reaches the browser.
+- `crypto.subtle.timingSafeEqual` over hashed values, so neither the password
+  nor its length leaks through response timing.
+- The cookie carries its own expiry, HMAC-signed, so a client cannot forge one
+  or extend its own session.
+- **A Cloudflare rate-limiting rule on `POST /facilitators`** — roughly 5
+  attempts per minute per IP. This is not optional. Without it, a shared
+  password of the kind people actually choose is brute-forceable in an
+  afternoon, and it is the difference between this design being sound and
+  merely looking sound.
+- PDFs live under `/facilitators/`, so the same gate covers them, and
+  `X-Robots-Tag: noindex` keeps anything behind it out of search results.
+
+### Choosing the password
+
+Since a rate limit is the only thing standing between a shared password and a
+determined attacker, the password itself has to carry weight. Four or five
+random words is the right shape — easy to read aloud at a training session, easy
+to type on a phone, and far beyond brute-forcing at five guesses a minute. Avoid
+anything guessable from the program itself (`taylor2026`, `turtle`).
+
+### Revocation, stated plainly
+
+A shared password cannot be revoked from one person. When a facilitator leaves —
+or the password reaches a group chat, which over a few years it will — the only
+remedy is changing it for everyone and re-notifying every facilitator. This was
+raised before the decision and accepted; it is recorded here so the next person
+reading this file knows it was a choice rather than an oversight.
+
+Two things follow from it:
+
+- **Plan for rotation from the start.** Rotating should be a known, rehearsed
+  step, not a scramble. Decide who owns it and roughly how often — after each
+  training cohort is a natural rhythm.
+- **The optional KV extra is worth revisiting.** Keeping the password hash in
+  Cloudflare KV and putting a "change the password" form *inside* the protected
+  area is about twenty more lines, and it is what turns rotation from "email the
+  developer" into something the client does themselves in thirty seconds. Given
+  that rotation is the one maintenance task this design guarantees, this is
+  probably worth building rather than deferring.
+
+If the shared password ever becomes unmanageable, Cloudflare Access (below) is
+the migration path, and it does not require re-platforming — the hosting choice
+in Part 2 already covers it.
+
+### Considered and not chosen: Cloudflare Access
+
+Worth recording, because it stays available on the same Cloudflare account and
+is the natural next step if the shared password stops working out.
+
+An Access policy on `taylorstherights.ca/facilitators*` would have facilitators
+enter their email and receive a one-time PIN. Free for up to 50 users, no
+application code at all, per-person revocation, an audit trail of who accessed
+what, and it covers the PDFs automatically because the policy attaches to the
+path rather than the page.
+
+It was set aside because the client wants to hand out one password at a training
+session, and Access is the wrong shape for that — it is per-person by design.
+The cost of the decision is the revocation limitation above; the benefit is that
+nothing has to be administered in the Cloudflare dashboard.
 
 ---
 
-## Decisions needed
+## Decisions made
 
-1. **Hosting** — is Cloudflare acceptable, and who owns the account? It should
-   be SAC Brant's, not an individual's.
-2. **Facilitator sign-in** — named people with emailed PINs (Option A), or one
-   shared password (Option B)?
-
-Everything else in this document can proceed once those two are settled.
+1. **Hosting — Cloudflare Workers with static assets.** Still to confirm: the
+   account should be owned by SAC Brant as an organisation, not by an
+   individual. This matters more than it sounds; it is the difference between
+   the client being able to hand the site to someone else later and not.
+2. **Facilitator sign-in — one shared password** (Part 4), with the revocation
+   trade-off understood and accepted.
 
 ## Suggested order of work
 
@@ -416,4 +554,5 @@ Everything else in this document can proceed once those two are settled.
    sharing fix has outsized value given the Facebook and Instagram traffic.
 3. Replace or gate the placeholder events data.
 4. Gallery: content collection, `/photos` pages, CMS, auth proxy.
-5. Facilitator gate.
+5. Facilitator gate, including the rate-limiting rule and a test that asserts an
+   unauthenticated request really is refused.
