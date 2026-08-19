@@ -91,18 +91,18 @@ Why it fits this project specifically:
 - **Cloudflare Access is available on the same account** if the client prefers
   named accounts over a shared password (Part 4, Option A) — free for up to 50
   users.
-- **The gallery's upload endpoint is a Worker too** (Part 3), so the one piece
-  of server-side glue the client-facing admin tool needs lives on the same
-  account as everything else.
+- **It keeps the site static.** The gallery is authored in Sanity (Part 3) and
+  built into static pages, so the Worker's only job is the facilitator gate —
+  no Astro SSR adapter, no runtime dependencies on the critical path.
 - **It leaves room to grow.** KV, R2, and D1 are a binding away if the events
   calendar or article list later wants a real backend.
 
 The trade-off is honest: it is one more account for the client's organisation to
 own, and the Cloudflare dashboard is not a friendly place for a non-technical
-person. The mitigation is that after setup they should never need to open it —
-all their day-to-day work happens on `/admin` (Part 3). The two dashboard tasks
-that do remain, adding an admin user and rotating the facilitator password, are
-both rare and both worth walking through with them once.
+person. The mitigation is that after setup they should almost never need to open
+it — all their day-to-day work happens in Sanity Studio (Part 3). The one
+dashboard task that remains, rotating the facilitator password, is rare and
+worth walking through with them once.
 
 ---
 
@@ -120,190 +120,117 @@ phones at schools and community events. If uploading requires sitting down at a
 desktop later, it will not happen. **Mobile upload is a real requirement, not a
 nicety.**
 
-### Two constraints, and a correction
+### The constraint, and how it was resolved
 
-**No GitHub accounts.** A git-based CMS like Sveltia or Decap requires every
-person who updates the site to hold a GitHub account with write access to the
-repo. That was rejected, and reasonably so — "create a GitHub account" is a hard
-stop for a lot of community-org staff, and an account nobody remembers signing
-up for is an account nobody can log into eighteen months later.
+**No editor should need a GitHub account.** That is firm, and it is what ruled
+out every git-based CMS: Sveltia, Decap, and Pages CMS all require one per
+editor. Decap with Netlify Git Gateway *was* the standard answer to exactly this
+problem — editors sign in with an email and password, Git Gateway commits on
+their behalf — but Git Gateway is deprecated and new configurations are not
+recommended, so it is not a foundation to build on. DecapBridge solves it as a
+third-party service the client could not replace. TinaCMS caps its free tier at
+two users and then bills monthly, which is a bad failure mode for an
+organisation with staff turnover: when the bill lapses, editing stops.
 
-**Photos do not belong in the repo.** An earlier draft of this document kept the
-images in git and defended it on three grounds. Two of them do not survive
-scrutiny:
+An earlier draft of this document responded to that by designing a custom
+`/admin` upload page, backed by R2 and D1. **That was an overcorrection.** The
+reasoning had been anchored on keeping content in git, and once the content
+moved out of git — to R2 and D1 — the constraint that made a custom build
+necessary had already dissolved. A hosted headless CMS satisfies "no GitHub
+account" trivially, because editors simply log in with an email.
 
-- *"Git gives us automatic EXIF stripping via Astro's image pipeline."* It does
-  — but the design already resizes photos in the browser before upload, and a
-  canvas re-encode strips EXIF on its own. The metadata is gone before the bytes
-  leave the device, whatever they land in. Git was adding a second layer, not
-  the only one.
-- *"Git keeps albums recoverable."* Only by a developer. If the client deletes
-  an album by accident, git history is not something they can reach — they have
-  to phone someone either way. D1's Time Travel (below) gives the same
-  protection with the same amount of client involvement, which is none.
-- *"Git keeps the content portable off Cloudflare."* This one holds, but it is
-  weaker than it sounds: R2 is S3-compatible, so `rclone sync` moves the whole
-  bucket anywhere.
+### Decided: Sanity
 
-Meanwhile the argument against git was under-weighted. Astro reprocesses images
-at build time, so a few hundred photos add minutes to **every** deploy —
-including deploys that have nothing to do with the gallery — and CI caches are
-usually cold. A repo carrying 100MB+ of binaries is slow to clone forever, and
-the weight cannot be removed later without rewriting history.
+Content lives in Sanity's hosted Content Lake. Editors sign in with an email
+address. There is no git in the content path and nothing custom to build.
 
-So: photos to R2, metadata to D1, and the gallery renders on demand.
+What this replaces, relative to the previous design: the entire `/admin` upload
+page, the R2 bucket, the D1 schema, the Worker upload endpoints, the client-side
+resize, and the on-demand `/photos` routes. All of it. What remains is a schema
+definition, a query, and two page templates.
 
-### Decided: R2 for the photos, D1 for the album metadata
+**Sanity Studio is embedded at `/admin`** via the official `@sanity/astro`
+integration, so the client has one bookmarkable URL on the site's own domain
+rather than a separate `*.sanity.studio` address.
 
-1. `/admin` is protected by a Cloudflare Access policy. Staff enter their email,
-   receive a one-time PIN, and are let in. Free up to 50 users; the admin group
-   here is two or three people.
-2. The upload page resizes each photo in the browser, then `PUT`s it to a Worker
-   endpoint, which writes it to R2 through a bucket binding.
-3. Album metadata — title, date, location, description, consent flag, captions,
-   ordering — goes to D1.
-4. `/photos` and `/photos/[slug]` render on demand from D1 and serve images from
-   R2 through Cloudflare Image Transformations. **Publishing is instant. There
-   is no rebuild.**
+**The site goes back to being fully static.** Sanity serves images from its own
+CDN, so Astro never processes them — the build does not slow down as the gallery
+grows, which was the objection that pushed photos out of the repo in the first
+place. A Sanity webhook triggers a redeploy on publish; the album is live in a
+minute or two. **No Astro SSR adapter is needed anywhere**, including for the
+facilitator gate in Part 4, which lives in the Worker's fetch handler rather
+than in Astro.
 
-Access is enforced at Cloudflare's edge before the Worker runs, so an
-unauthenticated request never reaches the upload endpoint.
-
-### What this removes
-
-Worth stating plainly, because it is most of the argument: the previous design
-needed a GitHub App, a Git Data API commit flow that assembled blobs into a tree
-into a commit, and a rebuild triggered on every publish. **All of it is gone.**
-No GitHub integration, no token to rotate, no expiring credential, no
-build-and-deploy latency between the client clicking publish and the album
-appearing.
-
-The upload endpoint also gets simpler than the presigned-URL pattern usually
-reached for here. Because the photos are resized client-side to a few hundred
-kilobytes, they fit comfortably inside a Worker request, so the Worker can take
-the body and `env.PHOTOS.put()` it straight to R2 through the binding. No SigV4
-signing, no presigned URL dance, and the Access JWT check the endpoint already
-does is the only authorisation needed.
-
-### The site stays static apart from two routes
-
-Astro's `output: 'static'` prerenders everything by default and lets individual
-routes opt out. Only the gallery goes on-demand:
+### The schema
 
 ```ts
-// src/pages/photos/index.astro and src/pages/photos/[slug].astro
-export const prerender = false;
+// sanity/schemaTypes/album.ts
+export const album = {
+  name: 'album',
+  title: 'Photo album',
+  type: 'document',
+  fields: [
+    { name: 'title', title: 'Album title', type: 'string', validation: (r) => r.required() },
+    { name: 'date', title: 'Date of the visit', type: 'date', validation: (r) => r.required() },
+    { name: 'location', title: 'Where was it?', type: 'string' },
+    { name: 'description', title: 'A sentence about the day', type: 'text', rows: 3 },
+    {
+      name: 'consentOnFile',
+      title: 'I have photo consent on file for everyone pictured',
+      type: 'boolean',
+      initialValue: false,
+      validation: (r) => r.required(),
+    },
+    {
+      name: 'photos',
+      title: 'Photos',
+      type: 'array',
+      of: [{
+        type: 'image',
+        options: { hotspot: true },
+        fields: [{ name: 'caption', title: 'Caption', type: 'string' }],
+      }],
+    },
+  ],
+};
 ```
 
-Everything else — homepage, teachings, colouring, team — still builds to static
-files and is served from the edge exactly as it is today. This needs
-`@astrojs/cloudflare` as the adapter, on the Worker that is already serving the
-site.
+Sanity's image type gives drag-to-reorder, bulk upload, and hotspot cropping out
+of the box — the three things that would have taken the longest to build by hand.
 
-### EXIF is now the client-side resize's job alone
+### Two roles, and what follows from it
 
-This matters more than it did, because the second layer is gone. Two things have
-to be right:
+The free plan offers only Administrator and Viewer. There is no Editor role, so
+**every staff member who can add photos is also an Administrator** — able to
+change project settings, manage other users, and delete the dataset.
 
-- **The canvas re-encode is what strips the metadata.** Decode, draw to a
-  canvas at 1600px, `toBlob()`. The output is encoded from raw pixels, so there
-  is no path for GPS coordinates to survive.
-- **Orientation must be handled deliberately, or portrait photos come out
-  sideways.** EXIF carries the rotation, and stripping EXIF without applying it
-  first is a classic bug. Use
-  `createImageBitmap(file, { imageOrientation: 'from-image' })` so the pixels
-  are already rotated correctly before the re-encode.
+For a team of two or three trusted staff this is workable, and it is the call
+that has been made. Two things follow from it, and they compound with two other
+free-plan limits:
 
-Also set `metadata=none` explicitly on Image Transformations rather than
-assuming the default strips it.
+- **History retention is capped on the free plan**, so "restore it from
+  history" has a shorter window than one might assume.
+- **Automated backups are an Enterprise feature.** On the free plan the
+  supported route is a manual `sanity dataset export` via the CLI.
 
-**This deserves a test.** Take a real phone photo with location services on,
-run it through the upload path, and assert the stored object has no EXIF block —
-`exiftool` on the R2 object is enough. It is the one property of this system
-that must not quietly regress, and it is exactly the kind of thing that breaks
-during an unrelated refactor of the upload page.
+Together — anyone can delete, history is short, backups are not automatic —
+these argue for one small piece of infrastructure that is worth building at the
+same time as the gallery:
 
-### Backup and recovery
+> **A scheduled `sanity dataset export`**, run by a GitHub Action on a weekly
+> cron, writing the export to R2 or committing it to the repo. It is a handful
+> of lines, it costs nothing, and it is the only thing standing between an
+> accidental deletion and a permanently lost photo album.
 
-The concern that kept the images in git was losing content. It is answered
-better without git:
+This is the one place where dropping the custom build adds a responsibility
+rather than removing one. It should not be deferred.
 
-- **D1 Time Travel** restores the database to any minute in the last 30 days.
-  It is always on, needs no configuration, and costs nothing. Album metadata is
-  the part with real editorial effort in it, and this covers it.
-- **R2 photos should be soft-deleted, not hard-deleted.** "Delete album" marks
-  it deleted in D1 and leaves the objects in place; a separate cleanup can purge
-  things older than, say, 90 days. Objects are cheap and the free tier is large,
-  so there is no reason to delete eagerly.
-- **A confirm dialog on delete** prevents more accidents than any backup does.
-- Optionally, a scheduled Worker exporting album metadata to JSON in R2 nightly
-  gives an off-database copy. Worth about fifteen lines if it helps anyone sleep.
+### Confirm at signup
 
-### Free-tier headroom
-
-Comfortable, with room to be wrong by an order of magnitude:
-
-| | Free allowance | Expected use |
-| --- | --- | --- |
-| R2 storage | 10 GB | ~400KB/photo → roughly 25,000 photos |
-| R2 writes | 1M/month | a few hundred |
-| R2 reads | 10M/month | nowhere near |
-| Image Transformations | 5,000 unique/month | one per photo per size variant, cached thereafter |
-| D1 | free tier | a few hundred rows |
-
-A "unique transformation" is one combination of options on one image per month;
-repeat requests for the same size are served from cache, so this scales with
-photos published rather than with traffic.
-
-### Scope for v1
-
-Worth being deliberate, because this is where custom admin tools balloon:
-
-- Create an album (title, date, location, description, consent checkbox)
-- Add photos to a new or existing album, with captions
-- Edit an album's text; soft-delete a photo or an album
-- Reordering: **defer.** Sort by filename, which is capture order on every phone
-  camera. Add drag-to-reorder only if the client actually asks.
-
-### Why a custom page is affordable
-
-Building an upload UI is normally the reason to reach for an existing CMS, and
-it should not be waved through — custom admin tools are reliably 80% done in a
-day and then take three more. Two things make it a fair trade here:
-
-- **The job is narrow.** Sveltia is a general-purpose CMS for arbitrary content
-  models. This page creates albums of photos: one entity, a handful of fields, a
-  file picker. Most of a CMS's weight is generality this site will never use.
-- **The R2 decision removed the hard parts.** No GitHub commit assembly, no
-  rebuild orchestration, no presigned-URL signing, no server-side image
-  processing. What remains is a form, a file picker, a canvas resize, and two
-  Worker endpoints.
-
-The page must work well on a phone — staff take these photos at schools and
-community events, and if uploading requires sitting down at a desktop later, it
-will not happen.
-
-### The client's actual workflow
-
-1. Go to `taylorstherights.ca/admin`. Enter their work email, get a PIN, paste
-   it in.
-2. "New album" → title, date, drag photos in, tick the consent box.
-3. Publish. It is live immediately.
-
-No accounts to create, no passwords to remember, no GitHub, no waiting for a
-build. Adding or removing someone from the admin group is one line in a
-Cloudflare Access policy.
-
-### Verify the Access JWT inside the Worker
-
-Access gates `/admin` at the edge, but the upload and metadata endpoints must
-not be reachable if that policy is ever misconfigured or removed. Read
-`Cf-Access-Jwt-Assertion` and verify it against the team's public keys before
-accepting a write.
-
-This is the same class of mistake as `run_worker_first` in Part 4: it fails
-open, silently, with nothing in the logs to suggest the gate stopped working.
-Both deserve a test that asserts an unauthenticated request is actually refused.
+The exact seat allowance on the free plan could not be pinned down from public
+sources — figures ranged from two non-admin users to twenty. Worth confirming
+before the client is set up, since the answer determines whether the whole team
+can be given access or only a couple of named people.
 
 ### Safeguarding notes — please read this part
 
@@ -313,106 +240,91 @@ does not have:
 
 - **EXIF data must not ship.** Phone photos carry GPS coordinates. Publishing
   the exact location of a school alongside photographs of the children who
-  attend it is a genuine safeguarding failure, not a theoretical one. See the
-  EXIF section above — with the images out of git this rests entirely on the
-  client-side resize, which is why it needs a test.
+  attend it is a genuine safeguarding failure, not a theoretical one. With
+  Sanity this needs deliberate handling, because it is no longer something the
+  build does for us:
+  - **Always emit transformed image URLs**, never a bare asset URL. Build them
+    with `@sanity/image-url` and an explicit width. Transformations re-encode
+    the image, which is what drops the metadata.
+  - **Verify this rather than assume it.** Upload a real phone photo with
+    location services on, fetch the transformed URL, and run `exiftool` on the
+    result. This deserves a written check, because it is exactly the property
+    that regresses quietly during an unrelated change.
+  - **Know that the original asset stays fetchable.** Sanity keeps the
+    uploaded original and serves it from its CDN at an unguessable but public
+    URL, with EXIF intact. Nothing on the site links to it, but "unguessable"
+    is not "private". Worth a deliberate decision about whether that is
+    acceptable; if it is not, the answer is to strip metadata in the browser
+    before upload via a custom Studio input component.
 - **The `consentOnFile` checkbox is deliberate.** It is not a legal control —
   it is a prompt that puts the question in front of the person publishing, at
-  the moment they publish. Consider refusing to display an album where it is
-  unticked, so it fails loudly rather than silently.
+  the moment they publish. The schema marks it required so an album cannot be
+  saved without an explicit answer.
 - **Consider whether some albums should be public at all.** Some may belong
-  behind the facilitator gate (Part 4). This is easier now than it was: the
-  gallery routes already render on demand, so gating an album is a check in the
-  route rather than a build-time decision.
+  behind the facilitator gate (Part 4).
 - **Decide about faces deliberately, not by default.** Many child-serving
   organisations publish only photos where children are not identifiable — from
   behind, at a distance, or focused on the activity. That is a policy call for
   SAC Brant, not a technical one, but the site should not quietly presume the
   permissive answer.
 
+### The client's actual workflow
+
+1. Go to `taylorstherights.ca/admin` and sign in with their work email.
+2. "Photo album" → "Create new".
+3. Title, date, drag photos in, tick the consent box.
+4. Publish. The site rebuilds itself and the album appears in a minute or two.
+
+No accounts to create beyond the Sanity invitation, no passwords beyond their
+own, no GitHub, and nothing custom that only one person understands. Sanity
+Studio works on a phone, which matters — staff take these photos at schools and
+community events, and if uploading requires sitting down at a desktop later, it
+will not happen.
+
 ### What this gives up
 
 Honestly, so it is a choice rather than a discovery later:
 
-- **Album content is no longer in the repo.** A developer can no longer see the
-  gallery's history in `git log`, and restoring something means D1 Time Travel
-  or an R2 object rather than `git revert`. The nightly metadata export is the
-  hedge if this turns out to matter.
-- **Two routes now depend on D1 and R2 being up.** The rest of the site is
-  static and unaffected, but `/photos` can fail in ways a static page cannot.
-  Worth a simple empty/error state rather than an exception page.
-- **Local development needs `wrangler dev`** with local D1 and R2, rather than
-  plain `astro dev`. Minor, but it is a change to how the project is run and
-  belongs in the README.
-
-### Why not an off-the-shelf CMS: the survey
-
-The constraint is firm: **no editor should need a GitHub account.** That was
-confirmed after a closer look at Sveltia, and it rules out more than it first
-appears. The options were checked rather than assumed:
-
-| Option | Cost | Why it does not fit |
-| --- | --- | --- |
-| Sveltia CMS | Free | GitHub account per editor |
-| Decap CMS | Free | GitHub account per editor |
-| Pages CMS | Free | GitHub account per editor |
-| Decap + Netlify Git Gateway | Free | **Git Gateway is deprecated**; new configurations are not recommended. Identity itself is still supported, but the piece that let email/password users commit is the deprecated half |
-| DecapBridge | Third-party | Solves it, but a single-vendor dependency the client would be unable to replace |
-| TinaCMS | 2 users free, then $29/mo | Free tier is too small for this team, and a recurring bill that can lapse is a bad failure mode for an org with staff turnover — when it lapses, editing stops |
-
-Worth being clear about what happened to the obvious answer. Decap with Netlify
-Identity and Git Gateway *was* the standard solution to exactly this problem —
-editors sign in with an email and password, and Git Gateway commits on their
-behalf using a stored token. It is the reason "use Decap" was the default advice
-for years. That path is closing, and it is not a foundation to build a
-community organisation's site on in 2026.
-
-Sveltia was worth the closer look, and its R2 support genuinely removed the
-repo-weight objection. The GitHub requirement is what it could not remove, and
-none of the workarounds are acceptable: a shared "SAC Brant Web" account means
-a shared 2FA seed, and injecting a repo token into the page puts a write
-credential in the browser — two credentials, with the R2 key alongside it.
-
-### So: the custom page, and it is cheaper than it looks
-
-With no off-the-shelf option clearing the bar, `/admin` gets built. The R2 and
-D1 decision is what makes that affordable, and the two decisions reinforce each
-other: because the content path involves no git at all, the hard parts of a
-custom CMS never arise. No commit assembly, no GitHub App, no rebuild
-orchestration, no server-side image processing. What is left is a form, a file
-picker, a canvas resize, and two Worker endpoints — with Cloudflare Access
-handling every part of authentication.
-
-That is a smaller surface than it would have been at any earlier point in this
-document, and it has no recurring cost, no third-party dependency, and no
-credential for the client to hold.
+- **Content lives in a third party's cloud.** Portability is via
+  `sanity dataset export`, which is exactly why the scheduled export above is
+  not optional.
+- **A free tier can change.** Sanity could alter its limits. The export is the
+  hedge here too; with it, moving to another CMS is a migration rather than a
+  loss.
+- **The client still cannot make structural changes.** They can add albums,
+  events, and articles indefinitely, but a new *kind* of page or a layout change
+  still needs a developer. This was the honest advantage Squarespace held, and
+  it was weighed and set aside to keep the bespoke design.
 
 ### Options considered and rejected
 
-- **Off-the-shelf git-based CMSes** — surveyed above. All either require a
-  GitHub account per editor, depend on a deprecated service, or carry a
-  recurring bill.
-- **Photos committed to git via a Worker** — the intermediate design. Removed
-  the GitHub account requirement but kept the repo bloat, the build-time image
-  processing on every deploy, and a GitHub App credential to maintain. Superseded
-  by this one.
-- **Keeping metadata in git while photos go to R2** — a reasonable hybrid: the
-  human-authored text stays diffable and portable, only the heavy bytes move
-  out, and the site stays fully static. Rejected because it keeps the entire
-  GitHub App and commit-assembly machinery alive to save a D1 table that Time
-  Travel already protects, and it reintroduces publish latency. Worth revisiting
-  only if being able to read album text in `git log` turns out to matter.
-- **A headless CMS (Sanity, Contentful, Storyblok)** — adds a second account, a
-  second thing to learn, and a free tier that can change. Disproportionate, and
-  does not avoid a login.
-- **Pulling from Instagram** — tempting, since the program already posts to
-  `@taylorsrights`. Rejected: the Instagram Basic Display API was retired, and
+- **Git-based CMSes (Sveltia, Decap, Pages CMS)** — all require a GitHub
+  account per editor. Sveltia was the closest call: its R2 media support removed
+  the repo-weight objection entirely, but not the account requirement, and the
+  workarounds are worse than the problem (a shared account means a shared 2FA
+  seed; injecting a repo token into the page puts a write credential in the
+  browser).
+- **Decap + Netlify Git Gateway** — the classic email/password answer to this
+  exact problem. Git Gateway is deprecated.
+- **TinaCMS** — two free users, then $29/month. A recurring bill that can lapse
+  is a poor fit for a grant-funded programme.
+- **A custom `/admin` page on R2 and D1** — the previous design in this
+  document. It worked and cost nothing, but it is several hundred lines of
+  bespoke CMS that only its author understands, to replicate what Sanity gives
+  for free. Superseded.
+- **Squarespace** — would let the client run the whole site themselves forever,
+  including structural changes, with page passwords and galleries built in.
+  Rejected because the bespoke design — the hero cast, the motion system, the
+  Taylor identity — would be approximated at best in a template, and for a
+  programme whose identity is an illustrated character that is a real loss. The
+  nonprofit discount is 10% off the first payment only, so it is also ~$200–280
+  a year indefinitely.
+- **Webflow** — closer design fidelity and a genuinely good editor, with 50%
+  off annual plans for nonprofits in year one. Still a full rebuild and an
+  ongoing bill thereafter.
+- **Pulling from Instagram** — the Instagram Basic Display API was retired, and
   the replacement needs a business account and a token refreshed every 60 days.
   The gallery would silently go blank when it lapsed.
-- **A shared Google Drive folder synced at build time** — lowest friction for
-  the client, since they already know Drive. Rejected: needs service-account
-  credentials, gives no control over captions or ordering, and fails in ways
-  nobody would notice.
 
 ---
 
@@ -629,12 +541,10 @@ If the shared password ever becomes unmanageable, Cloudflare Access (below) is
 the migration path, and it does not require re-platforming — the hosting choice
 in Part 2 already covers it.
 
-### Considered and not chosen here: Cloudflare Access
+### Considered and not chosen: Cloudflare Access
 
-Access *is* used on this site — it protects `/admin` (Part 3). It was considered
-and set aside for `/facilitators` specifically. Worth recording, because it is
-already set up and is the natural next step if the shared password stops working
-out.
+Worth recording, because it stays available on the same Cloudflare account and
+is the natural next step if the shared password stops working out.
 
 An Access policy on `taylorstherights.ca/facilitators*` would have facilitators
 enter their email and receive a one-time PIN. Free for up to 50 users, no
@@ -644,15 +554,9 @@ path rather than the page.
 
 It was set aside because the client wants to hand out one password at a training
 session, and Access is the wrong shape for that — it is per-person by design.
-The cost of the decision is the revocation limitation above.
-
-One note, since it slightly weakens the original rationale: because `/admin` now
-uses Access anyway, "it avoids setting up Access" is no longer a benefit of the
-shared password — the setup cost is already paid. What remains is the shape
-argument, which still holds: a handful of named staff belong in Access, and a
-rotating cohort of trained facilitators handed a password at a session does not.
-The two gates protect different-sized groups and it is reasonable for them to
-work differently.
+The cost of the decision is the revocation limitation above; the benefit is that
+nothing has to be administered in the Cloudflare dashboard, and with the gallery
+authored in Sanity there is now no other reason to set Access up at all.
 
 ---
 
@@ -664,11 +568,11 @@ work differently.
    the client being able to hand the site to someone else later and not.
 2. **Facilitator sign-in — one shared password** (Part 4), with the revocation
    trade-off understood and accepted.
-3. **Gallery authoring — a purpose-built `/admin` page behind Cloudflare
-   Access** (Part 3), rather than a git-based CMS. No GitHub accounts for the
-   client.
-4. **Gallery storage — R2 for photos, D1 for album metadata**, with `/photos`
-   rendering on demand. Photos stay out of the repo; publishing is instant.
+3. **Content authoring — Sanity** (Part 3), with Studio embedded at `/admin`.
+   Editors sign in with an email, so no GitHub accounts and nothing custom to
+   build. The site stays fully static, rebuilt by a Sanity webhook on publish.
+   Accepted with it: the free plan's two roles, meaning every editor is an
+   Administrator.
 
 ## Suggested order of work
 
@@ -676,8 +580,9 @@ work differently.
 2. Open Graph metadata, `site` config, 404 page, `robots.txt` — small, and the
    sharing fix has outsized value given the Facebook and Instagram traffic.
 3. Replace or gate the placeholder events data.
-4. Gallery: R2 bucket and D1 schema, the on-demand `/photos` routes, the
-   `/admin` upload page and its Worker endpoints, and the Access policy in
-   front of it. Include the EXIF test and the unauthenticated-access test.
+4. Gallery: Sanity project and schema, Studio embedded at `/admin`, the
+   `/photos` pages, and the publish webhook. Include the EXIF check on a
+   transformed URL, and the scheduled `sanity dataset export` — that one is
+   not optional, given two roles and capped history retention.
 5. Facilitator gate, including the rate-limiting rule and a test that asserts an
    unauthenticated request really is refused.
