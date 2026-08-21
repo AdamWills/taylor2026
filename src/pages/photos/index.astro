@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getAlbums, photoThumbUrl, formatAlbumDate } from '../../lib/sanity';
+
+const albums = await getAlbums();
+---
+
+<BaseLayout
+	title="Photo Album | Taylor the Turtle"
+	description="Photos from Taylor's visits to schools, camps, and community events."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">
+				Taylor's photo album
+			</h1>
+			<p class="mt-5 max-w-[52ch] text-forest/80">
+				Photos from Taylor's visits to schools, camps, and community events across Brantford,
+				Brant County, and Six Nations.
+			</p>
+
+			{albums.length === 0 ? (
+				<div class="mt-12 max-w-[52ch] rounded-3xl bg-white p-8">
+					<p class="display-tight text-xl">The album is being filled</p>
+					<p class="mt-3 text-forest/80">
+						Taylor is out visiting! Check back soon, or say hi in person — the
+						<a class="font-bold text-pine underline underline-offset-2 hover:text-forest" href="/events">events page</a>
+						has where Taylor will be next.
+					</p>
+				</div>
+			) : (
+				<ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+					{albums.map((album, index) => (
+						<li class="reveal" style={`--reveal-delay: ${(index % 3) * 80}ms`}>
+							<a
+								href={`/photos/${album.slug}`}
+								class:list={[
+									'group block rounded-3xl bg-white p-4 pb-5 transition-[translate,rotate,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest',
+									index % 2 === 0 ? 'hover:-rotate-1' : 'hover:rotate-1',
+								]}
+							>
+								<img
+									src={photoThumbUrl(album.photos[0], 640)}
+									alt=""
+									width="640"
+									height="640"
+									loading={index < 6 ? 'eager' : 'lazy'}
+									class="aspect-square w-full rounded-2xl border border-forest/10 object-cover"
+									style={album.photos[0].asset.metadata.lqip ? `background: center / cover url(${album.photos[0].asset.metadata.lqip})` : undefined}
+								/>
+								<h2 class="display-tight mt-3 text-xl text-balance group-hover:text-pine">{album.title}</h2>
+								<p class="mt-1 text-[15px] text-forest/80">
+									{formatAlbumDate(album.date)}
+									{album.location && ` · ${album.location}`}
+								</p>
+								<p class="mt-1 text-[13px] font-extrabold tracking-[0.08em] text-pine uppercase">
+									{album.photos.length} {album.photos.length === 1 ? 'photo' : 'photos'}
+								</p>
+							</a>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>

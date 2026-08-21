@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getAlbums, photoUrl, photoThumbUrl, formatAlbumDate } from '../../lib/sanity';
+import type { Album } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+	const albums = await getAlbums();
+	return albums.map((album) => ({ params: { slug: album.slug }, props: { album } }));
+}
+
+interface Props {
+	album: Album;
+}
+
+const { album } = Astro.props;
+---
+
+<BaseLayout
+	title={`${album.title} | Photo Album | Taylor the Turtle`}
+	description={album.description ?? `Photos from ${album.title}.`}
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<p>
+				<a
+					class="font-bold text-pine focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest hover:text-forest"
+					href="/photos"
+				>
+					← All albums
+				</a>
+			</p>
+			<h1 class="display-tight mt-4 max-w-[24ch] text-4xl text-balance lg:text-5xl">{album.title}</h1>
+			<p class="mt-3 text-forest/80">
+				{formatAlbumDate(album.date)}
+				{album.location && ` · ${album.location}`}
+			</p>
+			{album.description && <p class="mt-4 max-w-[56ch] text-forest/80">{album.description}</p>}
+
+			<ul class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" role="list">
+				{album.photos.map((photo, index) => (
+					<li>
+						<button
+							type="button"
+							class="photo-open group block w-full rounded-2xl bg-white p-2 transition-[translate,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+							data-index={index}
+							aria-label={photo.caption ? `View photo: ${photo.caption}` : `View photo ${index + 1} of ${album.photos.length}`}
+						>
+							<img
+								src={photoThumbUrl(photo, 480)}
+								alt=""
+								width="480"
+								height="480"
+								loading={index < 8 ? 'eager' : 'lazy'}
+								class="aspect-square w-full rounded-xl border border-forest/10 object-cover"
+								style={photo.asset.metadata.lqip ? `background: center / cover url(${photo.asset.metadata.lqip})` : undefined}
+							/>
+						</button>
+					</li>
+				))}
+			</ul>
+		</div>
+	</main>
+	<Footer />
+
+	<dialog
+		id="lightbox"
+		class="m-auto max-h-[100dvh] max-w-[100vw] bg-transparent p-4 backdrop:bg-forest/90 sm:p-8"
+	>
+		<div class="flex flex-col items-center gap-4">
+			<img id="lightbox-img" src="" alt="" class="max-h-[80dvh] max-w-full rounded-2xl bg-white/10" />
+			<p id="lightbox-caption" class="max-w-[60ch] text-center font-bold text-milk"></p>
+			<div class="flex items-center gap-3">
+				<button type="button" id="lightbox-prev" class="rounded-full border-2 border-milk px-5 py-2 font-extrabold text-milk hover:bg-milk hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-milk">← Previous</button>
+				<button type="button" id="lightbox-close" class="rounded-full bg-mustard px-5 py-2 font-extrabold text-[#3d3113] hover:bg-[#e0a72e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-milk">Close</button>
+				<button type="button" id="lightbox-next" class="rounded-full border-2 border-milk px-5 py-2 font-extrabold text-milk hover:bg-milk hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-milk">Next →</button>
+			</div>
+		</div>
+	</dialog>
+
+	<script
+		is:inline
+		define:vars={{
+			photos: album.photos.map((photo, index) => ({
+				src: photoUrl(photo, 1600),
+				caption: photo.caption ?? `Photo ${index + 1} of ${album.photos.length}`,
+			})),
+		}}
+	>
+		const dialog = document.getElementById('lightbox');
+		const img = document.getElementById('lightbox-img');
+		const caption = document.getElementById('lightbox-caption');
+		let current = 0;
+
+		function show(index) {
+			current = (index + photos.length) % photos.length;
+			img.src = photos[current].src;
+			img.alt = photos[current].caption;
+			caption.textContent = photos[current].caption;
+		}
+
+		for (const button of document.querySelectorAll('.photo-open')) {
+			button.addEventListener('click', () => {
+				show(Number(button.dataset.index));
+				dialog.showModal();
+			});
+		}
+
+		document.getElementById('lightbox-prev').addEventListener('click', () => show(current - 1));
+		document.getElementById('lightbox-next').addEventListener('click', () => show(current + 1));
+		document.getElementById('lightbox-close').addEventListener('click', () => dialog.close());
+
+		dialog.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowLeft') show(current - 1);
+			if (event.key === 'ArrowRight') show(current + 1);
+		});
+
+		// Clicking the backdrop (outside the content) closes, matching lightbox convention.
+		dialog.addEventListener('click', (event) => {
+			if (event.target === dialog) dialog.close();
+		});
+	</script>
+</BaseLayout>

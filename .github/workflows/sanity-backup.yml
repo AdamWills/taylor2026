@@ -1,0 +1,38 @@
+# Weekly export of the Sanity dataset, kept as a workflow artifact.
+# Required rather than optional: on Sanity's free plan every editor is an
+# Administrator, history retention is capped, and automated backups are an
+# Enterprise feature — this export is the recovery path for an accidental
+# deletion. See docs/superpowers/specs/2026-08-19-gallery-and-auth-design.md.
+#
+# Setup (one-time): create a read token at sanity.io/manage → API → Tokens
+# (Viewer permissions are enough) and add it to the repo as the
+# SANITY_AUTH_TOKEN secret, plus SANITY_PROJECT_ID as a repo variable.
+name: Sanity backup
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays 09:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Export dataset (documents + assets)
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        run: |
+          if [ -z "$SANITY_AUTH_TOKEN" ] || [ -z "${{ vars.SANITY_PROJECT_ID }}" ]; then
+            echo "::error::SANITY_AUTH_TOKEN secret and SANITY_PROJECT_ID variable must be configured"
+            exit 1
+          fi
+          npx --yes sanity@latest dataset export production backup.tar.gz \
+            --project "${{ vars.SANITY_PROJECT_ID }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sanity-backup-${{ github.run_id }}
+          path: backup.tar.gz
+          retention-days: 90

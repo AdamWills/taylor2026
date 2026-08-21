@@ -171,6 +171,13 @@ export const album = {
   type: 'document',
   fields: [
     { name: 'title', title: 'Album title', type: 'string', validation: (r) => r.required() },
+    {
+      name: 'slug',
+      title: 'Web address',
+      type: 'slug',
+      options: { source: 'title', maxLength: 96 },
+      validation: (r) => r.required(),
+    },
     { name: 'date', title: 'Date of the visit', type: 'date', validation: (r) => r.required() },
     { name: 'location', title: 'Where was it?', type: 'string' },
     { name: 'description', title: 'A sentence about the day', type: 'text', rows: 3 },
@@ -250,12 +257,12 @@ does not have:
     location services on, fetch the transformed URL, and run `exiftool` on the
     result. This deserves a written check, because it is exactly the property
     that regresses quietly during an unrelated change.
-  - **Know that the original asset stays fetchable.** Sanity keeps the
-    uploaded original and serves it from its CDN at an unguessable but public
-    URL, with EXIF intact. Nothing on the site links to it, but "unguessable"
-    is not "private". Worth a deliberate decision about whether that is
-    acceptable; if it is not, the answer is to strip metadata in the browser
-    before upload via a custom Studio input component.
+  - **The original asset stays fetchable.** Sanity keeps the uploaded
+    original and serves it from its CDN at an unguessable but public URL, with
+    EXIF intact. Nothing on the site links to it, but "unguessable" is not
+    "private". **Decision (2026-08-21): accepted.** If that ever changes, the
+    remedy is stripping metadata in the browser before upload via a custom
+    Studio input component.
 - **The `consentOnFile` checkbox is deliberate.** It is not a legal control —
   it is a prompt that puts the question in front of the person publishing, at
   the moment they publish. The schema marks it required so an album cannot be
@@ -264,9 +271,9 @@ does not have:
   behind the facilitator gate (Part 4).
 - **Decide about faces deliberately, not by default.** Many child-serving
   organisations publish only photos where children are not identifiable — from
-  behind, at a distance, or focused on the activity. That is a policy call for
-  SAC Brant, not a technical one, but the site should not quietly presume the
-  permissive answer.
+  behind, at a distance, or focused on the activity.
+  **Decision (2026-08-21): no restriction beyond the consent confirmation** —
+  the `consentOnFile` checkbox is the control.
 
 ### The client's actual workflow
 
@@ -584,5 +591,9 @@ authored in Sanity there is now no other reason to set Access up at all.
    `/photos` pages, and the publish webhook. Include the EXIF check on a
    transformed URL, and the scheduled `sanity dataset export` — that one is
    not optional, given two roles and capped history retention.
+   **Built 2026-08-21** (schema, Studio at `/admin`, `/photos` pages, backup
+   workflow); still needing a live Sanity project: the project id in `.env`,
+   the publish webhook, the CORS origin for `/admin`, and the EXIF check,
+   which needs a real uploaded photo. See README §Content editing.
 5. Facilitator gate, including the rate-limiting rule and a test that asserts an
    unauthenticated request really is refused.
