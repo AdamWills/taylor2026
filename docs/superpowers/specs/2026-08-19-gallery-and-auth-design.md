@@ -592,8 +592,11 @@ authored in Sanity there is now no other reason to set Access up at all.
    transformed URL, and the scheduled `sanity dataset export` — that one is
    not optional, given two roles and capped history retention.
    **Built 2026-08-21** (schema, Studio at `/admin`, `/photos` pages, backup
-   workflow); still needing a live Sanity project: the project id in `.env`,
-   the publish webhook, the CORS origin for `/admin`, and the EXIF check,
-   which needs a real uploaded photo. See README §Content editing.
+   workflow). **Project created 2026-09-23** ("Taylor the Turtle",
+   `aq8y8vyq`) and its id baked into the config. Still to do in
+   sanity.io/manage: the CORS origin for `/admin` (site origin +
+   `http://localhost:4321`), the deploy webhook, the `SANITY_AUTH_TOKEN`
+   secret for the backup workflow — and the EXIF check on a transformed URL
+   once the first real photo is uploaded. See README §Content editing.
 5. Facilitator gate, including the rate-limiting rule and a test that asserts an
    unauthenticated request really is refused.

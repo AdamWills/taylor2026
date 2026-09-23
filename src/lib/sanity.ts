@@ -47,12 +47,6 @@ const ALBUMS_QUERY = `*[
  * (PUBLIC_SANITY_PROJECT_ID unset — see .env.example) this fails fast and the
  * gallery renders its empty state instead of failing the build. */
 export async function getAlbums(): Promise<Album[]> {
-	// No project configured yet: skip the network entirely rather than fail —
-	// a dead connection attempt can emit late socket errors that crash the build.
-	if (sanityClient.config().projectId === 'placeholder') {
-		console.warn('[photos] PUBLIC_SANITY_PROJECT_ID not set; rendering empty gallery');
-		return [];
-	}
 	try {
 		return await sanityClient.fetch<Album[]>(ALBUMS_QUERY);
 	} catch (error) {

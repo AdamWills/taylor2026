@@ -6,7 +6,7 @@ import { schemaTypes } from './src/sanity/schemaTypes';
 export default defineConfig({
 	name: 'taylor-the-turtle',
 	title: 'Taylor the Turtle',
-	projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder',
+	projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'aq8y8vyq',
 	dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
 	plugins: [structureTool()],
 	schema: { types: schemaTypes },

@@ -7,9 +7,10 @@ import react from '@astrojs/react';
 
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
 
-// Until the real Sanity project exists, builds run against a placeholder id:
-// queries fail fast and the gallery renders its empty state (see src/lib/sanity.ts).
-const projectId = env.PUBLIC_SANITY_PROJECT_ID || 'placeholder';
+// "Taylor the Turtle" project at sanity.io/manage. The id is public (it ships
+// in the browser bundle), so it is baked in; the env vars exist to point a
+// build at a different project or dataset without touching code.
+const projectId = env.PUBLIC_SANITY_PROJECT_ID || 'aq8y8vyq';
 const dataset = env.PUBLIC_SANITY_DATASET || 'production';
 
 // https://astro.build/config

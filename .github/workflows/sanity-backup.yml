@@ -6,7 +6,7 @@
 #
 # Setup (one-time): create a read token at sanity.io/manage → API → Tokens
 # (Viewer permissions are enough) and add it to the repo as the
-# SANITY_AUTH_TOKEN secret, plus SANITY_PROJECT_ID as a repo variable.
+# SANITY_AUTH_TOKEN secret.
 name: Sanity backup
 
 on:
@@ -25,12 +25,12 @@ jobs:
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
         run: |
-          if [ -z "$SANITY_AUTH_TOKEN" ] || [ -z "${{ vars.SANITY_PROJECT_ID }}" ]; then
-            echo "::error::SANITY_AUTH_TOKEN secret and SANITY_PROJECT_ID variable must be configured"
+          if [ -z "$SANITY_AUTH_TOKEN" ]; then
+            echo "::error::SANITY_AUTH_TOKEN secret must be configured"
             exit 1
           fi
           npx --yes sanity@latest dataset export production backup.tar.gz \
-            --project "${{ vars.SANITY_PROJECT_ID }}"
+            --project aq8y8vyq
       - uses: actions/upload-artifact@v4
         with:
           name: sanity-backup-${{ github.run_id }}

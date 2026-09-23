@@ -20,18 +20,18 @@ in [Sanity](https://www.sanity.io); the architecture and its reasoning live in
 
 ## Content editing (Sanity)
 
-Copy `.env.example` to `.env` and set `PUBLIC_SANITY_PROJECT_ID` (from
-[sanity.io/manage](https://www.sanity.io/manage)). Without it, builds still
-succeed: the photo gallery renders an empty state and `/admin` cannot connect.
+The "Taylor the Turtle" project id (`aq8y8vyq`) is baked into the config — no
+env setup is needed. `.env.example` shows the overrides for pointing a build at
+a different project or dataset.
 
 - Sanity Studio is embedded at `/admin` — editors sign in with their email.
 - Album schema: `src/sanity/schemaTypes/album.ts`. Albums only appear on the
   site once the photo-consent box is ticked.
-- One-time project setup: add the site origin (and `localhost:4321`) under
-  API → CORS origins in the Sanity project, and a deploy-hook webhook so
+- One-time project setup: add the site origin (and `http://localhost:4321`)
+  under API → CORS origins in the Sanity project, and a deploy-hook webhook so
   publishing triggers a rebuild.
 - Weekly dataset backup: `.github/workflows/sanity-backup.yml` — needs the
-  `SANITY_AUTH_TOKEN` secret and `SANITY_PROJECT_ID` repo variable.
+  `SANITY_AUTH_TOKEN` secret (a Viewer token from API → Tokens).
 
 Images must always be rendered through the URL builders in `src/lib/sanity.ts`
 (never a bare asset URL): the transformation re-encode is what strips EXIF/GPS
