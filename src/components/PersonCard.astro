@@ -4,49 +4,62 @@ import { initials, type Person } from '../data/team';
 
 interface Props {
 	person: Person;
-	index?: number;
 }
 
-const { person, index = 0 } = Astro.props;
+const { person } = Astro.props;
 const { name, role, headshot, bio = [], tale, dailyReminder } = person;
+const hasStory = bio.length > 0 || tale || dailyReminder;
 ---
 
-<article class="reveal flex flex-col gap-5 rounded-3xl bg-white p-6 sm:flex-row sm:p-8" style={`--reveal-delay: ${(index % 2) * 80}ms`}>
-	{headshot ? (
-		<Image
-			src={headshot}
-			alt=""
-			class="size-28 shrink-0 rounded-full border-[3px] border-sage-tile object-cover"
-			width={224}
-			height={224}
-		/>
-	) : (
-		<span
-			class="display-tight flex size-28 shrink-0 items-center justify-center rounded-full bg-sage-tile text-2xl text-forest"
-			aria-hidden="true"
-		>
-			{initials(name)}
-		</span>
+<!-- Full-width card: who they are on the left, their story on the right. People
+     without a bio yet collapse to a single name-and-role row. -->
+<article
+	class:list={[
+		'reveal rounded-3xl bg-white p-6 sm:p-8',
+		hasStory && 'md:grid md:grid-cols-[13rem_1fr] md:gap-10',
+	]}
+>
+	<header class:list={['flex items-center gap-5', hasStory && 'md:flex-col md:items-start md:gap-4']}>
+		{headshot ? (
+			<Image
+				src={headshot}
+				alt=""
+				class="size-24 shrink-0 rounded-full border-[3px] border-sage-tile object-cover md:size-32"
+				width={256}
+				height={256}
+			/>
+		) : (
+			<span
+				class="display-tight flex size-24 shrink-0 items-center justify-center rounded-full bg-sage-tile text-2xl text-forest md:size-32 md:text-3xl"
+				aria-hidden="true"
+			>
+				{initials(name)}
+			</span>
+		)}
+		<div>
+			<h3 class="display-tight text-2xl text-balance">{name}</h3>
+			<p class="mt-1 text-[13px] font-extrabold tracking-[0.08em] text-pine uppercase text-balance">{role}</p>
+		</div>
+	</header>
+	{hasStory && (
+		<div class="mt-5 max-w-[65ch] md:mt-0">
+			{bio.length > 0 && (
+				<div class="space-y-3 text-[16px] text-forest/85 text-pretty">
+					{bio.map((paragraph) => <p>{paragraph}</p>)}
+				</div>
+			)}
+			{tale && (
+				<aside class="mt-5 rounded-2xl bg-sage-tile p-5">
+					<p class="text-[12px] font-extrabold tracking-[0.1em] text-pine uppercase">Tales with Taylor</p>
+					<p class="mt-2 text-[16px] text-forest/85 text-pretty">{tale}</p>
+				</aside>
+			)}
+			{dailyReminder && (
+				<blockquote class="mt-5 border-l-4 border-mustard pl-4">
+					<p class="text-[12px] font-extrabold tracking-[0.1em] text-pine uppercase">Daily reminder</p>
+					<p class="display-tight mt-1 text-lg text-pretty">{dailyReminder}</p>
+				</blockquote>
+			)}
+		</div>
 	)}
-	<div class="min-w-0">
-		<h3 class="display-tight text-2xl">{name}</h3>
-		<p class="mt-1 text-[13px] font-extrabold tracking-[0.08em] text-pine uppercase">{role}</p>
-		{bio.length > 0 && (
-			<div class="mt-4 space-y-3 text-[16px] text-forest/85 text-pretty">
-				{bio.map((paragraph) => <p>{paragraph}</p>)}
-			</div>
-		)}
-		{tale && (
-			<aside class="mt-5 rounded-2xl bg-sage-tile p-5">
-				<p class="text-[12px] font-extrabold tracking-[0.1em] text-pine uppercase">Tales with Taylor</p>
-				<p class="mt-2 text-[16px] text-forest/85 text-pretty">{tale}</p>
-			</aside>
-		)}
-		{dailyReminder && (
-			<blockquote class="mt-5 border-l-4 border-mustard pl-4">
-				<p class="text-[12px] font-extrabold tracking-[0.1em] text-pine uppercase">Daily reminder</p>
-				<p class="display-tight mt-1 text-lg text-pretty">{dailyReminder}</p>
-			</blockquote>
-		)}
-	</div>
 </article>
