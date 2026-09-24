@@ -1,15 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
-import { team } from '../../data/team';
-
-const initials = (name: string) =>
-	name
-		.replace(/^Dr\.\s+/, '')
-		.split(' ')
-		.map((part) => part[0])
-		.slice(0, 2)
-		.join('');
+import { initials, team } from '../../data/team';
 ---
 
 <section class="bg-pine">

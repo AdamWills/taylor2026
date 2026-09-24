@@ -2,6 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import PersonCard from '../components/PersonCard.astro';
+import { team } from '../data/team';
+
+const creators = team.filter((person) => person.org === 'Program Creators');
 ---
 
 <BaseLayout
@@ -46,6 +50,16 @@ import Footer from '../components/Footer.astro';
 						and has been delivered across schools and community settings. It was later recognized
 						by the province as a best practice prevention initiative.
 					</p>
+				</div>
+			</section>
+
+			<section id="creators" class="mt-16 scroll-mt-8" aria-labelledby="creators-heading">
+				<h2 id="creators-heading" class="display-tight text-3xl text-balance lg:text-4xl">The creators</h2>
+				<p class="mt-4 max-w-[60ch] text-forest/80">
+					Taylor was brought to life by one family, working alongside their community colleagues.
+				</p>
+				<div class="mt-8 grid gap-6 lg:grid-cols-2">
+					{creators.map((person, index) => <PersonCard person={person} index={index} />)}
 				</div>
 			</section>
 		</div>
