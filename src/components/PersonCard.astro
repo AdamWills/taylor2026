@@ -11,11 +11,12 @@ const { name, role, headshot, bio = [], tale, dailyReminder } = person;
 const hasStory = bio.length > 0 || tale || dailyReminder;
 ---
 
-<!-- Full-width card: who they are on the left, their story on the right. People
-     without a bio yet collapse to a single name-and-role row. -->
+<!-- Who they are on the left, their story on the right. The card is capped at its
+     content width (photo column + ~65ch of text) so it never has an empty right side.
+     People without a bio yet collapse to a single name-and-role row. -->
 <article
 	class:list={[
-		'reveal rounded-3xl bg-white p-6 sm:p-8',
+		'reveal max-w-[56rem] rounded-3xl bg-white p-6 sm:p-8',
 		hasStory && 'md:grid md:grid-cols-[13rem_1fr] md:gap-10',
 	]}
 >

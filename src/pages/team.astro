@@ -39,7 +39,7 @@ const creators = team.filter((person) => person.org === 'Program Creators');
 				</section>
 			))}
 
-			<section id="creators" class="mt-14 scroll-mt-8 rounded-3xl bg-sage-tile p-6 sm:p-8" aria-labelledby="creators-heading">
+			<section id="creators" class="mt-14 max-w-[56rem] scroll-mt-8 rounded-3xl bg-sage-tile p-6 sm:p-8" aria-labelledby="creators-heading">
 				<h2 id="creators-heading" class="display-tight text-2xl">The program creators</h2>
 				<ul class="mt-6 flex flex-wrap gap-x-8 gap-y-5" role="list">
 					{creators.map(({ name, role, headshot }) => (
