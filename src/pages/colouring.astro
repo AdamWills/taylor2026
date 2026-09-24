@@ -1,4 +1,81 @@
 ---
-import StubPage from '../components/StubPage.astro';
+import { statSync } from 'node:fs';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { teachings } from '../data/teachings';
+
+import fullBookPdf from '../assets/colour_pages/full_book.pdf?url';
+import drawYourselfPdf from '../assets/colour_pages/draw-yourself.pdf?url';
+import learnNewSkillsPdf from '../assets/colour_pages/learn-new-skills.pdf?url';
+import drawYourselfThumb from '../assets/colour_pages/thumbnails/draw-yourself.png';
+import learnNewSkillsThumb from '../assets/colour_pages/thumbnails/learn-new-skills.png';
+
+/** Human-readable size of a colouring PDF, read from the source file at build time.
+ * Teaching slugs match their PDF file names. */
+const pdfSize = (file: string) => {
+	const bytes = statSync(`${process.cwd()}/src/assets/colour_pages/${file}.pdf`).size;
+	return bytes >= 1_000_000 ? `${(bytes / 1_000_000).toFixed(1)} MB` : `${Math.round(bytes / 1_000)} KB`;
+};
+
+const sheets = teachings.map(({ slug, title, pdf, thumbnail }) => ({ title, pdf, thumbnail, size: pdfSize(slug) }));
+const extras = [
+	{ title: 'Draw yourself', pdf: drawYourselfPdf, thumbnail: drawYourselfThumb, size: pdfSize('draw-yourself') },
+	{ title: 'Learn new skills', pdf: learnNewSkillsPdf, thumbnail: learnNewSkillsThumb, size: pdfSize('learn-new-skills') },
+];
 ---
-<StubPage title="Colouring Pages" blurb="Free, downloadable colouring sheets for every teaching. Print single pages or the whole book." />
+
+<BaseLayout
+	title="Colouring Pages | Taylor the Turtle"
+	description="Free, printable Taylor the Turtle colouring sheets for every teaching. Download single pages or the whole book."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">Colouring pages</h1>
+			<p class="mt-5 max-w-[56ch] text-forest/80">
+				Every teaching has a free colouring sheet: a gentle way to sit alongside a child and let
+				the conversation happen naturally. Print single pages, or the whole book.
+			</p>
+			<a
+				href={fullBookPdf}
+				download
+				class="mt-7 inline-flex items-center gap-2 rounded-full bg-mustard px-6 py-3 font-extrabold text-[#3d3113] transition-colors hover:bg-[#e0a72e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+			>
+				Download the whole book <span class="font-bold opacity-80">(PDF, {pdfSize('full_book')})</span>
+			</a>
+
+			{[
+				{ id: 'teachings', heading: 'One sheet for each teaching', items: sheets },
+				{ id: 'extras', heading: 'Extra activities', items: extras },
+			].map(({ id, heading, items }) => (
+				<section id={id} class="mt-14 scroll-mt-8" aria-labelledby={`${id}-heading`}>
+					<h2 id={`${id}-heading`} class="display-tight text-3xl text-balance">{heading}</h2>
+					<ul class="mt-8 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5" role="list">
+						{items.map(({ title, pdf, thumbnail, size }, index) => (
+							<li class="reveal" style={`--reveal-delay: ${(index % 5) * 60}ms`}>
+								<a
+									href={pdf}
+									download
+									class="group block rounded-2xl bg-white p-3 pb-4 transition-[translate,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+								>
+									<Image
+										src={thumbnail}
+										alt=""
+										class="aspect-[17/22] w-full rounded-lg border border-forest/10 object-cover"
+										widths={[240, 480]}
+										sizes="(min-width: 1024px) 220px, (min-width: 768px) 30vw, 45vw"
+									/>
+									<span class="display-tight mt-3 block text-[16px] leading-snug text-balance group-hover:text-pine">{title}</span>
+									<span class="mt-1 block text-[13px] font-bold text-forest/70">PDF · {size}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				</section>
+			))}
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
