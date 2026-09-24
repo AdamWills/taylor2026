@@ -1,4 +1,64 @@
 ---
-import StubPage from '../components/StubPage.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import PersonCard from '../components/PersonCard.astro';
+import { team, type Person } from '../data/team';
+
+const groups: { id: string; heading: string; org: Person['org'] }[] = [
+	{ id: 'sac-brant', heading: 'SAC Brant', org: 'SAC Brant' },
+	{ id: 'ganohkwasra', heading: 'Ganohkwasra Family Assault Support Services', org: 'Ganohkwasra' },
+	{ id: 'research', heading: 'Research team, Wilfrid Laurier University', org: 'Wilfrid Laurier University' },
+];
+
+const creators = team.filter((person) => person.org === 'Program Creators');
 ---
-<StubPage title="Team" blurb="The creators, counsellors, researchers, and community builders behind Taylor the Turtle." />
+
+<BaseLayout
+	title="Team | Taylor the Turtle"
+	description="The creators, counsellors, researchers, and community builders behind Taylor the Turtle."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">The people behind the turtle</h1>
+			<p class="mt-5 max-w-[56ch] text-forest/80">
+				A family of creators, counsellors, researchers, and community builders across SAC Brant,
+				Ganohkwasra, and Wilfrid Laurier University.
+			</p>
+
+			{groups.map(({ id, heading, org }) => (
+				<section id={id} class="mt-14 scroll-mt-8" aria-labelledby={`${id}-heading`}>
+					<h2 id={`${id}-heading`} class="display-tight text-3xl text-balance lg:text-4xl">{heading}</h2>
+					<div class="mt-8 grid gap-6 lg:grid-cols-2">
+						{team
+							.filter((person) => person.org === org)
+							.map((person, index) => <PersonCard person={person} index={index} />)}
+					</div>
+				</section>
+			))}
+
+			<section id="creators" class="mt-14 scroll-mt-8 rounded-3xl bg-sage-tile p-6 sm:p-8" aria-labelledby="creators-heading">
+				<h2 id="creators-heading" class="display-tight text-2xl">The program creators</h2>
+				<ul class="mt-6 flex flex-wrap gap-x-8 gap-y-5" role="list">
+					{creators.map(({ name, role, headshot }) => (
+						<li class="flex items-center gap-3">
+							{headshot && (
+								<Image src={headshot} alt="" class="size-14 rounded-full border-2 border-white object-cover" width={112} height={112} />
+							)}
+							<span>
+								<span class="block font-bold text-forest">{name}</span>
+								<span class="block text-[14px] text-forest/80">{role}</span>
+							</span>
+						</li>
+					))}
+				</ul>
+				<a class="mt-6 inline-block font-bold text-pine underline decoration-2 underline-offset-4 hover:text-forest" href="/our-story#creators">
+					Read the creators' stories →
+				</a>
+			</section>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
