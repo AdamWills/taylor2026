@@ -2,7 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { Image } from 'astro:assets';
 import { themes, themesIntro } from '../data/themes';
+import { teachings } from '../data/teachings';
 ---
 
 <BaseLayout
@@ -34,6 +36,38 @@ import { themes, themesIntro } from '../data/themes';
 								<h3 class="display-tight text-xl">{title}</h3>
 								<p class="mt-2 text-[16px] text-forest/80 text-pretty">{text}</p>
 							</div>
+						</li>
+					))}
+				</ol>
+			</section>
+
+			<section id="rights" class="mt-16 scroll-mt-8" aria-labelledby="rights-heading">
+				<h2 id="rights-heading" class="display-tight text-3xl text-balance lg:text-4xl">The ten teachings</h2>
+				<p class="mt-4 max-w-[60ch] text-forest/80">
+					Each teaching has an illustration to talk through together and a free colouring sheet to
+					print at home or in the classroom.
+				</p>
+				<ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+					{teachings.map(({ slug, title, image, thumbnail, pdf }, index) => (
+						<li id={slug} class="reveal flex scroll-mt-8 flex-col rounded-3xl bg-white p-5" style={`--reveal-delay: ${(index % 3) * 80}ms`}>
+							<div class="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-sage/60 p-3">
+								<Image
+									src={image ?? thumbnail}
+									alt=""
+									class:list={['max-h-full w-auto object-contain', !image && 'border border-forest/10 bg-white']}
+									widths={[320, 640]}
+									sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 88vw"
+								/>
+							</div>
+							<p class="mt-4 text-[13px] font-extrabold tracking-[0.1em] text-pine uppercase">Teaching {index + 1}</p>
+							<h3 class="display-tight mt-1 text-xl text-balance">{title}</h3>
+							<a
+								href={pdf}
+								download
+								class="mt-auto self-start pt-4 font-bold text-forest underline decoration-mustard decoration-2 underline-offset-4 hover:decoration-forest"
+							>
+								Download colouring sheet <span class="sr-only">for “{title}”</span> (PDF)
+							</a>
 						</li>
 					))}
 				</ol>
