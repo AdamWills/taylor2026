@@ -48,15 +48,15 @@ import { teachings } from '../data/teachings';
 					print at home or in the classroom.
 				</p>
 				<ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
-					{teachings.map(({ slug, title, image, thumbnail, pdf }, index) => (
+					{teachings.map(({ slug, title, lineArt, pdf }, index) => (
 						<li id={slug} class="reveal flex scroll-mt-8 flex-col rounded-3xl bg-white p-5" style={`--reveal-delay: ${(index % 3) * 80}ms`}>
-							<div class="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-sage/60 p-3">
+							<div class="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-sage-tile p-6">
 								<Image
-									src={image ?? thumbnail}
+									src={lineArt}
 									alt=""
-									class:list={['max-h-full w-auto object-contain', !image && 'border border-forest/10 bg-white']}
+									class="max-h-full max-w-full object-contain"
 									widths={[320, 640]}
-									sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 88vw"
+									sizes="(min-width: 1024px) 300px, (min-width: 640px) 40vw, 80vw"
 								/>
 							</div>
 							<p class="mt-4 text-[13px] font-extrabold tracking-[0.1em] text-pine uppercase">Teaching {index + 1}</p>
