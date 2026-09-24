@@ -1,18 +1,5 @@
 ---
-const pillars = [
-	{
-		title: "Children's rights",
-		text: 'Every child learns simple, powerful statements about their own body and safety, starting with “my body belongs to me.”',
-	},
-	{
-		title: 'Body awareness',
-		text: 'Correct language and body knowledge, taught early, help children speak up clearly and be understood.',
-	},
-	{
-		title: 'Emotional literacy',
-		text: "Naming feelings, and connecting them to our bodies, gives children the words to say when something isn't right.",
-	},
-];
+import { themes } from '../../data/themes';
 ---
 
 <section class="bg-white">
@@ -28,22 +15,27 @@ const pillars = [
 			and build emotional literacy with young ones aged 18 months to six years and beyond.
 			Created in 2010 as a community-built alternative to fear-based prevention programs, it is
 			grounded in Indigenous knowledge and decades of sexual abuse prevention work. No “stranger
-			danger.” No “good touch/bad touch.” Taylor teaches through three simple ideas:
+			danger.” No “good touch/bad touch.” Eight themes run through every teaching:
 		</p>
-		<ul class="mx-auto mt-12 grid max-w-[64rem] gap-10 sm:grid-cols-3 sm:gap-8" role="list">
-			{pillars.map(({ title, text }, index) => (
-				<li class="reveal" style={`--reveal-delay: ${160 + index * 80}ms`}>
+		<ul class="mx-auto mt-12 grid max-w-[72rem] gap-x-8 gap-y-10 text-left sm:grid-cols-2 lg:grid-cols-4" role="list">
+			{themes.map(({ title, summary }, index) => (
+				<li class="reveal" style={`--reveal-delay: ${120 + (index % 4) * 60}ms`}>
 					<span
-						class="display-tight mx-auto flex size-14 items-center justify-center rounded-full bg-mustard text-2xl text-[#3d3113]"
+						class="display-tight flex size-11 items-center justify-center rounded-full bg-mustard text-xl text-[#3d3113]"
 						aria-hidden="true"
 					>
 						{index + 1}
 					</span>
-					<h3 class="display-tight mt-4 text-xl">{title}</h3>
-					<p class="mx-auto mt-2 max-w-[36ch] text-[16px] text-forest/80 text-pretty">{text}</p>
+					<h3 class="display-tight mt-3 text-xl">{title}</h3>
+					<p class="mt-1.5 text-[16px] text-forest/80 text-pretty">{summary}</p>
 				</li>
 			))}
 		</ul>
+		<p class="reveal mt-10" style="--reveal-delay: 160ms">
+			<a class="font-bold text-pine underline decoration-2 underline-offset-4 hover:text-forest" href="/teachings#themes">
+				Read more about the themes →
+			</a>
+		</p>
 		<p class="reveal mx-auto mt-12 max-w-[60ch] text-[15px] text-forest/80" style="--reveal-delay: 160ms">
 			Developed by eight community partners under the leadership of SAC Brant and Ganohkwasra
 			Family Assault Support Services.
