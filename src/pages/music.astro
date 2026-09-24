@@ -2,12 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { Image } from 'astro:assets';
+import taylor from '../assets/IHaveTheRighToBeMyself.png';
 
 const profileUrl = 'https://soundcloud.com/taylor-the-turtle';
 /** Player URL from SoundCloud's oEmbed endpoint for the profile (user 19943444). The
  * profile has two tracks, so the list view fits in 300px. */
 const playerUrl =
 	'https://w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Fusers%2F19943444&color=%234a7c3f&show_artwork=true&visual=false';
+
+/** Mirrors the profile's track list, in SoundCloud's order, so the placeholder
+ * matches the player it loads. */
+const tracks = [
+	{ title: 'My Body Belongs to Me', duration: '1:04' },
+	{ title: 'Taylor the Turtle', duration: '1:17' },
+];
 ---
 
 <BaseLayout
@@ -23,20 +32,48 @@ const playerUrl =
 				the car, or in the classroom.
 			</p>
 
-			<div id="player" class="mt-10 max-w-[48rem] rounded-3xl bg-white p-3">
-				<div data-player-placeholder class="flex flex-col items-start gap-4 p-5">
-					<p class="display-tight text-2xl">Listen on this page</p>
-					<p class="max-w-[48ch] text-forest/80">
-						The player is hosted by SoundCloud, which may set cookies once it loads.
-					</p>
-					<button
-						type="button"
-						data-player-load
-						data-src={playerUrl}
-						class="rounded-full bg-mustard px-6 py-3 font-extrabold text-[#3d3113] transition-colors hover:bg-[#e0a72e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-					>
-						Load the music player
-					</button>
+			<div id="player" data-src={playerUrl} class="mt-10 max-w-[48rem] rounded-3xl bg-white p-3">
+				<div data-player-placeholder class="flex flex-col gap-5 p-3 sm:flex-row sm:items-stretch">
+					<div class="flex aspect-square w-40 shrink-0 items-center justify-center self-center rounded-2xl bg-sage-tile p-3 sm:w-44 sm:self-auto">
+						<Image src={taylor} alt="" class="max-h-full w-auto" widths={[200, 400]} sizes="176px" />
+					</div>
+					<div class="flex min-w-0 flex-1 flex-col">
+						<div class="flex items-center gap-4">
+							<button
+								type="button"
+								data-player-load
+								data-start="0"
+								class="flex size-16 shrink-0 items-center justify-center rounded-full bg-mustard text-[#3d3113] transition-[background-color,scale] duration-200 hover:scale-105 hover:bg-[#e0a72e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+							>
+								<svg viewBox="0 0 24 24" class="ml-1 size-7" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" /></svg>
+								<span class="sr-only">Play Taylor's songs</span>
+							</button>
+							<div class="min-w-0">
+								<p class="text-[13px] font-extrabold tracking-[0.1em] text-pine uppercase">Taylor the Turtle</p>
+								<p class="display-tight text-2xl text-balance">Sing along with Taylor</p>
+							</div>
+						</div>
+						<ol class="mt-5 divide-y divide-forest/10 border-y border-forest/10" role="list">
+							{tracks.map(({ title, duration }, index) => (
+								<li>
+									<button
+										type="button"
+										data-player-load
+										data-start={index}
+										class="group flex w-full items-center gap-3 px-2 py-3 text-left hover:bg-sage focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-forest"
+									>
+										<span class="w-5 text-[15px] font-bold text-forest/70 group-hover:hidden" aria-hidden="true">{index + 1}</span>
+										<svg viewBox="0 0 24 24" class="hidden size-5 text-pine group-hover:block" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" /></svg>
+										<span class="flex-1 font-bold text-forest">
+											<span class="sr-only">Play </span>{title}
+										</span>
+										<span class="text-[14px] text-forest/70">{duration}</span>
+									</button>
+								</li>
+							))}
+						</ol>
+						<p class="mt-auto pt-3 text-[13px] text-forest/70">Plays through SoundCloud, which may set cookies.</p>
+					</div>
 				</div>
 			</div>
 			<p class="mt-5">
@@ -50,14 +87,16 @@ const playerUrl =
 </BaseLayout>
 
 <script>
-	const button = document.querySelector<HTMLButtonElement>('[data-player-load]');
-	button?.addEventListener('click', () => {
-		const iframe = document.createElement('iframe');
-		iframe.src = `${button.dataset.src}&auto_play=true`;
-		iframe.title = "Taylor the Turtle's songs on SoundCloud";
-		iframe.allow = 'autoplay; encrypted-media';
-		iframe.className = 'block h-[300px] w-full rounded-2xl border-0';
-		document.querySelector('[data-player-placeholder]')?.replaceWith(iframe);
-		iframe.focus();
+	document.querySelectorAll<HTMLButtonElement>('[data-player-load]').forEach((button) => {
+		button.addEventListener('click', () => {
+			const player = document.getElementById('player');
+			const iframe = document.createElement('iframe');
+			iframe.src = `${player?.dataset.src}&auto_play=true&start_track=${button.dataset.start}`;
+			iframe.title = "Taylor the Turtle's songs on SoundCloud";
+			iframe.allow = 'autoplay; encrypted-media';
+			iframe.className = 'block h-[300px] w-full rounded-2xl border-0';
+			document.querySelector('[data-player-placeholder]')?.replaceWith(iframe);
+			iframe.focus();
+		});
 	});
 </script>
