@@ -1,4 +1,44 @@
 ---
-import StubPage from '../components/StubPage.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { themes, themesIntro } from '../data/themes';
 ---
-<StubPage title="Taylor's Teachings" blurb="All ten teachings, each with its illustration and colouring sheet, are being prepared for this page." />
+
+<BaseLayout
+	title="Taylor's Teachings | Taylor the Turtle"
+	description="Taylor's ten teachings and the eight themes that connect them: simple, powerful rights every child has."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">Taylor's Teachings</h1>
+			<p class="mt-5 max-w-[56ch] text-forest/80">
+				Ten simple rights, each one a conversation starter, starting with the most important
+				one of all: my body belongs to me.
+			</p>
+
+			<section id="themes" class="mt-14 scroll-mt-8" aria-labelledby="themes-heading">
+				<h2 id="themes-heading" class="display-tight text-3xl text-balance lg:text-4xl">Overarching themes</h2>
+				<p class="mt-4 max-w-[60ch] text-forest/80">{themesIntro}</p>
+				<ol class="mt-10 grid gap-5 sm:grid-cols-2" role="list">
+					{themes.map(({ title, text }, index) => (
+						<li class="reveal flex gap-4 rounded-3xl bg-white p-6" style={`--reveal-delay: ${(index % 2) * 80}ms`}>
+							<span
+								class="display-tight flex size-11 shrink-0 items-center justify-center rounded-full bg-mustard text-xl text-[#3d3113]"
+								aria-hidden="true"
+							>
+								{index + 1}
+							</span>
+							<div>
+								<h3 class="display-tight text-xl">{title}</h3>
+								<p class="mt-2 text-[16px] text-forest/80 text-pretty">{text}</p>
+							</div>
+						</li>
+					))}
+				</ol>
+			</section>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
