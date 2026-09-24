@@ -1,4 +1,54 @@
 ---
-import StubPage from '../components/StubPage.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 ---
-<StubPage title="Our Story" blurb="How a classroom observation in 2010 grew into a community-built, provincially recognized prevention program." />
+
+<BaseLayout
+	title="Our Story | Taylor the Turtle"
+	description="How a classroom observation in 2010 grew into a community-built, provincially recognized child sexual abuse prevention program."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">Our Story</h1>
+			<p class="mt-5 max-w-[52ch] text-forest/80">
+				How a classroom observation in 2010 grew into a community-built, provincially recognized
+				prevention program.
+			</p>
+
+			<section id="early-development" class="mt-14 scroll-mt-8" aria-labelledby="early-development-heading">
+				<h2 id="early-development-heading" class="display-tight text-3xl text-balance lg:text-4xl">Early development</h2>
+				<div class="mt-5 max-w-[65ch] space-y-5 text-forest/85 text-pretty">
+					<p>
+						Taylor the Turtle was created in 2010 in response to concerns about traditional child
+						sexual abuse prevention programs that relied heavily on fear-based messaging and
+						abstract “stranger danger” scenarios. While facilitating prevention sessions in an
+						elementary school classroom, Program Founder Carrie Sinkowski observed that children
+						struggled to understand scenario-based lessons and often became confused, distressed,
+						or overly focused on literal details rather than safety concepts.
+					</p>
+					<p>
+						Many commonly used “good touch/bad touch” programs were also found to be triggering
+						for survivors, developmentally inappropriate for young children, and ineffective in
+						reflecting how abuse most often occurs, typically within trusted relationships rather
+						than through strangers.
+					</p>
+					<p>
+						Taylor the Turtle was developed as a community-informed alternative grounded in
+						children’s rights, body awareness, emotional literacy, and safety planning. Drawing on
+						research, frontline experience with survivors, and feedback from educators, the
+						program focuses on strengthening protective factors such as self-esteem, strong adult
+						connections, and the ability to recognize and express feelings.
+					</p>
+					<p>
+						Since its creation, Taylor the Turtle has been shaped through ongoing community input
+						and has been delivered across schools and community settings. It was later recognized
+						by the province as a best practice prevention initiative.
+					</p>
+				</div>
+			</section>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
