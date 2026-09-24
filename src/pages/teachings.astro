@@ -47,29 +47,52 @@ import { teachings } from '../data/teachings';
 					Each teaching has an illustration to talk through together and a free colouring sheet to
 					print at home or in the classroom.
 				</p>
-				<ol class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
-					{teachings.map(({ slug, title, lineArt, pdf }, index) => (
-						<li id={slug} class="reveal flex scroll-mt-8 flex-col rounded-3xl bg-white p-5" style={`--reveal-delay: ${(index % 3) * 80}ms`}>
-							<div class="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl bg-sage-tile p-6">
-								<Image
-									src={lineArt}
-									alt=""
-									class="max-h-full max-w-full object-contain"
-									widths={[320, 640]}
-									sizes="(min-width: 1024px) 300px, (min-width: 640px) 40vw, 80vw"
-								/>
-							</div>
-							<p class="mt-4 text-[13px] font-extrabold tracking-[0.1em] text-pine uppercase">Teaching {index + 1}</p>
-							<h3 class="display-tight mt-1 text-xl text-balance">{title}</h3>
-							<a
-								href={pdf}
-								download
-								class="mt-auto self-start pt-4 font-bold text-forest underline decoration-mustard decoration-2 underline-offset-4 hover:decoration-forest"
+				{/* Teaching 1 is the core teaching, so it spans the row; the other nine fill a 3×3 grid. */}
+				<ol class="mt-10 grid gap-6 md:grid-cols-3" role="list">
+					{teachings.map(({ slug, title, lineArt, pdf }, index) => {
+						const core = index === 0;
+						return (
+							<li
+								id={slug}
+								class:list={['reveal flex scroll-mt-8 flex-col rounded-3xl bg-white p-5', core && 'md:col-span-3 md:flex-row md:items-center md:gap-8']}
+								style={`--reveal-delay: ${core ? 0 : ((index - 1) % 3) * 80}ms`}
 							>
-								Download colouring sheet <span class="sr-only">for “{title}”</span> (PDF)
-							</a>
-						</li>
-					))}
+								<div
+									class:list={[
+										'flex items-center justify-center overflow-hidden rounded-2xl bg-sage-tile p-6',
+										core ? 'aspect-[4/5] md:aspect-square md:w-80 md:shrink-0' : 'aspect-[4/5]',
+									]}
+								>
+									<Image
+										src={lineArt}
+										alt=""
+										class="max-h-full max-w-full object-contain"
+										widths={[320, 640]}
+										sizes={core ? '(min-width: 768px) 320px, 80vw' : '(min-width: 1024px) 300px, (min-width: 768px) 30vw, 80vw'}
+									/>
+								</div>
+								<div class:list={['flex flex-1 flex-col', core && 'md:py-4']}>
+									<p class="mt-4 text-[13px] font-extrabold tracking-[0.1em] text-pine uppercase md:mt-4">
+										Teaching {index + 1}{core && ' · The core teaching'}
+									</p>
+									<h3 class:list={['display-tight mt-1 text-balance', core ? 'text-3xl lg:text-4xl' : 'text-xl']}>{title}</h3>
+									{core && (
+										<p class="mt-3 max-w-[48ch] text-forest/80 text-pretty">
+											Every one of Taylor's teachings begins here: children learn that their body is their
+											own, and that they deserve safety, care, and respect.
+										</p>
+									)}
+									<a
+										href={pdf}
+										download
+										class="mt-auto self-start pt-4 font-bold text-forest underline decoration-mustard decoration-2 underline-offset-4 hover:decoration-forest"
+									>
+										Download colouring sheet <span class="sr-only">for “{title}”</span> (PDF)
+									</a>
+								</div>
+							</li>
+						);
+					})}
 				</ol>
 			</section>
 		</div>
