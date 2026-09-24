@@ -15,6 +15,7 @@ const dataset = env.PUBLIC_SANITY_DATASET || 'production';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://taylorsrights.ca',
 	vite: {
 		plugins: [tailwindcss()],
 	},

@@ -6,12 +6,20 @@ import '../styles/global.css';
 interface Props {
 	title: string;
 	description?: string;
+	/** Social share image, relative to the site root or absolute. */
+	image?: string;
+	imageAlt?: string;
 }
 
 const {
 	title,
 	description = 'Taylor the Turtle helps caring adults teach children about body rights, feelings, and safety. A community program of SAC Brant and Ganohkwasra.',
+	image = '/og-default.png',
+	imageAlt = 'Taylor the Turtle and friends: My body belongs to me!',
 } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -22,6 +30,16 @@ const {
 		<meta name="description" content={description} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<title>{title}</title>
+		<link rel="canonical" href={canonical} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Taylor the Turtle" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:image:alt" content={imageAlt} />
+		<meta property="og:locale" content="en_CA" />
+		<meta name="twitter:card" content="summary_large_image" />
 		<script is:inline>
 			document.documentElement.classList.add('js');
 		</script>
