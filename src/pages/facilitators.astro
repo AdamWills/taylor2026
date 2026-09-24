@@ -1,7 +1,21 @@
 ---
+// Served only from behind the facilitator gate (src/worker.ts). Files linked
+// here live in public/facilitators/ so the same gate covers them; never link
+// a Sanity asset URL here, those are public.
 import StubPage from '../components/StubPage.astro';
 ---
 <StubPage
 	title="Facilitator Resources"
-	blurb="Trained Taylor the Turtle facilitators will find program materials, session guides, and refreshers here. Sign-in is coming soon. For access in the meantime, contact SAC Brant at 519.751.1164."
-/>
+	blurb="Welcome back. Program materials, session guides, and refreshers for trained Taylor the Turtle facilitators will be collected here. Questions? Contact SAC Brant at 519.751.1164."
+>
+	<ul class="mt-8 space-y-3">
+		<li>
+			<a
+				class="font-bold text-plum underline decoration-2 underline-offset-4 hover:decoration-mustard"
+				href="/facilitators/sample-session-guide.pdf"
+			>
+				Sample session guide (PDF)
+			</a>
+		</li>
+	</ul>
+</StubPage>

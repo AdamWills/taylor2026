@@ -277,7 +277,7 @@ does not have:
 
 ### The client's actual workflow
 
-1. Go to `taylorstherights.ca/admin` and sign in with their work email.
+1. Go to `taylorsrights.ca/admin` and sign in with their work email.
 2. "Photo album" → "Create new".
 3. Title, date, drag photos in, tick the consent box.
 4. Publish. The site rebuilds itself and the album appears in a minute or two.
@@ -497,7 +497,7 @@ async function hasValidCookie(request: Request, secret: string) {
 
 `passwordForm(action, message?, status?)` is a small function returning an HTML
 `Response` — one input, one button, the site's own colours and fonts. It should
-say who to contact for the password (SAC Brant, 519.751.1164 x 206), because
+say who to contact for the password (SAC Brant, 519.751.1164), because
 the people hitting it will be facilitators who have mislaid it.
 
 ### What makes this "secure. ish" rather than just a password box
@@ -508,8 +508,10 @@ the people hitting it will be facilitators who have mislaid it.
   nor its length leaks through response timing.
 - The cookie carries its own expiry, HMAC-signed, so a client cannot forge one
   or extend its own session.
-- **A Cloudflare rate-limiting rule on `POST /facilitators`** — roughly 5
-  attempts per minute per IP. This is not optional. Without it, a shared
+- **A rate limit on `POST /facilitators`** — roughly 5
+  attempts per minute per IP. (Built as a Workers Rate Limiting binding rather
+  than a dashboard rule: the free plan's rules may only allow a 10-second
+  window, and the binding keeps the limit in code, where it is tested.) This is not optional. Without it, a shared
   password of the kind people actually choose is brute-forceable in an
   afternoon, and it is the difference between this design being sound and
   merely looking sound.
@@ -553,7 +555,7 @@ in Part 2 already covers it.
 Worth recording, because it stays available on the same Cloudflare account and
 is the natural next step if the shared password stops working out.
 
-An Access policy on `taylorstherights.ca/facilitators*` would have facilitators
+An Access policy on `taylorsrights.ca/facilitators*` would have facilitators
 enter their email and receive a one-time PIN. Free for up to 50 users, no
 application code at all, per-person revocation, an audit trail of who accessed
 what, and it covers the PDFs automatically because the policy attaches to the
@@ -600,3 +602,8 @@ authored in Sanity there is now no other reason to set Access up at all.
    once the first real photo is uploaded. See README §Content editing.
 5. Facilitator gate, including the rate-limiting rule and a test that asserts an
    unauthenticated request really is refused.
+   **Built 2026-09-24** (AW-67): `src/worker.ts`, the `ratelimits` binding in
+   `wrangler.jsonc`, the password form as an Astro page
+   (`/facilitator-sign-in/`, served by the Worker in place of gated content),
+   and `test/facilitator-gate.test.ts` running the real config against the
+   build in CI. See README §Facilitator gate.

@@ -16,7 +16,8 @@ in [Sanity](https://www.sanity.io); the architecture and its reasoning live in
 | `npm run dev`     | Start local dev server at `localhost:4321`   |
 | `npm run build`   | Build the production site to `./dist/`       |
 | `npm run preview` | Preview the build locally before deploying   |
-| `npx astro check` | Typecheck                                    |
+| `npm run typecheck` | Typecheck the site and the Worker          |
+| `npm test`        | Facilitator gate tests (run `npm run build` first) |
 
 ## Content editing (Sanity)
 
@@ -36,3 +37,33 @@ a different project or dataset.
 Images must always be rendered through the URL builders in `src/lib/sanity.ts`
 (never a bare asset URL): the transformation re-encode is what strips EXIF/GPS
 metadata from published photos. See the safeguarding notes in the design doc.
+
+## Facilitator gate
+
+Everything under `/facilitators` is behind one shared password, checked by the
+Worker in `src/worker.ts` (design: Part 4 of the spec above).
+
+- **Protected files go in `public/facilitators/`**, never in Sanity: Sanity
+  asset URLs are public and would bypass the gate.
+- `wrangler.jsonc` must keep `run_worker_first` covering `/facilitators` and
+  `/facilitators/*`. Without it the files are served without the Worker ever
+  running. `npm test` fails if that happens, and runs in CI.
+- Sign-in attempts are limited to 5 a minute per IP (the `SIGN_IN_LIMITER`
+  binding).
+- The password form is `src/pages/facilitator-sign-in.astro`; the Worker
+  serves it in place of anything gated.
+
+**Secrets** (production), set once and whenever the password changes:
+
+```sh
+npx wrangler secret put FACILITATOR_PASSWORD
+npx wrangler secret put COOKIE_SECRET   # e.g. the output of: openssl rand -base64 32
+```
+
+Until both are set, nobody can sign in. Changing `FACILITATOR_PASSWORD` leaves
+existing sessions (up to 14 days) signed in; also change `COOKIE_SECRET` to
+sign everyone out.
+
+**Local dev:** `npm run dev` does not run the Worker, so `/facilitators` is
+open there. To try the gate, copy `.dev.vars.example` to `.dev.vars`, then
+`npm run build && npx wrangler dev`.

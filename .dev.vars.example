@@ -1,0 +1,4 @@
+# Copy to .dev.vars (gitignored) for `wrangler dev`. Production values are set
+# with `npx wrangler secret put <NAME>` and never committed.
+FACILITATOR_PASSWORD=local test password
+COOKIE_SECRET=any-long-random-string-for-local-use

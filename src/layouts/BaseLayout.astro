@@ -9,6 +9,8 @@ interface Props {
 	/** Social share image, relative to the site root or absolute. */
 	image?: string;
 	imageAlt?: string;
+	/** Keep the page out of search results. */
+	noindex?: boolean;
 }
 
 const {
@@ -16,6 +18,7 @@ const {
 	description = 'Taylor the Turtle helps caring adults teach children about body rights, feelings, and safety. A community program of SAC Brant and Ganohkwasra.',
 	image = '/og-default.png',
 	imageAlt = 'Taylor the Turtle and friends: My body belongs to me!',
+	noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -31,6 +34,7 @@ const imageUrl = new URL(image, Astro.site);
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<title>{title}</title>
 		<link rel="canonical" href={canonical} />
+		{noindex && <meta name="robots" content="noindex, nofollow" />}
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="Taylor the Turtle" />
 		<meta property="og:title" content={title} />

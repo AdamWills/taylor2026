@@ -1,11 +1,13 @@
 ---
 interface Props {
-	href: string;
+	/** Omit to render a submit button instead of a link. */
+	href?: string;
 	variant?: 'primary' | 'secondary' | 'mustard' | 'plum';
 	class?: string;
 }
 
 const { href, variant = 'primary', class: className = '' } = Astro.props;
+const Tag = href ? 'a' : 'button';
 
 const fronts = {
 	primary: 'bg-pine text-milk',
@@ -31,8 +33,9 @@ const motion = {
 };
 ---
 
-<a
+<Tag
 	href={href}
+	type={href ? undefined : 'submit'}
 	class:list={[
 		'group relative inline-block rounded-full text-[16px] font-extrabold focus-visible:outline-none',
 		className,
@@ -58,4 +61,4 @@ const motion = {
 	>
 		<slot />
 	</span>
-</a>
+</Tag>

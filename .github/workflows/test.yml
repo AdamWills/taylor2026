@@ -1,0 +1,24 @@
+# Typecheck, build, and run the facilitator gate tests against the build.
+# The gate test is the guard against the silent bypass described in
+# docs/superpowers/specs/2026-08-19-gallery-and-auth-design.md, Part 4: if
+# /facilitators stops running through the Worker, it fails.
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test

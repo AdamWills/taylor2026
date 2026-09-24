@@ -1,0 +1,12 @@
+// src/worker.ts runs in workerd, not the browser or Node, so it typechecks
+// against the Workers runtime types (`wrangler types`, gitignored) instead of
+// the DOM types the rest of the site uses.
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "lib": ["ES2024"],
+    "types": [],
+    "noEmit": true
+  },
+  "include": ["src/worker.ts", "worker-configuration.d.ts"]
+}

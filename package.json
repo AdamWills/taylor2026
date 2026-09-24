@@ -9,7 +9,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest run",
+    "typecheck": "wrangler types --include-env=false && astro check && tsc -p tsconfig.worker.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "vitest": "^5.0.1",
     "wrangler": "^4.138.0"
   }
 }
