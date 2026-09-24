@@ -6,6 +6,17 @@ import PersonCard from '../components/PersonCard.astro';
 import { team } from '../data/team';
 
 const creators = team.filter((person) => person.org === 'Program Creators');
+
+const partners = [
+	'SAC Brant',
+	'Ganohkwasra Family Assault Support Services',
+	'Grand Erie District School Board',
+	'Victim Services of Brant',
+	'Woodview Children’s Services',
+	'St. Leonard’s (SOAR) Community Services',
+	'Nova Vita Domestic Violence Prevention Services',
+	'Brantford Police Services',
+];
 ---
 
 <BaseLayout
@@ -61,6 +72,22 @@ const creators = team.filter((person) => person.org === 'Program Creators');
 				<div class="mt-8 grid gap-6 lg:grid-cols-2">
 					{creators.map((person, index) => <PersonCard person={person} index={index} />)}
 				</div>
+			</section>
+
+			<section id="early-adoption" class="mt-16 scroll-mt-8" aria-labelledby="early-adoption-heading">
+				<h2 id="early-adoption-heading" class="display-tight text-3xl text-balance lg:text-4xl">Early adoption</h2>
+				<p class="mt-4 max-w-[60ch] text-forest/80">
+					Taylor was developed with an advisory committee of eight community partners across
+					Brantford, Brant County, and Six Nations.
+				</p>
+				<ul class="mt-8 grid max-w-[56rem] gap-3 sm:grid-cols-2" role="list">
+					{partners.map((partner) => (
+						<li class="flex items-center gap-3 rounded-2xl bg-white px-5 py-4 font-bold text-forest">
+							<span class="size-2.5 shrink-0 rounded-full bg-mustard" aria-hidden="true"></span>
+							{partner}
+						</li>
+					))}
+				</ul>
 			</section>
 		</div>
 	</main>
