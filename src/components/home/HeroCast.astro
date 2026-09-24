@@ -6,7 +6,7 @@ import deer from '../../assets/cast/deer.png';
 import eagle from '../../assets/cast/eagle.png';
 import jay from '../../assets/cast/jay.png';
 import wolf from '../../assets/cast/wolf.png';
-import taylor from '../../assets/cast/taylor-skate.png';
+import taylor from '../../assets/cast/taylor-backpack.png';
 
 /* Positions/sizes tuned against the original group illustration (see the
    composition mocks in the whimsy spec history). left/width are % of the stage;
@@ -24,7 +24,7 @@ const friends = [
 <div
 	class="relative mx-auto mt-9 aspect-[2.03/1] w-full max-w-[880px]"
 	role="img"
-	aria-label="Taylor the Turtle rolls in on a skateboard, waving, joined by friends Bear, Wolf, Deer, Eagle, Beaver, and Blue Jay"
+	aria-label="Taylor the Turtle waves hello, wearing a Haudenosaunee backpack and carrying a book, joined by friends Bear, Wolf, Deer, Eagle, Beaver, and Blue Jay"
 >
 	{
 		friends.map(({ src, left, width, z, enter }) => (
@@ -33,7 +33,7 @@ const friends = [
 			</div>
 		))
 	}
-	<div class="cast-slot cast-taylor" style="left:40%;width:23%;z-index:4">
-		<Image src={taylor} alt="" widths={[240, 480]} sizes="202px" loading="eager" />
+	<div class="cast-slot" style="left:39%;width:25.2%;z-index:4;--enter:650ms">
+		<Image src={taylor} alt="" widths={[240, 480]} sizes="222px" loading="eager" />
 	</div>
 </div>

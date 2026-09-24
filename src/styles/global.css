@@ -135,7 +135,7 @@
 }
 
 /* Hero cast: each character is its own layer. The slot runs a one-time
-   entrance (curtain call, or Taylor's skate-in), then the cast holds still. */
+   entrance (a curtain call, Taylor last), then the cast holds still. */
 .cast-slot {
 	position: absolute;
 	bottom: 0;
@@ -144,9 +144,6 @@
 .cast-slot img {
 	width: 100%;
 	height: auto;
-}
-.cast-taylor {
-	animation: cast-skate 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.85s both;
 }
 @keyframes cast-enter {
 	from {
@@ -159,20 +156,6 @@
 	}
 	to {
 		opacity: 1;
-		transform: none;
-	}
-}
-@keyframes cast-skate {
-	from {
-		transform: translateX(calc(50vw + 110%));
-	}
-	80% {
-		transform: translateX(-4%);
-	}
-	90% {
-		transform: translateX(2%) rotate(3deg);
-	}
-	to {
 		transform: none;
 	}
 }
