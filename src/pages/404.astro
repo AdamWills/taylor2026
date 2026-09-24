@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Button from '../components/Button.astro';
+---
+
+<BaseLayout title="Page not found | Taylor the Turtle">
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-20 lg:py-28">
+			<p class="text-[13px] font-extrabold tracking-[0.12em] text-forest/80 uppercase">Page not found</p>
+			<h1 class="display-tight mt-3 max-w-[20ch] text-4xl text-balance lg:text-5xl">
+				Taylor looked everywhere, but this page isn't here.
+			</h1>
+			<p class="mt-5 max-w-[52ch] text-forest/80">
+				It may have moved, or the link might have a typo. These are good places to start:
+			</p>
+			<div class="mt-7 flex flex-wrap gap-3">
+				<Button href="/">Go to the homepage</Button>
+				<Button href="/teachings" variant="secondary">Taylor's Teachings</Button>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>

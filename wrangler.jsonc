@@ -1,0 +1,17 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "taylor-the-turtle",
+	"compatibility_date": "2026-09-24",
+	// Static assets only for now. The facilitator gate (AW-67) adds "main",
+	// an "ASSETS" binding, and run_worker_first for /facilitators.
+	"assets": {
+		"directory": "./dist",
+		// Folder pages (our-story/index.html) are served at /our-story/, which
+		// matches the canonical URLs in BaseLayout.
+		"html_handling": "auto-trailing-slash",
+		"not_found_handling": "404-page"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
