@@ -19,10 +19,12 @@ const pdfSize = (file: string) => {
 	return bytes >= 1_000_000 ? `${(bytes / 1_000_000).toFixed(1)} MB` : `${Math.round(bytes / 1_000)} KB`;
 };
 
-const sheets = teachings.map(({ slug, title, pdf, thumbnail }) => ({ title, pdf, thumbnail, size: pdfSize(slug) }));
-const extras = [
-	{ title: 'Draw yourself', pdf: drawYourselfPdf, thumbnail: drawYourselfThumb, size: pdfSize('draw-yourself') },
-	{ title: 'Learn new skills', pdf: learnNewSkillsPdf, thumbnail: learnNewSkillsThumb, size: pdfSize('learn-new-skills') },
+/** Every page of the colouring book, in the book's order: the ten teachings, then
+ * the two closing pages. */
+const sheets = [
+	...teachings.map(({ slug, title, pdf, thumbnail }) => ({ title, pdf, thumbnail, size: pdfSize(slug) })),
+	{ title: 'I have the right to learn new skills!!', pdf: learnNewSkillsPdf, thumbnail: learnNewSkillsThumb, size: pdfSize('learn-new-skills') },
+	{ title: 'Draw yourself with Taylor', pdf: drawYourselfPdf, thumbnail: drawYourselfThumb, size: pdfSize('draw-yourself') },
 ];
 ---
 
@@ -46,32 +48,30 @@ const extras = [
 				Download the whole book <span class="font-bold opacity-80">(PDF, {pdfSize('full_book')})</span>
 			</a>
 
-			{[
-				{ id: 'teachings', heading: 'One sheet for each teaching', items: sheets },
-				{ id: 'extras', heading: 'Extra activities', items: extras },
-			].map(({ id, heading, items }) => (
-				<section id={id} class="mt-14 scroll-mt-8" aria-labelledby={`${id}-heading`}>
-					<h2 id={`${id}-heading`} class="display-tight text-3xl text-balance">{heading}</h2>
-					<ul class="mt-8 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5" role="list">
-						{items.map(({ title, pdf, thumbnail, size }, index) => (
-							<li class="reveal" style={`--reveal-delay: ${(index % 5) * 60}ms`}>
-								<a
-									href={pdf}
-									download
-									class="group block rounded-2xl bg-white p-3 pb-4 transition-[translate,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-								>
-									<Image
-										src={thumbnail}
-										alt=""
-										class="aspect-[17/22] w-full rounded-lg border border-forest/10 object-cover"
-										widths={[240, 480]}
-										sizes="(min-width: 1024px) 220px, (min-width: 768px) 30vw, 45vw"
-									/>
-									<span class="display-tight mt-3 block text-[16px] leading-snug text-balance group-hover:text-pine">{title}</span>
-									<span class="mt-1 block text-[13px] font-bold text-forest/70">PDF · {size}</span>
-								</a>
-							</li>
-						))}
+			<section id="sheets" class="mt-14 scroll-mt-8" aria-labelledby="sheets-heading">
+				<h2 id="sheets-heading" class="display-tight text-3xl text-balance">Pick a page, print it, and colour together</h2>
+				<ul class="mt-8 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4" role="list">
+					{sheets.map(({ title, pdf, thumbnail, size }, index) => (
+						<li class="reveal" style={`--reveal-delay: ${(index % 4) * 60}ms`}>
+							<a
+								href={pdf}
+								download
+								class="group block rounded-2xl bg-white p-3 pb-4 transition-[translate,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+							>
+								<Image
+									src={thumbnail}
+									alt=""
+									class="aspect-[17/22] w-full rounded-lg border border-forest/10 object-cover"
+									widths={[240, 480]}
+									sizes="(min-width: 1024px) 270px, (min-width: 768px) 30vw, 45vw"
+								/>
+								<span class="display-tight mt-3 block text-[16px] leading-snug text-balance group-hover:text-pine">{title}</span>
+								<span class="mt-1 block text-[13px] font-bold text-forest/70">PDF · {size}</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
 					</ul>
 				</section>
 			))}
