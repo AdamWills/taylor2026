@@ -1,3 +1,4 @@
+import myBody from '../assets/MyBodyBelongsToMe.png';
 import safeBody from '../assets/IHaveTheRighToASafeBody.png';
 import safeSchool from '../assets/IHaveTheRighToASafeSchool.png';
 import beMyself from '../assets/IHaveTheRighToBeMyself.png';
@@ -22,10 +23,10 @@ export interface Teaching {
 	pdf: string;
 }
 
-/** Spec order, per the content PDF "Taylor's Teachings" list. Images exist for 5 of 10;
+/** Spec order, per the content PDF "Taylor's Teachings" list. Images exist for 6 of 10;
  * the rest arrive with the new illustration batch (see docs/REQUIREMENTS.md). */
 export const teachings: Teaching[] = [
-	{ slug: 'my-body-belongs-to-me', title: 'My body belongs to me!!', image: null, pdf: myBodyPdf },
+	{ slug: 'my-body-belongs-to-me', title: 'My body belongs to me!!', image: myBody, pdf: myBodyPdf },
 	{ slug: 'healthy-body', title: 'I have the right to a healthy body!!', image: null, pdf: healthyBodyPdf },
 	{ slug: 'safe-body', title: 'I have the right to a safe body!!', image: safeBody, pdf: safeBodyPdf },
 	{ slug: 'safe-school', title: 'I have the right to a safe school!!', image: safeSchool, pdf: safeSchoolPdf },
