@@ -39,7 +39,7 @@
 	"send_email": [
 		{
 			"name": "BOOKING_EMAIL",
-			"destination_address": "jezeth@sacbrant.ca"
+			"destination_address": "adam@adamwills.com"
 		}
 	],
 	// Every Book a Visit request is saved here before its email is sent, so
@@ -62,7 +62,9 @@
 	"vars": {
 		// Who receives Book a Visit requests. Must match the BOOKING_EMAIL
 		// binding's destination_address above, or the binding refuses the send.
-		"BOOKING_TO": "jezeth@sacbrant.ca",
+		// Adam for now, while the form is tested; SAC (Jezeth and/or the admin
+		// inbox) at launch.
+		"BOOKING_TO": "adam@adamwills.com",
 		// Hostnames the Book a Visit form may be submitted from (checked against
 		// Turnstile's siteverify result). Never add localhost here; .dev.vars
 		// overrides this for local testing.
