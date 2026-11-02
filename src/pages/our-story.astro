@@ -1,9 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import PersonCard from '../components/PersonCard.astro';
 import { team } from '../data/team';
+import ontario from '../assets/logos/ontario.png';
 
 const creators = team.filter((person) => person.org === 'Program Creators');
 
@@ -91,7 +93,10 @@ const partners = [
 			</section>
 
 			<section id="funding" class="mt-16 scroll-mt-8 rounded-3xl bg-sage-tile p-6 sm:p-8" aria-labelledby="funding-heading">
-				<p class="text-[13px] font-extrabold tracking-[0.12em] text-pine uppercase">Funding acknowledgment</p>
+				<div class="flex flex-wrap items-center justify-between gap-4">
+					<p class="text-[13px] font-extrabold tracking-[0.12em] text-pine uppercase">Funding acknowledgment</p>
+					<Image src={ontario} alt="Government of Ontario" class="h-14 w-auto" height={112} />
+				</div>
 				<h2 id="funding-heading" class="display-tight mt-2 max-w-[40ch] text-2xl text-balance">
 					Funded by the Ministry of Children, Community and Social Services, Ontario’s Action Plan
 					to End Gender-Based Violence.

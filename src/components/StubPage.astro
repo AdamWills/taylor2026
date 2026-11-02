@@ -6,12 +6,13 @@ import Footer from './Footer.astro';
 interface Props {
 	title: string;
 	blurb: string;
+	noindex?: boolean;
 }
 
-const { title, blurb } = Astro.props;
+const { title, blurb, noindex = false } = Astro.props;
 ---
 
-<BaseLayout title={`${title} | Taylor the Turtle`}>
+<BaseLayout title={`${title} | Taylor the Turtle`} noindex={noindex}>
 	<Header />
 	<main id="main" class="paper">
 		<div class="container-site py-20 lg:py-28">

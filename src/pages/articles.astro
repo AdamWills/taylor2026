@@ -1,4 +1,5 @@
 ---
 import StubPage from '../components/StubPage.astro';
+import { SHOW_ARTICLES } from '../data/sections';
 ---
-<StubPage title="Articles" blurb="Research and writing about the program. The list is being assembled by the team." />
+<StubPage noindex={!SHOW_ARTICLES} title="Articles" blurb="Research and writing about the program. The list is being assembled by the team." />

@@ -1,9 +1,11 @@
 ---
+import { SHOW_EVENTS } from '../data/sections';
+
 const links = [
 	{ href: '/teachings', label: "Taylor's Teachings" },
 	{ href: '/colouring', label: 'Colouring Pages' },
 	{ href: '/our-story', label: 'Our Story' },
-	{ href: '/events', label: 'Events' },
+	...(SHOW_EVENTS ? [{ href: '/events', label: 'Events' }] : []),
 	{ href: '/team', label: 'Team' },
 ];
 ---

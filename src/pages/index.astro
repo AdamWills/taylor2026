@@ -10,6 +10,7 @@ import Colouring from '../components/home/Colouring.astro';
 import EventsList from '../components/home/EventsList.astro';
 import TeamTeaser from '../components/home/TeamTeaser.astro';
 import GrantBand from '../components/home/GrantBand.astro';
+import { SHOW_EVENTS } from '../data/sections';
 import TaylorPeek from '../components/home/TaylorPeek.astro';
 ---
 
@@ -21,7 +22,7 @@ import TaylorPeek from '../components/home/TaylorPeek.astro';
 		<TeachingsBand />
 		<Audiences />
 		<Colouring />
-		<EventsList />
+		{SHOW_EVENTS && <EventsList />}
 		<TaylorPeek />
 		<TeamTeaser />
 		<GrantBand />

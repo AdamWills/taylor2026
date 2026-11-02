@@ -1,4 +1,9 @@
 ---
+import { Image } from 'astro:assets';
+import { SHOW_ARTICLES, SHOW_EVENTS, SHOW_FACILITATORS } from '../data/sections';
+import sacBrant from '../assets/logos/sac-brant.png';
+import ganohkwasra from '../assets/logos/ganohkwasra.png';
+
 const columns = [
 	{
 		heading: 'Learn',
@@ -14,15 +19,15 @@ const columns = [
 			{ href: '/our-story', label: 'Our Story' },
 			{ href: '/team', label: 'Team' },
 			{ href: '/photos', label: 'Photo Album' },
-			{ href: '/articles', label: 'Articles' },
+			...(SHOW_ARTICLES ? [{ href: '/articles', label: 'Articles' }] : []),
 		],
 	},
 	{
 		heading: 'Connect',
 		links: [
-			{ href: '/events', label: 'Events' },
+			...(SHOW_EVENTS ? [{ href: '/events', label: 'Events' }] : []),
 			{ href: '/book-a-visit', label: 'Book a Visit' },
-			{ href: '/facilitators', label: 'Facilitator Sign-in' },
+			...(SHOW_FACILITATORS ? [{ href: '/facilitators', label: 'Facilitator Sign-in' }] : []),
 		],
 	},
 ];
@@ -41,6 +46,18 @@ const columns = [
 				<a class="hover:text-mustard" href="https://www.instagram.com/taylorsrights.ca">Instagram</a>
 				<a class="hover:text-mustard" href="https://soundcloud.com/taylor-the-turtle">SoundCloud</a>
 			</p>
+			<ul class="mt-6 flex gap-3" role="list" aria-label="Lead partners">
+				<li>
+					<a class="block rounded-2xl bg-white p-2 hover:ring-2 hover:ring-mustard" href="https://sacbrant.ca/">
+						<Image src={sacBrant} alt="Sexual Assault Centre of Brant" class="size-20 object-contain" width={160} height={160} />
+					</a>
+				</li>
+				<li>
+					<a class="block rounded-2xl bg-white p-2 hover:ring-2 hover:ring-mustard" href="https://www.ganohkwasra.com/">
+						<Image src={ganohkwasra} alt="Ganohkwasra Family Assault Support Services" class="size-20 object-contain" width={160} height={160} />
+					</a>
+				</li>
+			</ul>
 		</div>
 		{columns.map(({ heading, links }) => (
 			<nav aria-label={heading}>

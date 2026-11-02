@@ -1,5 +1,6 @@
 ---
 import Button from '../Button.astro';
+import { SHOW_FACILITATORS } from '../../data/sections';
 ---
 
 <section class="bg-white">
@@ -18,10 +19,13 @@ import Button from '../Button.astro';
 		>
 			<h2 class="display-tight text-2xl text-[#3E2A5C]">For educators &amp; facilitators</h2>
 			<p class="text-[#3E2A5C]/80">
-				Bring Taylor to your classroom or organization. Trained facilitators can sign in for
-				program resources.
+				Bring Taylor to your classroom or organization.{SHOW_FACILITATORS && ' Trained facilitators can sign in for program resources.'}
 			</p>
-			<Button class="mt-auto" href="/facilitators" variant="plum">Facilitator resources</Button>
+			{SHOW_FACILITATORS ? (
+				<Button class="mt-auto" href="/facilitators" variant="plum">Facilitator resources</Button>
+			) : (
+				<Button class="mt-auto" href="/book-a-visit" variant="plum">Book a visit</Button>
+			)}
 		</article>
 	</div>
 </section>
