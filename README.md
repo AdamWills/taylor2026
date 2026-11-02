@@ -28,9 +28,17 @@ a different project or dataset.
 - Sanity Studio is embedded at `/admin` — editors sign in with their email.
 - Album schema: `src/sanity/schemaTypes/album.ts`. Albums only appear on the
   site once the photo-consent box is ticked.
-- One-time project setup: add the site origin (and `http://localhost:4321`)
-  under API → CORS origins in the Sanity project, and a deploy-hook webhook so
-  publishing triggers a rebuild.
+- One-time project setup: register each Studio URL under the Sanity project
+  (opening `/admin` from a new address offers "Register Studio"; it adds the
+  CORS origin with credentials). Registered so far: the workers.dev preview.
+  `https://taylorsrights.ca` needs the same when the domain moves over.
+- **Publishing rebuilds the site.** The Worker is connected to this repo with
+  Workers Builds (build `npm run build`, deploy `npx wrangler deploy`, branch
+  `main`). A Sanity webhook (sanity.io/manage → API → Webhooks, filter
+  `_type == "album"`) POSTs to a Workers Builds deploy hook, so a published
+  album is live a few minutes later. The hook URL is the credential: if it
+  leaks, delete it under the Worker's Settings → Builds → Deploy Hooks and
+  paste a new one into the webhook. Pushing to `main` also deploys.
 - Weekly dataset backup: `.github/workflows/sanity-backup.yml` — needs the
   `SANITY_AUTH_TOKEN` secret (a Viewer token from API → Tokens).
 
