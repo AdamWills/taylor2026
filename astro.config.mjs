@@ -16,6 +16,10 @@ const dataset = env.PUBLIC_SANITY_DATASET || 'production';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://taylorsrights.ca',
+	// Astro 7 defaults to 'jsx', which drops the whitespace between inline
+	// elements written on separate lines ("the rights" → "therights" in the hero,
+	// "at 519…" on the sign-in page). Keep the v6 behaviour.
+	compressHTML: true,
 	vite: {
 		plugins: [tailwindcss()],
 	},
