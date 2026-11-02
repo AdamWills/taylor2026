@@ -1,4 +1,335 @@
 ---
-import StubPage from '../components/StubPage.astro';
+// Book a Visit. Copy and form fields from "Updates (Oct 5, 2026) - Website
+// Contents" (Jezeth). The form posts to src/worker.ts (/api/book-a-visit), which
+// checks Turnstile and emails SAC; the field rules live in src/lib/booking.ts.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Button from '../components/Button.astro';
+import { HONEYPOT, LIMITS, REQUEST_TYPES } from '../lib/booking';
+
+// The "Taylor the Turtle – Book a Visit" Turnstile widget. Public by design (it
+// ships in the page), so it is baked in like the Sanity project id; set
+// PUBLIC_TURNSTILE_SITE_KEY to point a build at a different widget. Its secret is
+// the Worker's TURNSTILE_SECRET.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '0x4AAAAAAFw1YpUlUB4vHh_f';
+
+const field =
+	'mt-2 block w-full rounded-2xl border-2 border-pine/60 bg-milk px-4 py-3 text-[16px] text-forest focus:border-pine focus:outline-2 focus:outline-offset-2 focus:outline-mustard user-invalid:border-plum user-invalid:bg-plum-tint';
+const label = 'block font-bold';
+const hint = 'mt-1 text-[15px] text-forest/75';
+const legend = 'display-tight text-2xl';
 ---
-<StubPage title="Book a Visit" blurb="Bring Taylor to your classroom, community centre, or event. Booking details are coming soon. Call 519.751.1164 to arrange a visit today." />
+
+<BaseLayout
+	title="Book a Visit | Taylor the Turtle"
+	description="Request a Taylor the Turtle visit, training, or speaking engagement for your school, agency, or community event."
+>
+	<Header />
+	<main id="main" class="paper">
+		<div class="container-site py-14 lg:py-20">
+			<h1 class="display-tight max-w-[20ch] text-4xl text-balance lg:text-5xl">Book a Visit</h1>
+
+			<aside class="mt-8 max-w-[65ch] rounded-3xl bg-plum-tint p-6 text-forest sm:p-8" aria-labelledby="crisis-heading">
+				<h2 id="crisis-heading" class="font-extrabold text-plum">Need support now?</h2>
+				<p class="mt-2 text-pretty">
+					Taylor is not intended as a crisis response following a specific incident or disclosure. If you, your
+					family, school or community are dealing with an immediate concern and would like support, please reach out
+					to <a class="font-bold underline decoration-2 underline-offset-4" href="https://www.sacbrant.ca/">SAC Brant</a>
+					or <a class="font-bold underline decoration-2 underline-offset-4" href="https://ganohkwasra.com/">Ganohkwasra</a>
+					directly. We are here to help you talk through what you need.
+				</p>
+				<p class="mt-3 font-bold">
+					SAC Brant 24-hour crisis and support line:
+					<a class="underline decoration-2 underline-offset-4" href="tel:+15197513471">519.751.3471</a>
+				</p>
+			</aside>
+
+			<div class="mt-10 max-w-[65ch] space-y-4 text-forest/85 text-pretty">
+				<p class="display-tight text-2xl text-forest">We're excited to connect Taylor the Turtle with more communities!</p>
+				<p>
+					We prioritize booking requests within <strong>Brantford, Brant County, and Six Nations of the Grand River</strong>.
+					Requests from outside these communities are welcome, and we're happy to discuss whether we have the capacity
+					to accommodate an engagement request.
+				</p>
+				<p>
+					Taylor the Turtle's <strong>My Body Belongs To Me program</strong> is primarily for
+					<strong>children ages 18 months to 6 years old</strong>, along with their caregivers and the professionals and
+					community members who work closely with them.
+				</p>
+			</div>
+
+			<section class="mt-10 max-w-[65ch] rounded-3xl bg-sage-tile p-6 sm:p-8" aria-labelledby="before-heading">
+				<h2 id="before-heading" class="text-[13px] font-extrabold tracking-[0.12em] text-pine uppercase">Before you submit</h2>
+				<ul class="mt-3 list-disc space-y-3 pl-5 text-forest/85 text-pretty">
+					<li>
+						<strong class="text-forest">Submitting this form does not guarantee a visit or confirm a booking.</strong>
+						Someone from SAC Brant or Ganohkwasra will follow up with you to discuss your request and confirm whether
+						we're able to accommodate it.
+					</li>
+					<li>
+						<strong class="text-forest">
+							Please <em>do not</em> include confidential, sensitive, or identifying information about children, youth,
+							or other individuals in this form.
+						</strong>
+						If you have information that needs to be shared confidentially, we can discuss appropriate ways to do so
+						after we connect.
+					</li>
+				</ul>
+			</section>
+
+			<form id="booking-form" class="mt-12 max-w-[42rem] space-y-12" method="post" action="/api/book-a-visit" novalidate>
+				<p class="text-[15px] text-forest/75">Fields marked <span class="text-plum">*</span> are required.</p>
+
+				<fieldset>
+					<legend class={legend}>About your request</legend>
+					<fieldset class="mt-5" aria-describedby="type-error">
+						<legend class={label}>Type of booking request<span class="text-plum" aria-hidden="true"> *</span></legend>
+						<div class="mt-3 space-y-5">
+							{REQUEST_TYPES.map(({ group, options }) => (
+								<div>
+									{options.length > 1 && <p class="font-extrabold text-pine">{group}</p>}
+									<ul class="mt-1 space-y-1" role="list">
+										{options.map(({ value, label: optionLabel }) => (
+											<li>
+												<label class="flex items-start gap-3 py-1.5">
+													<input
+														type="radio"
+														name="requestType"
+														value={value}
+														required
+														class="mt-1 size-5 shrink-0 accent-pine"
+													/>
+													<span>{optionLabel}</span>
+												</label>
+											</li>
+										))}
+									</ul>
+								</div>
+							))}
+						</div>
+						<div id="other-type" class="mt-3" hidden>
+							<label for="otherType" class={label}>Please specify<span class="text-plum" aria-hidden="true"> *</span></label>
+							<input id="otherType" name="otherType" type="text" maxlength={LIMITS.otherType} class={field} />
+						</div>
+					</fieldset>
+				</fieldset>
+
+				<fieldset class="space-y-6">
+					<legend class={legend}>Group &amp; event details</legend>
+					<div class="pt-5">
+						<label for="groupSize" class={label}>Group size<span class="text-plum" aria-hidden="true"> *</span></label>
+						<input id="groupSize" name="groupSize" type="text" required maxlength={LIMITS.groupSize} class={field} />
+					</div>
+					<div>
+						<label for="ageRange" class={label}>Age range of participants<span class="text-plum" aria-hidden="true"> *</span></label>
+						<input id="ageRange" name="ageRange" type="text" required maxlength={LIMITS.ageRange} class={field} />
+					</div>
+					<div>
+						<label for="dates" class={label}>Preferred date(s) and time frame(s)<span class="text-plum" aria-hidden="true"> *</span></label>
+						<textarea id="dates" name="dates" rows="3" required maxlength={LIMITS.dates} class={field}></textarea>
+					</div>
+					<div>
+						<label for="details" class={label}>Is there anything else we should be aware of?</label>
+						<p id="details-hint" class={hint}>
+							Please share any relevant information about your event, setting, accessibility needs, or what you're hoping
+							Taylor can offer. Please do not include confidential or identifying information.
+						</p>
+						<textarea
+							id="details"
+							name="details"
+							rows="5"
+							maxlength={LIMITS.details}
+							aria-describedby="details-hint"
+							class={field}
+						></textarea>
+					</div>
+				</fieldset>
+
+				<fieldset class="space-y-6">
+					<legend class={legend}>Primary contact</legend>
+					<div class="pt-5">
+						<label for="name" class={label}>Name<span class="text-plum" aria-hidden="true"> *</span></label>
+						<input id="name" name="name" type="text" required maxlength={LIMITS.name} autocomplete="name" class={field} />
+					</div>
+					<div>
+						<label for="email" class={label}>Email<span class="text-plum" aria-hidden="true"> *</span></label>
+						<input
+							id="email"
+							name="email"
+							type="email"
+							required
+							maxlength={LIMITS.email}
+							autocomplete="email"
+							autocorrect="off"
+							autocapitalize="off"
+							spellcheck="false"
+							class={field}
+						/>
+					</div>
+					<div>
+						<label for="phone" class={label}>Phone number</label>
+						<input id="phone" name="phone" type="tel" maxlength={LIMITS.phone} autocomplete="tel" class={field} />
+					</div>
+					<div>
+						<label for="organization" class={label}>Organization (if applicable)</label>
+						<input
+							id="organization"
+							name="organization"
+							type="text"
+							maxlength={LIMITS.organization}
+							autocomplete="organization"
+							class={field}
+						/>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend class={legend}>Event fees</legend>
+					<fieldset class="mt-5">
+						<legend class={label}>
+							Would our organizers be required to pay any fee to participate in this event?<span class="text-plum" aria-hidden="true"> *</span>
+						</legend>
+						<p class={hint}>For example: registration, exhibitor, vendor, or table fees.</p>
+						<div class="mt-3 flex gap-8">
+							<label class="flex items-center gap-3 py-1.5">
+								<input type="radio" name="fees" value="no" required class="size-5 accent-pine" />
+								No
+							</label>
+							<label class="flex items-center gap-3 py-1.5">
+								<input type="radio" name="fees" value="yes" required class="size-5 accent-pine" />
+								Yes
+							</label>
+						</div>
+						<div id="fee-amount" class="mt-3 max-w-xs" hidden>
+							<label for="feeAmount" class={label}>Amount ($)<span class="text-plum" aria-hidden="true"> *</span></label>
+							<input
+								id="feeAmount"
+								name="feeAmount"
+								type="text"
+								inputmode="decimal"
+								maxlength={LIMITS.feeAmount}
+								class={field}
+							/>
+						</div>
+					</fieldset>
+				</fieldset>
+
+				<!-- Spam trap: hidden from people and screen readers, so only bots fill it in. -->
+				<div class="absolute -left-[9999px]" aria-hidden="true">
+					<label for={HONEYPOT}>Leave this empty</label>
+					<input id={HONEYPOT} name={HONEYPOT} type="text" tabindex="-1" autocomplete="off" />
+				</div>
+
+				<div>
+					<div id="turnstile" data-sitekey={siteKey}></div>
+					<p id="form-message" role="alert" class="mt-4 rounded-xl bg-plum-tint px-4 py-3 font-bold text-plum" hidden></p>
+					<Button class="mt-6">Send request</Button>
+					<noscript>
+						<p class="mt-4 font-bold">
+							This form needs JavaScript. You can also call SAC Brant at
+							<a class="underline" href="tel:+15197511164">519.751.1164</a> to book a visit.
+						</p>
+					</noscript>
+				</div>
+			</form>
+
+			<div id="booking-sent" class="mt-12 max-w-[42rem] rounded-3xl bg-sage-tile p-6 sm:p-8" tabindex="-1" hidden>
+				<h2 class="display-tight text-2xl">Thank you! Your request is on its way.</h2>
+				<p class="mt-3 text-forest/85 text-pretty">
+					Someone from SAC Brant or Ganohkwasra will follow up with you to discuss your request. Questions in the
+					meantime? Call <a class="font-bold underline decoration-2 underline-offset-4" href="tel:+15197511164">519.751.1164</a>.
+				</p>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	declare global {
+		interface Window {
+			turnstile?: {
+				render(el: HTMLElement, options: Record<string, unknown>): string;
+				reset(id: string): void;
+			};
+			onTurnstileLoad?: () => void;
+		}
+	}
+
+	const form = document.querySelector<HTMLFormElement>('#booking-form')!;
+	const message = document.querySelector<HTMLParagraphElement>('#form-message')!;
+	const sent = document.querySelector<HTMLDivElement>('#booking-sent')!;
+	const widget = document.querySelector<HTMLDivElement>('#turnstile')!;
+	const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+	let widgetId: string | undefined;
+
+	// Explicit rendering, so the widget can be reset for a retry: tokens are single-use.
+	window.onTurnstileLoad = () => {
+		widgetId = window.turnstile?.render(widget, { sitekey: widget.dataset.sitekey, action: 'book_visit' });
+	};
+	const script = document.createElement('script');
+	script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad';
+	script.async = true;
+	document.head.append(script);
+
+	/** Shows a follow-up field only when its answer is chosen, and makes it required then. */
+	function reveal(radioName: string, value: string, wrapperId: string) {
+		const wrapper = document.getElementById(wrapperId)!;
+		const input = wrapper.querySelector<HTMLInputElement>('input')!;
+		form.addEventListener('change', (event) => {
+			const target = event.target as HTMLInputElement;
+			if (target.name !== radioName) return;
+			const show = target.value === value;
+			wrapper.hidden = !show;
+			input.required = show;
+		});
+	}
+	reveal('requestType', 'other', 'other-type');
+	reveal('fees', 'yes', 'fee-amount');
+
+	// :user-invalid styles the fields; this keeps screen readers in step with it.
+	const syncAria = (el: EventTarget | null) => {
+		if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+			el.setAttribute('aria-invalid', el.matches(':user-invalid') ? 'true' : 'false');
+		}
+	};
+	form.addEventListener('focusout', (event) => syncAria(event.target));
+	form.addEventListener('input', (event) => {
+		if ((event.target as Element).hasAttribute('aria-invalid')) syncAria(event.target);
+	});
+
+	function showError(text: string) {
+		message.textContent = text;
+		message.hidden = false;
+	}
+
+	form.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		message.hidden = true;
+
+		if (!form.checkValidity()) {
+			form.querySelectorAll('input, textarea').forEach(syncAria);
+			form.reportValidity(); // the browser marks every invalid field and focuses the first
+			return;
+		}
+
+		submit.disabled = true;
+		try {
+			const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+			const result = (await response.json()) as { ok: boolean; error?: string };
+			if (result.ok) {
+				form.hidden = true;
+				sent.hidden = false;
+				sent.focus();
+				return;
+			}
+			showError(result.error ?? 'Sorry, your request could not be sent. Please try again, or call 519.751.1164.');
+		} catch {
+			showError('Sorry, your request could not be sent. Please check your connection and try again, or call 519.751.1164.');
+		} finally {
+			submit.disabled = false;
+		}
+		if (widgetId !== undefined) window.turnstile?.reset(widgetId);
+	});
+</script>

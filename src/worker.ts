@@ -1,17 +1,35 @@
-// Facilitator gate. See docs/superpowers/specs/2026-08-19-gallery-and-auth-design.md,
-// Part 4. wrangler.jsonc routes /facilitators and everything under it here
-// (run_worker_first); all other paths are served straight from dist/.
+// Two jobs, both routed here by run_worker_first in wrangler.jsonc; every other
+// path is served straight from dist/.
+//
+// 1. Facilitator gate. See docs/superpowers/specs/2026-08-19-gallery-and-auth-design.md,
+//    Part 4. Covers /facilitators and everything under it.
+// 2. Book a Visit form (POST /api/book-a-visit): checks Turnstile, validates, and
+//    emails the request to SAC through the BOOKING_EMAIL binding.
 //
 // Secrets, set with `wrangler secret put` (and .dev.vars locally):
 //   FACILITATOR_PASSWORD  the shared password
 //   COOKIE_SECRET         signs the session cookie; rotating it signs everyone out
+//   TURNSTILE_SECRET      the Turnstile widget's secret key
+// Vars (wrangler.jsonc): TURNSTILE_HOSTNAMES, comma-separated hostnames the form
+// may be submitted from; BOOKING_TO, who receives Book a Visit requests.
+
+import { bookingEmail, HONEYPOT, validateBooking } from './lib/booking';
 
 interface Env {
 	ASSETS: Fetcher;
 	SIGN_IN_LIMITER: RateLimit;
+	BOOKING_LIMITER: RateLimit;
+	BOOKING_EMAIL: SendEmail;
 	FACILITATOR_PASSWORD?: string;
 	COOKIE_SECRET?: string;
+	TURNSTILE_SECRET?: string;
+	TURNSTILE_HOSTNAMES?: string;
+	BOOKING_TO: string;
 }
+
+const BOOKING_PATH = '/api/book-a-visit';
+const BOOKING_FROM = { email: 'bookings@taylorsrights.ca', name: 'Taylor the Turtle website' };
+const TURNSTILE_ACTION = 'book_visit';
 
 const SIGN_IN_PAGE = '/facilitator-sign-in/';
 const COOKIE_NAME = 'tt_fac';
@@ -21,6 +39,10 @@ const encoder = new TextEncoder();
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
+
+		if (url.pathname === BOOKING_PATH) {
+			return handleBooking(request, env);
+		}
 
 		if (!isGated(url.pathname)) {
 			return env.ASSETS.fetch(request);
@@ -157,4 +179,98 @@ async function hasValidCookie(request: Request, secret: string) {
 	// public constant, so checking it leaks nothing.
 	if (signature.length !== expected.length) return false;
 	return crypto.subtle.timingSafeEqual(encoder.encode(signature), encoder.encode(expected));
+}
+
+/**
+ * The Book a Visit form posts here with fetch and reads back JSON. Order matters:
+ * the cheap checks (rate limit, honeypot, validation) run before the network call
+ * to Turnstile, and nothing is sent until Turnstile has passed.
+ */
+async function handleBooking(request: Request, env: Env): Promise<Response> {
+	if (request.method !== 'POST') {
+		return json({ ok: false, error: 'Method not allowed.' }, 405, { Allow: 'POST' });
+	}
+
+	const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+	const { success } = await env.BOOKING_LIMITER.limit({ key: ip });
+	if (!success) {
+		return json({ ok: false, error: 'Too many requests. Please wait a minute and try again.' }, 429);
+	}
+
+	let form: FormData;
+	try {
+		form = await request.formData();
+	} catch {
+		return json({ ok: false, error: 'Something went wrong sending the form. Please try again.' }, 400);
+	}
+
+	// Bots that fill every field get a success message and send nothing.
+	const trap = form.get(HONEYPOT);
+	if (typeof trap === 'string' && trap !== '') return json({ ok: true });
+
+	const result = validateBooking(form);
+	if (!result.ok) return json(result, 400);
+
+	if (!(await turnstilePassed(form.get('cf-turnstile-response'), ip, env))) {
+		return json(
+			{ ok: false, error: 'We could not confirm you are not a bot. Please try again, or call 519.751.1164.' },
+			403,
+		);
+	}
+
+	const email = bookingEmail(result.booking);
+	try {
+		// The binding's destination_address (wrangler.jsonc) pins the recipient, so
+		// this endpoint can only ever email SAC. `to` is still passed: the local
+		// simulator does not fill it in from the binding.
+		await env.BOOKING_EMAIL.send({ to: env.BOOKING_TO, from: BOOKING_FROM, ...email });
+	} catch (error) {
+		const { code, message } = error as { code?: string; message?: string };
+		console.error('Book a Visit email failed', code, message);
+		return json(
+			{ ok: false, error: 'Sorry, your request could not be sent. Please try again, or call 519.751.1164.' },
+			502,
+		);
+	}
+	return json({ ok: true });
+}
+
+/** Canonical server-side siteverify. Any failure, including a network error, fails closed. */
+async function turnstilePassed(token: unknown, ip: string, env: Env) {
+	const secret = env.TURNSTILE_SECRET ?? '';
+	const hostnames = new Set(
+		(env.TURNSTILE_HOSTNAMES ?? '')
+			.split(',')
+			.map((hostname) => hostname.trim())
+			.filter(Boolean),
+	);
+	if (typeof token !== 'string' || token.length === 0 || token.length > 2048 || !secret || hostnames.size === 0) {
+		return false;
+	}
+
+	let result: { success?: boolean; action?: string; hostname?: string; metadata?: { result_with_testing_key?: boolean } };
+	try {
+		const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			signal: AbortSignal.timeout(10_000),
+			body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+		});
+		if (!response.ok) return false;
+		result = await response.json();
+	} catch {
+		return false;
+	}
+
+	// Cloudflare's testing keys (local dev and tests only) return no action. A
+	// production secret never produces a testing-key result.
+	const actionOk = result.action === TURNSTILE_ACTION || result.metadata?.result_with_testing_key === true;
+	return result.success === true && actionOk && typeof result.hostname === 'string' && hostnames.has(result.hostname);
+}
+
+function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
+	return new Response(JSON.stringify(body), {
+		status,
+		headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers },
+	});
 }

@@ -2,3 +2,8 @@
 # with `npx wrangler secret put <NAME>` and never committed.
 FACILITATOR_PASSWORD=local test password
 COOKIE_SECRET=any-long-random-string-for-local-use
+# Cloudflare's Turnstile testing secret: always passes, reports hostname
+# example.com, whatever site key produced the token. The real site key is in
+# src/pages/book-a-visit.astro.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+TURNSTILE_HOSTNAMES=example.com

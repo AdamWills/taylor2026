@@ -9,7 +9,7 @@
 		"binding": "ASSETS",
 		// Without this, static assets are served before the Worker runs and the
 		// gate is silently bypassed. test/facilitator-gate.test.ts guards it.
-		"run_worker_first": ["/facilitators", "/facilitators/*"],
+		"run_worker_first": ["/facilitators", "/facilitators/*", "/api/*"],
 		// Folder pages (our-story/index.html) are served at /our-story/, which
 		// matches the canonical URLs in BaseLayout.
 		"html_handling": "auto-trailing-slash",
@@ -24,8 +24,33 @@
 			"name": "SIGN_IN_LIMITER",
 			"namespace_id": "1001",
 			"simple": { "limit": 5, "period": 60 }
+		},
+		{
+			// Book a Visit submissions per IP.
+			"name": "BOOKING_LIMITER",
+			"namespace_id": "1002",
+			"simple": { "limit": 5, "period": 60 }
 		}
 	],
+	// Book a Visit requests. destination_address pins the recipient, so the form
+	// endpoint cannot be used to email anyone else. Sending needs taylorsrights.ca
+	// onboarded to Email Sending (wrangler email sending enable taylorsrights.ca);
+	// `wrangler dev` only simulates it and logs the message.
+	"send_email": [
+		{
+			"name": "BOOKING_EMAIL",
+			"destination_address": "jezeth@sacbrant.ca"
+		}
+	],
+	"vars": {
+		// Who receives Book a Visit requests. Must match the BOOKING_EMAIL
+		// binding's destination_address above, or the binding refuses the send.
+		"BOOKING_TO": "jezeth@sacbrant.ca",
+		// Hostnames the Book a Visit form may be submitted from (checked against
+		// Turnstile's siteverify result). Never add localhost here; .dev.vars
+		// overrides this for local testing.
+		"TURNSTILE_HOSTNAMES": "taylorsrights.ca,www.taylorsrights.ca,taylor-the-turtle.adam-f35.workers.dev"
+	},
 	"observability": {
 		"enabled": true
 	}
