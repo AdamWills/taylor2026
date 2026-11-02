@@ -47,22 +47,23 @@ describe('bookingEmail', () => {
 	};
 
 	it('replies to the requester and names the request in the subject', () => {
-		const email = bookingEmail(booking());
+		const email = bookingEmail(booking(), new Date('2026-11-02T15:00:00Z'));
 		expect(email.replyTo).toEqual({ email: 'sam@example.org', name: 'Sam Rivera' });
 		expect(email.subject).toBe(
 			'Book a Visit request: Community-Based Engagement: Mascot Appearance (Sam Rivera, Maple Daycare)',
 		);
 		expect(email.text).toContain('Any weekday morning in March');
+		expect(email.text).toContain('November 2, 2026'); // received, in Toronto time
 	});
 
 	it('escapes HTML from the form', () => {
-		const email = bookingEmail(booking({ details: '<script>alert(1)</script>' }));
+		const email = bookingEmail(booking({ details: '<script>alert(1)</script>' }), new Date());
 		expect(email.html).not.toContain('<script>');
 		expect(email.html).toContain('&lt;script&gt;');
 	});
 
 	it('keeps the subject on one line', () => {
-		const email = bookingEmail(booking({ name: 'Sam\r\nBcc: someone@example.com' }));
+		const email = bookingEmail(booking({ name: 'Sam\r\nBcc: someone@example.com' }), new Date());
 		expect(email.subject).not.toMatch(/[\r\n]/);
 	});
 });

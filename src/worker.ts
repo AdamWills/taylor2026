@@ -3,8 +3,10 @@
 //
 // 1. Facilitator gate. See docs/superpowers/specs/2026-08-19-gallery-and-auth-design.md,
 //    Part 4. Covers /facilitators and everything under it.
-// 2. Book a Visit form (POST /api/book-a-visit): checks Turnstile, validates, and
-//    emails the request to SAC through the BOOKING_EMAIL binding.
+// 2. Book a Visit form (POST /api/book-a-visit): checks Turnstile, validates,
+//    saves the request to D1, then emails it to SAC through the BOOKING_EMAIL
+//    binding. The hourly cron resends any email that failed and deletes
+//    requests after 90 days.
 //
 // Secrets, set with `wrangler secret put` (and .dev.vars locally):
 //   FACILITATOR_PASSWORD  the shared password
@@ -13,13 +15,14 @@
 // Vars (wrangler.jsonc): TURNSTILE_HOSTNAMES, comma-separated hostnames the form
 // may be submitted from; BOOKING_TO, who receives Book a Visit requests.
 
-import { bookingEmail, HONEYPOT, validateBooking } from './lib/booking';
+import { type Booking, bookingEmail, HONEYPOT, validateBooking } from './lib/booking';
 
 interface Env {
 	ASSETS: Fetcher;
 	SIGN_IN_LIMITER: RateLimit;
 	BOOKING_LIMITER: RateLimit;
 	BOOKING_EMAIL: SendEmail;
+	BOOKINGS_DB: D1Database;
 	FACILITATOR_PASSWORD?: string;
 	COOKIE_SECRET?: string;
 	TURNSTILE_SECRET?: string;
@@ -30,6 +33,10 @@ interface Env {
 const BOOKING_PATH = '/api/book-a-visit';
 const BOOKING_FROM = { email: 'bookings@taylorsrights.ca', name: 'Taylor the Turtle website' };
 const TURNSTILE_ACTION = 'book_visit';
+const HOUR = 60 * 60 * 1000;
+/** Resend for about a day (the cron is hourly), then leave the row as failed. */
+const MAX_ATTEMPTS = 24;
+const RETENTION = 90 * 24 * HOUR;
 
 const SIGN_IN_PAGE = '/facilitator-sign-in/';
 const COOKIE_NAME = 'tt_fac';
@@ -88,6 +95,11 @@ export default {
 			status: response.status,
 			headers: privateHeaders(response.headers),
 		});
+	},
+
+	async scheduled(_controller, env) {
+		await resendUnsent(env);
+		await env.BOOKINGS_DB.prepare('DELETE FROM bookings WHERE created_at < ?').bind(Date.now() - RETENTION).run();
 	},
 } satisfies ExportedHandler<Env>;
 
@@ -218,21 +230,86 @@ async function handleBooking(request: Request, env: Env): Promise<Response> {
 		);
 	}
 
-	const email = bookingEmail(result.booking);
+	// Save first, so a failed email never loses the request: the hourly cron
+	// resends anything still unsent.
+	const id = crypto.randomUUID();
+	const receivedAt = Date.now();
+	let saved = false;
 	try {
-		// The binding's destination_address (wrangler.jsonc) pins the recipient, so
-		// this endpoint can only ever email SAC. `to` is still passed: the local
-		// simulator does not fill it in from the binding.
-		await env.BOOKING_EMAIL.send({ to: env.BOOKING_TO, from: BOOKING_FROM, ...email });
+		await env.BOOKINGS_DB.prepare('INSERT INTO bookings (id, created_at, booking) VALUES (?, ?, ?)')
+			.bind(id, receivedAt, JSON.stringify(result.booking))
+			.run();
+		saved = true;
 	} catch (error) {
-		const { code, message } = error as { code?: string; message?: string };
-		console.error('Book a Visit email failed', code, message);
+		console.error('Book a Visit request not saved', (error as Error).message);
+	}
+
+	const error = await sendBooking(env, result.booking, receivedAt);
+	if (saved) await recordAttempt(env, id, error);
+
+	// Saved means it will be delivered, by the cron if not now, so the requester
+	// is told it went through. Only when it is neither sent nor saved is it lost.
+	if (error && !saved) {
 		return json(
 			{ ok: false, error: 'Sorry, your request could not be sent. Please try again, or call 519.751.1164.' },
 			502,
 		);
 	}
 	return json({ ok: true });
+}
+
+/** Sends the notification. Returns the error message, or null when sent. */
+async function sendBooking(env: Env, booking: Booking, receivedAt: number) {
+	try {
+		// The binding's destination_address (wrangler.jsonc) pins the recipient, so
+		// this endpoint can only ever email SAC. `to` is still passed: the local
+		// simulator does not fill it in from the binding.
+		await env.BOOKING_EMAIL.send({
+			to: env.BOOKING_TO,
+			from: BOOKING_FROM,
+			...bookingEmail(booking, new Date(receivedAt)),
+		});
+		return null;
+	} catch (error) {
+		const { code, message } = error as { code?: string; message?: string };
+		console.error('Book a Visit email failed', code, message);
+		return [code, message].filter(Boolean).join(': ') || 'unknown error';
+	}
+}
+
+async function recordAttempt(env: Env, id: string, error: string | null) {
+	try {
+		await env.BOOKINGS_DB.prepare(
+			`UPDATE bookings SET attempts = attempts + 1, status = ?, last_error = ?, sent_at = ?
+			 WHERE id = ?`,
+		)
+			.bind(error ? 'failed' : 'sent', error, error ? null : Date.now(), id)
+			.run();
+	} catch (dbError) {
+		// The row stays 'pending', so the cron resends it: a possible duplicate
+		// email, never a lost request.
+		console.error('Book a Visit status not recorded', id, (dbError as Error).message);
+	}
+}
+
+/**
+ * Resends requests whose email failed, or that were left 'pending' (the update
+ * after sending did not land). Skips anything under five minutes old, which may
+ * still be mid-request.
+ */
+async function resendUnsent(env: Env) {
+	const { results } = await env.BOOKINGS_DB.prepare(
+		`SELECT id, created_at, booking FROM bookings
+		 WHERE status != 'sent' AND attempts < ? AND created_at < ?
+		 ORDER BY created_at LIMIT 50`,
+	)
+		.bind(MAX_ATTEMPTS, Date.now() - 5 * 60 * 1000)
+		.all<{ id: string; created_at: number; booking: string }>();
+
+	for (const row of results) {
+		const error = await sendBooking(env, JSON.parse(row.booking) as Booking, row.created_at);
+		await recordAttempt(env, row.id, error);
+	}
 }
 
 /** Canonical server-side siteverify. Any failure, including a network error, fails closed. */

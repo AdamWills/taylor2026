@@ -42,6 +42,23 @@
 			"destination_address": "jezeth@sacbrant.ca"
 		}
 	],
+	// Every Book a Visit request is saved here before its email is sent, so
+	// nothing is lost if the email fails. Schema: migrations/. Apply new
+	// migrations with `npx wrangler d1 migrations apply taylor-bookings --remote`
+	// before deploying code that needs them (Workers Builds does not run them).
+	"d1_databases": [
+		{
+			"binding": "BOOKINGS_DB",
+			"database_name": "taylor-bookings",
+			"database_id": "312c68f1-f14f-48b2-b826-775622b8475f",
+			"migrations_dir": "migrations"
+		}
+	],
+	// Hourly: resend Book a Visit emails that failed, and delete requests older
+	// than 90 days.
+	"triggers": {
+		"crons": ["0 * * * *"]
+	},
 	"vars": {
 		// Who receives Book a Visit requests. Must match the BOOKING_EMAIL
 		// binding's destination_address above, or the binding refuses the send.

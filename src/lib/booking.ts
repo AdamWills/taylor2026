@@ -119,13 +119,24 @@ export function requestTypeLabel(booking: Booking) {
 	return booking.requestType === 'other' ? `Other: ${booking.otherType}` : label;
 }
 
-/** The notification SAC receives. Reply-To is the requester, so staff can just reply. */
-export function bookingEmail(booking: Booking) {
+const RECEIVED = new Intl.DateTimeFormat('en-CA', {
+	dateStyle: 'full',
+	timeStyle: 'short',
+	timeZone: 'America/Toronto',
+});
+
+/**
+ * The notification SAC receives. Reply-To is the requester, so staff can just
+ * reply. `receivedAt` is shown so a resent email (after a failed first try) is
+ * clearly not a new request.
+ */
+export function bookingEmail(booking: Booking, receivedAt: Date) {
 	const who = booking.organization ? `${booking.name}, ${booking.organization}` : booking.name;
 	// Header values must stay on one line.
 	const subject = `Book a Visit request: ${requestTypeLabel(booking)} (${who})`.replace(/[\r\n]+/g, ' ').slice(0, 200);
 
 	const rows: [string, string][] = [
+		['Received', RECEIVED.format(receivedAt)],
 		['Type of request', requestTypeLabel(booking)],
 		['Group size', booking.groupSize],
 		['Age range', booking.ageRange],

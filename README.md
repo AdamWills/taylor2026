@@ -75,3 +75,37 @@ sign everyone out.
 **Local dev:** `npm run dev` does not run the Worker, so `/facilitators` is
 open there. To try the gate, copy `.dev.vars.example` to `.dev.vars`, then
 `npm run build && npx wrangler dev`.
+
+## Book a Visit form
+
+`/book-a-visit` posts to the Worker (`POST /api/book-a-visit`), which rate
+limits, checks Turnstile, validates (`src/lib/booking.ts`), **saves the request
+to D1**, then emails it to SAC (`BOOKING_TO` in `wrangler.jsonc`, with Reply-To
+set to the requester).
+
+Saving first means a failed email never loses a request. The requester is told
+it went through as long as it was saved, and an hourly cron resends anything
+unsent for up to 24 attempts. The same cron deletes requests 90 days after
+they arrive.
+
+- **Secrets:** `TURNSTILE_SECRET` (the widget's secret key). The site key is
+  in `src/pages/book-a-visit.astro`.
+- **Email:** `taylorsrights.ca` is onboarded to Cloudflare Email Sending. The
+  `BOOKING_EMAIL` binding's `destination_address` pins the recipient, so it
+  must match `BOOKING_TO`.
+- **Schema changes:** add a file to `migrations/`, then run
+  `npx wrangler d1 migrations apply taylor-bookings --remote` **before**
+  pushing. Workers Builds does not apply migrations.
+
+Look up requests (newest first), or any whose email never went out:
+
+```sh
+npx wrangler d1 execute taylor-bookings --remote --command \
+  "SELECT datetime(created_at/1000, 'unixepoch') AS received, status, attempts, booking FROM bookings ORDER BY created_at DESC LIMIT 20"
+
+npx wrangler d1 execute taylor-bookings --remote --command \
+  "SELECT datetime(created_at/1000, 'unixepoch') AS received, attempts, last_error, booking FROM bookings WHERE status != 'sent'"
+```
+
+A `failed` row with 24 attempts has stopped retrying: forward its details to
+SAC by hand.
