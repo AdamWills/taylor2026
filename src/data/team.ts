@@ -8,11 +8,15 @@ import misty from '../assets/team/misty-greene.jpg';
 import marcia from '../assets/team/marcia-oliver.jpg';
 import kasey from '../assets/team/kasey-politano.png';
 import jenn from '../assets/team/jenn-root.jpg';
+import ashley from '../assets/team/ashley-maracle-hill.png';
+import johnMunoz from '../assets/team/john-edison-munoz.jpg';
+import rigma from '../assets/team/rigma-wagley.jpg';
+import taha from '../assets/team/taha-hayat.jpg';
 
 export interface Person {
 	name: string;
 	role: string;
-	org: 'SAC Brant' | 'Ganohkwasra' | 'Wilfrid Laurier University' | 'Program Creators';
+	org: 'SAC Brant' | 'Ganohkwasra' | 'Wilfrid Laurier University' | 'Laurier UX Design' | 'Program Creators';
 	headshot: ImageMetadata | null;
 	/** Bio paragraphs. Empty until the client sends one. */
 	bio?: string[];
@@ -72,14 +76,20 @@ export const team: Person[] = [
 		],
 		dailyReminder: 'Every day is a brand-new day for us to begin a new journey.',
 	},
-	{ name: 'Ashley Maracle-Hill', role: 'Team Member', org: 'Ganohkwasra', headshot: null },
+	{
+		name: 'Ashley Maracle-Hill', role: 'Acting Gaodwiya:noh Supervisor', org: 'Ganohkwasra', headshot: ashley,
+		bio: [
+			'Ashley Maracle-Hill has had the privilege of being part of the Taylor the Turtle program at Ganohkwasra for the past 16 years. Watching both the program and Taylor grow over the years has been an incredible journey! Ashley is passionate about helping children, youth, and families build confidence, practice positive self-talk, and recognize their own strengths.',
+			'Ashley is excited to continue sharing Taylor’s important messages with our community, empowering everyone to make safe choices, support one another, and create a community where everyone feels valued, respected, and safe. After all, when we believe in ourselves and lift each other up, we help build stronger, healthier communities for everyone.',
+		],
+		dailyReminder: 'People may forget what you said, but they will never forget how you made them feel.',
+	},
 	{
 		name: 'Dr. Marcia Oliver', role: 'Associate Professor, Law & Society', org: 'Wilfrid Laurier University', headshot: marcia,
 		bio: [
 			'As a researcher, Marcia Oliver strives for ethical, community-engaged, social justice-oriented research. She’s worked on a range of projects, including other collaborations with SAC Brant and a recent study on the impacts of trafficking laws on shaping sex workers’ lives and working conditions. Marcia is also part of the co-director team leading the Walls to Bridges program in support of transformative prison education. She’s not a fan of symmetry, but is quite fond of people with sass, and she’s so grateful for the communities in her life that bring her hope and joy in the world.',
 		],
 	},
-	{ name: 'Wonu Oluwo', role: 'Research and Placement Student, Event Planner', org: 'Wilfrid Laurier University', headshot: null },
 	{
 		name: 'Kasey Politano', role: 'Research Assistant, Community Development Coordinator', org: 'Wilfrid Laurier University', headshot: kasey,
 		bio: [
@@ -92,6 +102,23 @@ export const team: Person[] = [
 		bio: [
 			'Jenn Root’s approach to research and community work is rooted in principles of intersectional feminisms and anti-oppressive practices. Prior to joining Laurier and the Brantford/Brant communities, Jenn worked as a social worker alongside various communities in southwestern Ontario and the Midwest US supporting anti-violence prevention and intervention work, primarily on issues related to women’s experiences of intimate partner violence, gender-based violence, and sexual violence. Over the past 10 years, she’s been lucky enough to work alongside Joanna Brant (Executive Director) and the amazing folks at SAC Brant, and most recently, supporting all things Taylor the Turtle.',
 		],
+	},
+	{
+		name: 'Dr. John Edison Muñoz', role: 'Assistant Professor, Director of the BioAdaptive Interface Lab', org: 'Laurier UX Design', headshot: johnMunoz,
+		bio: [
+			'John Edison Muñoz completed his postdoctoral fellowship at the University of Waterloo in 2022, after receiving his PhD in Human-Computer Interaction from the Universidade da Madeira in Portugal in 2018. His PhD internship was conducted at NASA Langley in the USA.',
+			'He has a physics engineering background, with a master’s in Bioengineering from the Universidad Tecnológica de Pereira in Colombia. Before joining Laurier, John was a UX research scientist and consultant for tech companies across the globe.',
+		],
+	},
+	{
+		name: 'Rigma Wagley', role: 'User Experience Design Student', org: 'Laurier UX Design', headshot: rigma,
+		bio: ['Rigma Wagley is a User Experience Design student at Wilfrid Laurier University who loves all things creative and enjoys finding fun and thoughtful ways to make information easier to understand and connect with. She is currently working with SAC Brant through Laurier’s BioAdaptive Lab. She’s excited to be part of the Taylor the Turtle team, bringing her design skills to help bring Taylor’s educational app to life.'],
+		dailyReminder: 'Progress over perfection.',
+	},
+	{
+		name: 'Taha Hayat', role: 'User Experience Design Student', org: 'Laurier UX Design', headshot: taha,
+		bio: ['Taha Hayat is a User Experience Design student at Wilfrid Laurier University’s Brantford Campus. He is working with SAC Brant through Laurier’s BioAdaptive Lab on Taylor the Turtle’s educational app, helping to bring Taylor’s teachings into the digital realm.'],
+		dailyReminder: 'Always have something to look forward to.',
 	},
 ];
 
