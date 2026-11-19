@@ -31,7 +31,7 @@ a different project or dataset.
 - One-time project setup: register each Studio URL under the Sanity project
   (opening `/admin` from a new address offers "Register Studio"; it adds the
   CORS origin with credentials). Registered so far: the workers.dev preview.
-  `https://taylorsrights.ca` needs the same when the domain moves over.
+  `https://taylorsrights.ca` (live since 2026-11-18) needs registering too.
 - **Publishing rebuilds the site.** The Worker is connected to this repo with
   Workers Builds (build `npm run build`, deploy `npx wrangler deploy`, branch
   `main`). A Sanity webhook (sanity.io/manage → API → Webhooks, filter

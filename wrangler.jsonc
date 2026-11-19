@@ -2,6 +2,12 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "taylor-the-turtle",
 	"compatibility_date": "2026-09-24",
+	// Live since 2026-11-18 (previously Netlify). The workers.dev preview stays on.
+	"routes": [
+		{ "pattern": "taylorsrights.ca", "custom_domain": true },
+		{ "pattern": "www.taylorsrights.ca", "custom_domain": true }
+	],
+	"workers_dev": true,
 	// The facilitator gate. Everything else is served straight from dist/.
 	"main": "src/worker.ts",
 	"assets": {
