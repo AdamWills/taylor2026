@@ -39,8 +39,8 @@ function harness(extraSecrets: Record<string, string> = {}) {
 }
 
 const server = harness();
-// The binding's destination_address only allows BOOKING_TO; pointing BOOKING_TO
-// anywhere else makes every send fail, standing in for an email outage.
+// The binding only allows SAC's addresses; pointing BOOKING_TO anywhere
+// else makes every send fail, standing in for an email outage.
 const broken = harness({ BOOKING_TO: 'someone-else@example.com' });
 
 async function db(h: typeof server) {

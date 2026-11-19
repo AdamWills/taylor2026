@@ -13,7 +13,8 @@
 //   COOKIE_SECRET         signs the session cookie; rotating it signs everyone out
 //   TURNSTILE_SECRET      the Turnstile widget's secret key
 // Vars (wrangler.jsonc): TURNSTILE_HOSTNAMES, comma-separated hostnames the form
-// may be submitted from; BOOKING_TO, who receives Book a Visit requests.
+// may be submitted from; BOOKING_TO, comma-separated addresses that receive
+// Book a Visit requests.
 
 import { type Booking, bookingEmail, HONEYPOT, validateBooking } from './lib/booking';
 
@@ -261,11 +262,10 @@ async function handleBooking(request: Request, env: Env): Promise<Response> {
 /** Sends the notification. Returns the error message, or null when sent. */
 async function sendBooking(env: Env, booking: Booking, receivedAt: number) {
 	try {
-		// The binding's destination_address (wrangler.jsonc) pins the recipient, so
-		// this endpoint can only ever email SAC. `to` is still passed: the local
-		// simulator does not fill it in from the binding.
+		// The binding's allowed_destination_addresses (wrangler.jsonc) pins the
+		// recipients, so this endpoint can only ever email SAC.
 		await env.BOOKING_EMAIL.send({
-			to: env.BOOKING_TO,
+			to: env.BOOKING_TO.split(',').map((address) => address.trim()).filter(Boolean),
 			from: BOOKING_FROM,
 			...bookingEmail(booking, new Date(receivedAt)),
 		});

@@ -91,8 +91,8 @@ they arrive.
 - **Secrets:** `TURNSTILE_SECRET` (the widget's secret key). The site key is
   in `src/pages/book-a-visit.astro`.
 - **Email:** `taylorsrights.ca` is onboarded to Cloudflare Email Sending. The
-  `BOOKING_EMAIL` binding's `destination_address` pins the recipient, so it
-  must match `BOOKING_TO`.
+  `BOOKING_EMAIL` binding's `allowed_destination_addresses` pins the
+  recipients, so every address in `BOOKING_TO` must be on it.
 - **Schema changes:** add a file to `migrations/`, then run
   `npx wrangler d1 migrations apply taylor-bookings --remote` **before**
   pushing. Workers Builds does not apply migrations.
